@@ -7,7 +7,7 @@ import { site, waLink } from '../data/site.js'
 
 export default function Jobs() {
   return (
-    <section id="jobs" className="pb-24 pt-20 md:pb-40 md:pt-28">
+    <section id="jobs" className="pb-24 pt-28 md:pb-40 md:pt-36">
       <div className="wrap">
         <Reveal className="max-w-2xl">
           <p className="label">Open positions</p>

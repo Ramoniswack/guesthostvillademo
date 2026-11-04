@@ -19,7 +19,11 @@ function usePastHero() {
   useEffect(() => {
     const check = () => {
       const hero = document.querySelector('[data-hero]')
-      const limit = hero ? hero.offsetHeight - 110 : 40
+      if (!hero) {
+        setPast(true)
+        return
+      }
+      const limit = hero.offsetHeight - 110
       setPast(window.scrollY > limit)
     }
     check()

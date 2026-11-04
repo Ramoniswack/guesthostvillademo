@@ -9,7 +9,7 @@ import { faqs } from '../data/faq.js'
 export default function Faq() {
   const [open, setOpen] = useState(0)
   return (
-    <section id="faq" className="pb-24 pt-20 md:pb-40 md:pt-28">
+    <section id="faq" className="pb-24 pt-28 md:pb-40 md:pt-36">
       <div className="wrap grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24">
         <Reveal>
           <p className="label">Good to know</p>

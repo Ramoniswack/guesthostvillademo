@@ -136,7 +136,7 @@ export default function Menu() {
   const groups = searching ? results : tabGroups
 
   return (
-    <section id="menu" className="contour bg-sand pb-24 pt-20 md:pb-40 md:pt-28">
+    <section id="menu" className="contour bg-sand pb-24 pt-28 md:pb-40 md:pt-36">
       <div className="wrap">
         <Reveal className="max-w-2xl">
           <p className="label">Restro &amp; Bar</p>
