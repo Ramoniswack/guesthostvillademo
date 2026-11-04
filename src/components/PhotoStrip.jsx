@@ -102,7 +102,7 @@ export default function PhotoStrip() {
 
   const tiles = [...gallery, ...gallery]
   return (
-    <section id="gallery" className="pb-24 pt-12 md:pb-40 md:pt-24" aria-label="Photo gallery">
+    <section id="gallery" className="pb-10 pt-6 md:pb-16 md:pt-10" aria-label="Photo gallery">
       <div
         ref={scroller}
         className="no-scrollbar flex items-end gap-5 overflow-x-auto px-5 py-3"
