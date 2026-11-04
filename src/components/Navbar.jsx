@@ -42,7 +42,7 @@ function NavLink({ to, className, children, ...rest }) {
 function Brand({ light = false, solid = false }) {
   return (
     <Link href="/" className="group flex items-center gap-2.5" aria-label={`${site.name}, home`}>
-      <span className={`grid h-8 w-8 place-items-center border transition-colors ${light ? 'border-white/55' : solid ? 'border-forest/25' : 'border-white/45'}`}>
+      <span className="grid h-8 w-8 place-items-center">
         <img src="/images/logo-icon.webp" alt="" width="36" height="26" className="h-5 w-auto" />
       </span>
       <span className={`font-display text-[1.25rem] font-semibold tracking-[-0.04em] ${light ? 'text-white' : solid ? 'text-forest' : 'text-white'}`}>

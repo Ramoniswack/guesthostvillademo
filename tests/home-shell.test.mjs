@@ -18,4 +18,5 @@ test('the exported home page promotes booking and social discovery', () => {
   assert.match(page, /Follow G(?:&#x27;|')Host Villa/)
   assert.match(page, /https:\/\/wa\.me\/9779840023756/)
   assert.match(page, /aria-label="Footer navigation"/)
+  assert.doesNotMatch(page, /h-8 w-8 place-items-center border/)
 })
