@@ -4,8 +4,8 @@
 // To use another Lucide icon, import it and add it to the MAP below.
 import {
   ArrowUpRight, Bath, BedDouble, Check, ChevronDown, ChevronLeft, ChevronRight, Clock, Coffee, Download,
-  DoorOpen, Droplet, Flame, Footprints, Globe, Leaf, Mail, MapPin, Menu, MessageCircle, Mountain,
-  Navigation, Phone, Search, Snowflake, Star, TreePine, Utensils, Wifi, X,
+  DoorOpen, Droplet, Flame, Footprints, Globe, Home, Leaf, Mail, MapPin, Maximize2, Menu, MessageCircle, Mountain,
+  Navigation, Phone, Search, Snowflake, Sparkles, Star, TreePine, Users, Utensils, Waves, Wifi, X,
 } from 'lucide-react'
 
 // Lucide 1.x no longer ships brand logos, so these two are tiny inline SVGs.
@@ -27,10 +27,12 @@ const MAP = {
   chevronL: ChevronLeft, chevronR: ChevronRight, arrow: ArrowUpRight, menu: Menu, close: X,
   search: Search, download: Download, leaf: Leaf, nav: Navigation, clock: Clock, mail: Mail,
   insta: Instagram, fb: Facebook, globe: Globe,
+  users: Users, home: Home, maximize: Maximize2, sparkles: Sparkles, pool: Waves,
 }
 
 export default function Icon({ name, className = 'h-5 w-5', strokeWidth = 1.8, ...rest }) {
   const Cmp = MAP[name]
+  if (!Cmp) return null
   return <Cmp className={className} strokeWidth={strokeWidth} aria-hidden="true" focusable="false" {...rest} />
 }
 

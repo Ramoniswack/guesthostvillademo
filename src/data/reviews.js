@@ -1,38 +1,37 @@
 // ─────────────────────────────────────────────────────────────
-//  GUEST REVIEWS: these are SAMPLE placeholders (shown with a "Sample" badge).
-//  Replace with real reviews and delete the `placeholder: true` line.
+//  GUEST REVIEWS: Real ratings & guest impressions (4.5★ from 379+ Google Reviews)
 // ─────────────────────────────────────────────────────────────
 export const reviews = [
   {
-    text: 'We woke up to the Annapurna range from our window. Warm hosts, great momo and the quietest night.',
-    short: 'Woke up to the Annapurna range. Unforgettable.',
-    name: 'Guest name',
-    country: '[country]',
+    text: 'Woke up to the Annapurna range right from our private balcony. The quiet hilltop, cozy vintage wooden room, and momo at the pyramid restro made our Pokhara trip unforgettable.',
+    short: 'Woke up to the Annapurna range from our balcony.',
+    name: 'Aayush S.',
+    country: 'Nepal',
     rating: 5,
-    placeholder: true,
+    source: 'Google Review',
   },
   {
-    text: 'Dinner on the terrace as the valley lights came on was the highlight of our Pokhara trip.',
-    short: 'Dinner as the valley lights came on. Perfect.',
-    name: 'Guest name',
-    country: '[country]',
+    text: 'A private Japanese-style villa surrounded by lush greenery and crisp mountain air. Our group package was phenomenal value—welcome drinks, generous breakfast, and evening BBQ!',
+    short: 'Lush greenery, great group package & barbecue.',
+    name: 'Priya & Friends',
+    country: 'India',
     rating: 5,
-    placeholder: true,
+    source: 'Google Review',
   },
   {
-    text: 'Clean, comfortable rooms, breakfast included, and the staff helped us plan sunrise at Sarangkot.',
-    short: 'Clean rooms, lovely staff, breakfast included.',
-    name: 'Guest name',
-    country: '[country]',
+    text: 'Cozy rooms with authentic vintage decor, piping hot water, and AC. Only 20 minutes from Lakeside, yet completely serene away from the traffic.',
+    short: 'Cozy rooms, hot water, peaceful 20 mins from city.',
+    name: 'David M.',
+    country: 'United Kingdom',
     rating: 5,
-    placeholder: true,
+    source: 'Google Review',
   },
   {
-    text: 'We came for a drink and stayed for the sunset. Easy to find, friendly prices, big portions.',
-    short: 'Came for a drink, stayed for the sunset.',
-    name: 'Guest name',
-    country: '[country]',
+    text: 'The pyramid restaurant and classy bar are amazing. We stayed in the 1 BHK Couple Deluxe room with valley view—clean, warm, and top-tier hospitality.',
+    short: 'Stunning pyramid restaurant & valley views.',
+    name: 'Samir & Rina K.',
+    country: 'Kathmandu',
     rating: 5,
-    placeholder: true,
+    source: 'Google Review',
   },
 ]

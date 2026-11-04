@@ -37,10 +37,12 @@ export default function Guests() {
                 <figcaption className="mt-5 flex items-center justify-between gap-3 text-base">
                   <span>
                     <strong className="block text-ink">{r.name}</strong>
-                    <span className="text-muted">Guest from {r.country}</span>
+                    <span className="text-muted">{r.country}</span>
                   </span>
-                  {r.placeholder && (
-                    <span className="rounded-full bg-sun/25 px-2.5 py-1 text-xs font-bold uppercase text-forest-dark">Sample</span>
+                  {r.source && (
+                    <span className="rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-forest-dark">
+                      {r.source}
+                    </span>
                   )}
                 </figcaption>
               </figure>

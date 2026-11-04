@@ -1,8 +1,8 @@
 import RoomsPage from '../../_views/RoomsPage.jsx'
 
 export const metadata = {
-  title: 'Rooms',
-  description: 'Quiet rooms with breakfast, hot water and Himalayan views in Sarangkot, Pokhara. See nightly rates.',
+  title: 'Rooms & BHK Villa Packages',
+  description: '1 BHK couple rooms to 4 BHK and 7 BHK full villa buyouts (up to 24 guests) with breakfast and Himalayan views at The G\'Host Villa Pokhara.',
 }
 
 export default function Page() {

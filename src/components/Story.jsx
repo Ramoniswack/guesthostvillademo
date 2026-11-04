@@ -3,7 +3,16 @@
 import Icon from './Icons.jsx'
 import { Button, Reveal } from './ui.jsx'
 
-const highlights = ['Free Wi-Fi', 'Hot water', 'Attached bathroom', 'Private balcony', 'Tea / coffee maker', 'Breakfast included']
+const highlights = [
+  '1 BHK, 4 BHK & 7 BHK layouts (up to 24 guests)',
+  'Attached hot-water bath & air conditioning',
+  'Private balconies with Annapurna mountain views',
+  'Pyramid-roof restaurant & classy bottle bar',
+  'Sprawling garden with elephant statue & lawns',
+  'Natural pool, deck area & outdoor BBQ fireplace',
+  'Complimentary breakfast & welcome drinks',
+  '20 mins scenic drive from Lakeside Pokhara',
+]
 
 export default function Story() {
   return (
@@ -26,19 +35,19 @@ export default function Story() {
         </Reveal>
 
         <Reveal delay={0.1}>
-          <p className="label">About us</p>
-          <h2 className="h2">A quiet hilltop home away from home</h2>
+          <p className="label">About The G'Host Villa</p>
+          <h2 className="h2">A Japanese-styled hilltop villa above Pokhara</h2>
           <p className="mt-5 text-lg text-ink/90">
-            G'Host Villa sits high in Sarangkot, wrapped in pine and ferns. From the terrace you look over Phewa valley
-            to the snow line of the Annapurna range. Stay in a simple, comfortable room, wake up to the mountains, then
-            come down to our restaurant and bar for fresh food, a cold drink and an unhurried evening.
+            The G'Host Villa Restro and Bar sits along the tranquil Sarangkot / Ranipauwa ridge, just 20 minutes from the bustle of Pokhara.
+            Wrapped in lush forest, ferns, and fresh mountain air, the property blends Japanese-inspired architecture with warm Nepalese hospitality.
           </p>
           <p className="mt-4 text-lg text-ink/90">
-            For three years we have looked after travellers from around the world, with over 10,000 guests welcomed so far.
+            Choose from peaceful 1 BHK Couple Deluxe suites or host your family and group in 4-BHK wings and 7-BHK full private villa buyouts (hosting up to 24 guests).
+            Dine under the iconic pyramid-roof restaurant, sip handcrafted drinks at the bottle bar, or unwind around an evening BBQ and bonfire.
           </p>
           <ul className="mt-6 grid gap-x-6 gap-y-3 sm:grid-cols-2">
             {highlights.map((h) => (
-              <li key={h} className="flex items-center gap-3 text-base font-semibold text-forest">
+              <li key={h} className="flex items-center gap-3 text-sm font-semibold text-forest sm:text-base">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sage/30 text-forest">
                   <Icon name="check" className="h-4 w-4" strokeWidth={2.5} />
                 </span>
@@ -46,7 +55,10 @@ export default function Story() {
               </li>
             ))}
           </ul>
-          <Button href="/rooms" variant="outline" className="mt-10">See Rooms</Button>
+          <div className="mt-10 flex flex-wrap gap-4">
+            <Button href="/rooms" variant="solid">See All BHK &amp; Rooms</Button>
+            <Button href="/menu" variant="outline">Restaurant &amp; Bar Menu</Button>
+          </div>
         </Reveal>
       </div>
     </section>

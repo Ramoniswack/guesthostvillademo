@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import Icon from './Icons.jsx'
 import { Divider, ridgePath } from './ui.jsx'
-import { site, telLink, waLink, navLinks } from '../data/site.js'
+import { site, telLink, altTelLink, waLink, navLinks } from '../data/site.js'
 
 // jagged mountain silhouettes (step is wide, so the line reads as peaks)
 const RIDGE_BACK = ridgePath({ h: 120, base: 60, steps: 40, waves: [[28, 90, 0.5], [14, 41, 1.3]] })
@@ -13,8 +13,8 @@ const socials = [
   { icon: 'insta', label: 'Instagram', href: site.social.instagram },
   { icon: 'fb', label: 'Facebook', href: site.social.facebook },
   { icon: 'chat', label: 'WhatsApp', href: waLink() },
-  { icon: 'globe', label: 'TripAdvisor', href: site.social.tripadvisor },
-  { icon: 'bed', label: 'Booking.com', href: site.social.booking },
+  { icon: 'globe', label: 'eSewa Hotels', href: site.social.esewa },
+  { icon: 'bed', label: 'MakeMyTrip', href: site.social.makemytrip },
 ]
 
 export default function Footer() {
@@ -26,11 +26,29 @@ export default function Footer() {
         <div>
           <h2 className="font-display text-4xl font-semibold md:text-5xl">Come say hello</h2>
           <ul className="mt-6 space-y-3">
-            <li><a href={`mailto:${site.email}`} className={row}><Icon name="mail" className="mt-1 h-5 w-5 shrink-0 text-sun" />{site.email}</a></li>
-            <li><a href={telLink} className={row}><Icon name="phone" className="mt-1 h-5 w-5 shrink-0 text-sun" />{site.phoneDisplay}</a></li>
-            <li><a href={waLink()} target="_blank" rel="noopener noreferrer" className={row}><Icon name="chat" className="mt-1 h-5 w-5 shrink-0 text-sun" />WhatsApp {site.whatsappDisplay}</a></li>
-            <li className="flex items-start gap-3 text-lg"><Icon name="pin" className="mt-1 h-5 w-5 shrink-0 text-sun" />{site.address}</li>
-            <li className="flex items-start gap-3 text-lg"><Icon name="clock" className="mt-1 h-5 w-5 shrink-0 text-sun" />{site.hours}</li>
+            <li>
+              <a href={telLink} className={row}>
+                <Icon name="phone" className="mt-1 h-5 w-5 shrink-0 text-sun" />
+                {site.phoneDisplay} / {site.altPhoneDisplay}
+              </a>
+            </li>
+            <li>
+              <a href={waLink()} target="_blank" rel="noopener noreferrer" className={row}>
+                <Icon name="chat" className="mt-1 h-5 w-5 shrink-0 text-sun" />
+                WhatsApp: {site.whatsappDisplay}
+              </a>
+            </li>
+            <li className="flex items-start gap-3 text-lg">
+              <Icon name="pin" className="mt-1 h-5 w-5 shrink-0 text-sun" />
+              <span>
+                {site.address}
+                <span className="block text-sm text-sage-light">({site.locationNote})</span>
+              </span>
+            </li>
+            <li className="flex items-start gap-3 text-lg">
+              <Icon name="clock" className="mt-1 h-5 w-5 shrink-0 text-sun" />
+              {site.hours}
+            </li>
           </ul>
         </div>
 
@@ -75,7 +93,7 @@ export default function Footer() {
             </p>
           </div>
           <p className="wrap mt-4 text-center text-base text-sage-light">
-            Hotel &amp; Restaurant · Sarangkot, Pokhara
+            Restro &amp; Bar · Sarangkot, Pokhara, Nepal
           </p>
           <p className="wrap mt-2 pb-16 text-center text-sm text-cream/70 md:pb-0">
             © {new Date().getFullYear()} {site.fullName}

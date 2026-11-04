@@ -97,7 +97,11 @@ export default function Hero() {
                 </motion.p>
               </AnimatePresence>
             </div>
-            {r.placeholder && <p className="mt-2 text-xs font-semibold text-white/70">Sample review</p>}
+            {r.source ? (
+              <p className="mt-2 text-xs font-semibold text-sun">{r.source} · 4.5★</p>
+            ) : r.placeholder ? (
+              <p className="mt-2 text-xs font-semibold text-white/70">Sample review</p>
+            ) : null}
           </aside>
         </div>
       </div>

@@ -7,17 +7,17 @@ const steps = [
   {
     n: '01',
     title: 'How to reach us',
-    text: "From Lakeside or central Pokhara, take a taxi, or ride a bike or scooter up the winding road to Sarangkot. The road in the night photo is the one you'll follow. Open Google Maps with the button below.",
+    text: "Located along Sarangkot Road and Ranipauwa (Fulbari), about 20 minutes from central Pokhara and Lakeside. Take a quick taxi, car, or ride a bike or scooter up the scenic hillside road. Tap 'Get Directions' below to navigate directly.",
   },
   {
     n: '02',
     title: 'Best time to visit',
-    text: 'Come at sunrise for the best light on the Himalayas. Clear, dry months usually give the sharpest views; mornings are clearest. Evenings are perfect for dinner as the valley lights come on.',
+    text: 'Come at sunrise for golden Himalayan views over Annapurna and Machhapuchhre. Mornings are crisp and clear; evenings are magical for dinner and drinks at the pyramid restro as the valley lights glow.',
   },
   {
     n: '03',
-    title: 'Dining & group tips',
-    text: 'Sharing platters are great for groups. For parties, sushi or special dishes, order ahead on WhatsApp so everything is ready when you arrive.',
+    title: 'Dining & group bookings',
+    text: 'We host groups and private villa buyouts up to 24 guests. Shared packages start from NPR 1,550/person with welcome drinks and breakfast. Pre-order barbecue platters or reserve your date via WhatsApp.',
   },
 ]
 
