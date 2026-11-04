@@ -12,6 +12,7 @@ test('the exported home page promotes booking and social discovery', () => {
   })
 
   const page = readFileSync('.next-test/index.html', 'utf8')
+  const hero = readFileSync('src/components/Hero.jsx', 'utf8')
 
   assert.equal(existsSync('.next-test'), true)
   assert.match(page, /Book a stay/)
@@ -19,4 +20,9 @@ test('the exported home page promotes booking and social discovery', () => {
   assert.match(page, /https:\/\/wa\.me\/9779840023756/)
   assert.match(page, /aria-label="Footer navigation"/)
   assert.doesNotMatch(page, /h-8 w-8 place-items-center border/)
+  assert.match(hero, /const heroMedia/)
+  assert.match(hero, /\/images\/day-aerial\.webp/)
+  assert.match(hero, /\/images\/garden\.webp/)
+  assert.match(hero, /\/images\/pyramid\.webp/)
+  assert.match(hero, /setInterval\([^,]+, 3000\)/)
 })

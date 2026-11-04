@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import Icon, { Stars } from './Icons.jsx'
 import { Button, Divider } from './ui.jsx'
 import { directionsLink } from '../data/site.js'
@@ -13,9 +13,18 @@ const chips = [
   { icon: 'bed', text: 'Rooms with breakfast' },
 ]
 
+const heroMedia = [
+  { src: '/images/hero.webp', position: '52% 62%' },
+  { src: '/images/day-aerial.webp', position: '50% 54%' },
+  { src: '/images/garden.webp', position: '50% 52%' },
+  { src: '/images/pyramid.webp', position: '50% 48%' },
+]
+
 export default function Hero() {
   const [i, setI] = useState(0)
+  const [heroIndex, setHeroIndex] = useState(0)
   const { scrollY } = useScroll()
+  const shouldReduceMotion = useReducedMotion()
 
   // Headline: fades out and moves up as you scroll
   const headlineY = useTransform(scrollY, [0, 200], [0, -50])
@@ -30,20 +39,47 @@ export default function Hero() {
     return () => clearInterval(t)
   }, [])
 
+  useEffect(() => {
+    if (shouldReduceMotion) return undefined
+
+    let interval
+    const start = () => {
+      clearInterval(interval)
+      interval = setInterval(() => setHeroIndex((n) => (n + 1) % heroMedia.length), 3000)
+    }
+    const handleVisibility = () => {
+      if (document.hidden) clearInterval(interval)
+      else start()
+    }
+
+    start()
+    document.addEventListener('visibilitychange', handleVisibility)
+    return () => {
+      clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
+  }, [shouldReduceMotion])
+
   const r = reviews[i]
 
   return (
     <section id="home" data-hero
       className="relative isolate flex min-h-[100svh] items-end overflow-hidden bg-forest-dark">
-      {/* Hero photo: object-position keeps the two buildings in frame */}
-      <img
-        src="/images/hero.webp"
-        alt="Aerial view of G'Host Villa and its pyramid-roof building among forested hills above Pokhara"
-        width="1437"
-        height="676"
-        fetchPriority="high"
-        className="animate-slowzoom absolute inset-0 -z-20 h-full w-full object-cover object-[52%_62%]"
-      />
+      <AnimatePresence initial={false}>
+        <motion.img
+          key={heroMedia[heroIndex].src}
+          src={heroMedia[heroIndex].src}
+          alt=""
+          aria-hidden="true"
+          fetchPriority={heroIndex === 0 ? 'high' : 'auto'}
+          initial={{ opacity: 0, scale: 1.03 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: shouldReduceMotion ? 0 : 1.1, ease: 'easeInOut' }}
+          className="absolute inset-0 -z-20 h-full w-full object-cover"
+          style={{ objectPosition: heroMedia[heroIndex].position }}
+        />
+      </AnimatePresence>
       {/* soft green gradient + a whisper of warm tint */}
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-forest-dark/95 via-forest-dark/40 to-forest-dark/5" />
       <div className="absolute inset-x-0 top-0 -z-10 h-40 bg-gradient-to-b from-black/35 to-transparent" />
