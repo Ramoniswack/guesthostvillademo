@@ -25,4 +25,8 @@ test('the exported home page promotes booking and social discovery', () => {
   assert.match(hero, /\/images\/garden\.webp/)
   assert.match(hero, /\/images\/pyramid\.webp/)
   assert.match(hero, /setInterval\([^,]+, 3000\)/)
+  const home = readFileSync('src/components/HomeEditorial.jsx', 'utf8')
+  assert.doesNotMatch(home, /role="tablist"/)
+  assert.match(home, /aria-label="Guest review carousel"/)
+  assert.match(home, /activeMoment/)
 })

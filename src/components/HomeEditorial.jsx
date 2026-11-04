@@ -1,6 +1,8 @@
 'use client'
 
+import { useState } from 'react'
 import Link from 'next/link'
+import { AnimatePresence, motion } from 'framer-motion'
 import { faqs } from '../data/faq.js'
 import { rooms } from '../data/rooms.js'
 import { reviews } from '../data/reviews.js'
@@ -34,6 +36,12 @@ const experiences = [
   },
 ]
 
+const moments = [
+  { label: 'After dark', title: 'A villa all to yourselves.', text: 'Come together for a birthday, a reunion or an unhurried weekend with room for every plan.', image: '/images/night-aerial.webp', alt: "G'Host Villa lit up in the evening" },
+  { label: 'Slow mornings', title: 'Wake up a little later.', text: 'Wooden rooms, mountain air and nowhere you need to be before breakfast is ready.', image: '/images/room-deluxe.webp', alt: "A room at G'Host Villa" },
+  { label: 'Outside days', title: 'Gather in the garden.', text: 'A relaxed setting for shared meals, celebrations and the stories that stretch into evening.', image: '/images/garden.webp', alt: 'Villa garden for gatherings' },
+]
+
 function TextLink({ href, children }) {
   const inner = <><span>{children}</span><ArrowCircle /></>
   const className = 'inline-flex items-center gap-3 text-sm font-bold uppercase tracking-[0.12em] text-forest transition hover:text-sun-dark'
@@ -43,7 +51,11 @@ function TextLink({ href, children }) {
 
 export default function HomeEditorial() {
   const featuredRooms = [rooms[0], rooms[3]]
-  const quote = reviews[0]
+  const [activeMoment, setActiveMoment] = useState(0)
+  const [reviewIndex, setReviewIndex] = useState(0)
+  const moment = moments[activeMoment]
+  const quote = reviews[reviewIndex]
+  const changeReview = (direction) => setReviewIndex((index) => (index + direction + reviews.length) % reviews.length)
 
   return (
     <div>
@@ -82,7 +94,7 @@ export default function HomeEditorial() {
           </Reveal>
           <div className="grid gap-7 md:grid-cols-3">
             {experiences.map((item, index) => <Reveal key={item.title} delay={index * 0.1} className="group">
-              <article className="h-full bg-sand">
+              <article className="h-full overflow-hidden bg-sand transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-forest/10 focus-within:-translate-y-1 focus-within:shadow-xl focus-within:shadow-forest/10">
                 <div className="relative overflow-hidden"><img src={item.image} alt="" loading="lazy" className="h-72 w-full object-cover transition duration-700 group-hover:scale-105" /><span className="absolute left-5 top-5 bg-cream px-3 py-2 text-xs font-bold tracking-[0.15em] text-forest">{item.number}</span></div>
                 <div className="flex min-h-64 flex-col p-7"><h3 className="font-display text-3xl leading-none tracking-[-0.035em] text-forest">{item.title}</h3><p className="mt-4 leading-relaxed text-forest/70">{item.text}</p><div className="mt-auto pt-7"><TextLink href={item.href}>{item.link}</TextLink></div></div>
               </article>
@@ -92,7 +104,7 @@ export default function HomeEditorial() {
       </section>
 
       <section className="bg-forest-dark px-6 py-20 text-cream md:py-32">
-        <Reveal className="mx-auto max-w-5xl text-center"><p className="label !text-sun">Made for the moments between plans</p><h2 className="mt-6 font-display text-5xl font-semibold leading-[0.94] tracking-[-0.05em] sm:text-7xl lg:text-8xl">Less rushing.<br />More remembering.</h2><p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-cream/75">Wake up with the hills, linger over breakfast, then let the day decide what it wants to be.</p></Reveal>
+        <Reveal className="mx-auto max-w-5xl text-center"><p className="label !text-sun">Made for the moments between plans</p><h2 className="mt-6 font-display text-5xl font-semibold leading-[0.94] tracking-[-0.05em] sm:text-7xl lg:text-8xl">Less rushing.<br />More remembering.</h2><p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-cream/75">Wake up with the hills, linger over breakfast, then let the day decide what it wants to be.</p><div className="mt-9"><Button href={waLink('Hello G\'Host Villa! I would like to plan a stay.')}>Plan your escape</Button></div></Reveal>
       </section>
 
       <section className="bg-cream py-20 md:py-32">
@@ -106,14 +118,14 @@ export default function HomeEditorial() {
 
       <section className="bg-sand py-20 md:py-32">
         <div className="wrap grid gap-12 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
-          <Reveal><p className="label">Come as you are</p><h2 className="mt-4 font-display text-5xl font-semibold leading-[0.96] tracking-[-0.045em] text-forest sm:text-6xl">Private moments, bigger memories.</h2><p className="mt-6 max-w-md text-lg leading-relaxed text-forest/75">A low-key couple’s night, a birthday table, a family buyout—there’s enough room for every version of together.</p><div className="mt-8"><Button variant="outline" href={waLink('Hello G\'Host Villa! I would like to enquire about a private event or group stay.')}>Ask about groups</Button></div></Reveal>
-          <Reveal delay={0.12} className="grid grid-cols-2 gap-3 sm:gap-5"><img src="/images/night-aerial.webp" alt="G'Host Villa lit up in the evening" loading="lazy" className="h-72 w-full object-cover sm:h-96" /><div className="space-y-3 pt-10 sm:space-y-5 sm:pt-16"><img src="/images/room-deluxe.webp" alt="A room at G'Host Villa" loading="lazy" className="h-44 w-full object-cover sm:h-56" /><img src="/images/garden.webp" alt="Villa garden for gatherings" loading="lazy" className="h-32 w-full object-cover sm:h-40" /></div></Reveal>
+          <Reveal><AnimatePresence mode="wait"><motion.div key={moment.image} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.45 }}><p className="label">Come as you are</p><h2 className="mt-4 font-display text-5xl font-semibold leading-[0.96] tracking-[-0.045em] text-forest sm:text-6xl">{moment.title}</h2><p className="mt-6 max-w-md text-lg leading-relaxed text-forest/75">{moment.text}</p><div className="mt-8"><Button variant="outline" href={waLink('Hello G\'Host Villa! I would like to enquire about a private event or group stay.')}>Ask about groups</Button></div></motion.div></AnimatePresence></Reveal>
+          <Reveal delay={0.12} className="relative overflow-hidden bg-forest-dark"><AnimatePresence mode="wait"><motion.img key={moment.image} src={moment.image} alt={moment.alt} loading="lazy" initial={{ opacity: 0, scale: 1.04 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.99 }} transition={{ duration: 0.45 }} className="h-[420px] w-full object-cover sm:h-[500px]" /></AnimatePresence><div aria-label="Choose a villa moment" className="absolute inset-x-4 bottom-4 flex gap-2 overflow-x-auto">{moments.map((item, index) => <button key={item.label} type="button" aria-pressed={activeMoment === index} onClick={() => setActiveMoment(index)} className={`shrink-0 px-4 py-3 text-xs font-bold uppercase tracking-[0.1em] transition ${activeMoment === index ? 'bg-sun text-forest' : 'bg-forest-dark/75 text-cream backdrop-blur hover:bg-cream hover:text-forest'}`}>{item.label}</button>)}</div></Reveal>
         </div>
       </section>
 
       <section className="bg-cream py-20 md:py-32">
         <div className="wrap grid gap-14 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
-          <Reveal><p className="label">Guest notes</p><blockquote className="mt-5 font-display text-4xl leading-[1.02] tracking-[-0.04em] text-forest sm:text-5xl">“{quote.short}”</blockquote><p className="mt-7 font-semibold text-forest">{quote.name} <span className="font-normal text-forest/60">· {quote.source}</span></p><p className="mt-3 text-sun-dark">{'★'.repeat(quote.rating)}</p></Reveal>
+          <Reveal><p className="label">Guest notes</p><div aria-label="Guest review carousel"><AnimatePresence mode="wait"><motion.div key={quote.name} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.3 }}><blockquote className="mt-5 font-display text-4xl leading-[1.02] tracking-[-0.04em] text-forest sm:text-5xl">“{quote.short}”</blockquote><p className="mt-7 font-semibold text-forest">{quote.name} <span className="font-normal text-forest/60">· {quote.source}</span></p><p className="mt-3 text-sun-dark">{'★'.repeat(quote.rating)}</p></motion.div></AnimatePresence><div className="mt-7 flex gap-3"><button type="button" onClick={() => changeReview(-1)} aria-label="Previous guest review" className="grid h-11 w-11 place-items-center border border-forest/25 text-forest transition hover:bg-forest hover:text-cream"><span aria-hidden="true">←</span></button><button type="button" onClick={() => changeReview(1)} aria-label="Next guest review" className="grid h-11 w-11 place-items-center border border-forest/25 text-forest transition hover:bg-forest hover:text-cream"><span aria-hidden="true">→</span></button></div></div></Reveal>
           <Reveal delay={0.12}><p className="label">Need to know</p><h2 className="mt-4 font-display text-4xl font-semibold leading-none tracking-[-0.04em] text-forest sm:text-5xl">A few quick answers.</h2><div className="mt-7 divide-y divide-forest/15 border-y border-forest/15">{faqs.slice(0, 3).map((faq) => <details key={faq.q} className="group py-5"><summary className="flex cursor-pointer list-none items-center justify-between gap-5 font-semibold text-forest"><span>{faq.q}</span><span className="text-xl transition group-open:rotate-45">+</span></summary><p className="max-w-2xl pt-4 leading-relaxed text-forest/70">{faq.a}</p></details>)}</div><div className="mt-7"><TextLink href="/faq">Read all FAQs</TextLink></div></Reveal>
         </div>
       </section>
