@@ -50,7 +50,7 @@ function RoomCard({ r }) {
           </span>
           {r.badge && (
             <span className="inline-flex items-center gap-1 rounded-full bg-sun px-3 py-1.5 text-xs font-bold text-forest-dark shadow-md">
-              <Icon name="sparkles" className="h-3.5 w-3.5" />
+              <Icon name="star" className="h-3.5 w-3.5" />
               {r.badge}
             </span>
           )}
@@ -247,7 +247,7 @@ export default function Rooms({ preview = false }) {
 
             <div className="flex items-start gap-3">
               <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cream text-forest">
-                <Icon name="sparkles" className="h-5 w-5" />
+                <Icon name="users" className="h-5 w-5" />
               </span>
               <div>
                 <h4 className="font-semibold text-forest">Group Rates from NPR 1,550</h4>

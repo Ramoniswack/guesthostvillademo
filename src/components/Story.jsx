@@ -16,20 +16,20 @@ const highlights = [
 
 export default function Story() {
   return (
-    <section id="about" className="section contour bg-sand">
-      <div className="wrap grid items-center gap-16 lg:grid-cols-2 lg:gap-24">
+    <section id="about" className="contour bg-sand py-10 md:py-16">
+      <div className="wrap grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
         <Reveal>
           <div className="relative">
             <img
-              src="/images/pyramid.webp"
-              alt="The pyramid-roof building at G'Host Villa with Annapurna and Machhapuchhre rising behind Pokhara valley"
-              width="1600"
-              height="900"
+              src="/images/about-aerial.jpg"
+              alt="Aerial view of The G'Host Villa and pyramid restaurant overlooking the valley from Sarangkot"
+              width="1024"
+              height="1024"
               loading="lazy"
-              className="aspect-[4/3] w-full rounded-[28px] object-cover object-[40%_50%] shadow-warm"
+              className="h-[360px] w-full rounded-[28px] object-cover object-center shadow-warm sm:h-[420px] md:h-[460px]"
             />
             <span className="absolute -bottom-5 right-5 inline-flex items-center gap-2 rounded-full bg-cream px-5 py-2.5 text-sm font-semibold text-forest shadow-soft">
-              <Icon name="mountain" className="h-5 w-5 text-sun-text" /> Annapurna &amp; Machhapuchhre views
+              <Icon name="mountain" className="h-5 w-5 text-sun-text" /> Sarangkot hilltop &amp; valley views
             </span>
           </div>
         </Reveal>
@@ -37,25 +37,25 @@ export default function Story() {
         <Reveal delay={0.1}>
           <p className="label">About The G'Host Villa</p>
           <h2 className="h2">A Japanese-styled hilltop villa above Pokhara</h2>
-          <p className="mt-5 text-lg text-ink/90">
+          <p className="mt-3 text-base text-ink/90 md:text-lg">
             The G'Host Villa Restro and Bar sits along the tranquil Sarangkot / Ranipauwa ridge, just 20 minutes from the bustle of Pokhara.
             Wrapped in lush forest, ferns, and fresh mountain air, the property blends Japanese-inspired architecture with warm Nepalese hospitality.
           </p>
-          <p className="mt-4 text-lg text-ink/90">
+          <p className="mt-2.5 text-base text-ink/90 md:text-lg">
             Choose from peaceful 1 BHK Couple Deluxe suites or host your family and group in 4-BHK wings and 7-BHK full private villa buyouts (hosting up to 24 guests).
             Dine under the iconic pyramid-roof restaurant, sip handcrafted drinks at the bottle bar, or unwind around an evening BBQ and bonfire.
           </p>
-          <ul className="mt-6 grid gap-x-6 gap-y-3 sm:grid-cols-2">
+          <ul className="mt-4 grid gap-x-5 gap-y-2.5 sm:grid-cols-2">
             {highlights.map((h) => (
-              <li key={h} className="flex items-center gap-3 text-sm font-semibold text-forest sm:text-base">
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-sage/30 text-forest">
-                  <Icon name="check" className="h-4 w-4" strokeWidth={2.5} />
+              <li key={h} className="flex items-center gap-2.5 text-sm font-semibold text-forest">
+                <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-sage/30 text-forest">
+                  <Icon name="check" className="h-3.5 w-3.5" strokeWidth={2.5} />
                 </span>
                 {h}
               </li>
             ))}
           </ul>
-          <div className="mt-10 flex flex-wrap gap-4">
+          <div className="mt-6 flex flex-wrap gap-3">
             <Button href="/rooms" variant="solid">See All BHK &amp; Rooms</Button>
             <Button href="/menu" variant="outline">Restaurant &amp; Bar Menu</Button>
           </div>
