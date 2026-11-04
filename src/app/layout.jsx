@@ -2,10 +2,10 @@ import 'lenis/dist/lenis.css'
 import './globals.css'
 import Providers from '../components/Providers.jsx'
 
-const DOMAIN = 'https://YOUR-DOMAIN.com' // TODO: replace with your real domain (canonical + Open Graph need absolute URLs)
+const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
 
 export const metadata = {
-  metadataBase: new URL(DOMAIN),
+  ...(SITE_URL ? { metadataBase: new URL(SITE_URL) } : {}),
   title: {
     default: "G'Host Villa Hotel & Restaurant | Stay, Dine & Breathe in Sarangkot, Pokhara",
     template: "%s | G'Host Villa",
@@ -18,25 +18,22 @@ export const metadata = {
     siteName: "G'Host Villa Hotel & Restaurant",
     title: "G'Host Villa: Stay, Dine & Breathe Above Pokhara",
     description: 'A hilltop villa, restaurant and bar in Sarangkot with valley and Himalayan views.',
-    images: ['/images/og.jpg'],
+    ...(SITE_URL ? { images: [`${SITE_URL}/images/og.jpg`] } : {}),
   },
   twitter: { card: 'summary_large_image' },
 }
 
 export const viewport = { themeColor: '#FBF7EF' }
 
-// LocalBusiness / Restaurant structured data. Replace the placeholders.
 const jsonLd = {
   '@context': 'https://schema.org',
   '@type': ['Hotel', 'Restaurant'],
   name: "G'Host Villa Hotel & Restaurant",
   description: 'Hilltop villa stay, restaurant and bar in Sarangkot, Pokhara, Nepal with valley and Himalayan views.',
-  image: `${DOMAIN}/images/og.jpg`,
-  url: `${DOMAIN}/`,
   telephone: '+9779840023756',
   email: 'theghostvilla@gmail.com',
   servesCuisine: ['Nepali', 'Newari', 'Momo', 'Pizza & Pasta', 'Barbecue', 'Bar & Cocktails'],
-  hasMenu: `${DOMAIN}/menu`,
+  ...(SITE_URL ? { image: `${SITE_URL}/images/og.jpg`, url: `${SITE_URL}/`, hasMenu: `${SITE_URL}/menu` } : {}),
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'Sarangkot Road, Ranipauwa (Fulbari)',

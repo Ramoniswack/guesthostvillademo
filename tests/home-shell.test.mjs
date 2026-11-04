@@ -29,4 +29,8 @@ test('the exported home page promotes booking and social discovery', () => {
   assert.doesNotMatch(home, /role="tablist"/)
   assert.match(home, /aria-label="Guest review carousel"/)
   assert.match(home, /activeMoment/)
+  const jobs = readFileSync('src/data/jobs.js', 'utf8')
+  const layout = readFileSync('src/app/layout.jsx', 'utf8')
+  assert.doesNotMatch(jobs, /placeholder/)
+  assert.doesNotMatch(layout, /YOUR-DOMAIN/)
 })
