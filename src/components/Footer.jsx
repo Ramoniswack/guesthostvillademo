@@ -2,102 +2,95 @@
 
 import Link from 'next/link'
 import Icon from './Icons.jsx'
-import { Divider, ridgePath } from './ui.jsx'
-import { site, telLink, altTelLink, waLink, navLinks } from '../data/site.js'
-
-// jagged mountain silhouettes (step is wide, so the line reads as peaks)
-const RIDGE_BACK = ridgePath({ h: 120, base: 60, steps: 40, waves: [[28, 90, 0.5], [14, 41, 1.3]] })
-const RIDGE_FRONT = ridgePath({ h: 120, base: 82, steps: 48, waves: [[20, 70, 2], [10, 33, 0.2]] })
+import { gallery } from '../data/gallery.js'
+import { directionsLink, navLinks, site, telLink, waLink } from '../data/site.js'
 
 const socials = [
   { icon: 'insta', label: 'Instagram', href: site.social.instagram },
   { icon: 'fb', label: 'Facebook', href: site.social.facebook },
-  { icon: 'chat', label: 'WhatsApp', href: waLink() },
   { icon: 'globe', label: 'eSewa Hotels', href: site.social.esewa },
-  { icon: 'bed', label: 'MakeMyTrip', href: site.social.makemytrip },
 ]
 
 export default function Footer() {
-  const row = 'flex items-start gap-3 text-lg hover:underline'
   return (
-    <footer className="on-dark bg-forest text-cream">
-      <Divider prev="cream" next="forest" />
-      <div className="wrap grid gap-16 pb-16 pt-12 lg:grid-cols-[1.4fr_0.7fr_0.8fr]">
-        <div>
-          <h2 className="font-display text-4xl font-semibold md:text-5xl">Come say hello</h2>
-          <ul className="mt-6 space-y-3">
-            <li>
-              <a href={telLink} className={row}>
-                <Icon name="phone" className="mt-1 h-5 w-5 shrink-0 text-sun" />
-                {site.phoneDisplay} / {site.altPhoneDisplay}
-              </a>
-            </li>
-            <li>
-              <a href={waLink()} target="_blank" rel="noopener noreferrer" className={row}>
-                <Icon name="chat" className="mt-1 h-5 w-5 shrink-0 text-sun" />
-                WhatsApp: {site.whatsappDisplay}
-              </a>
-            </li>
-            <li className="flex items-start gap-3 text-lg">
-              <Icon name="pin" className="mt-1 h-5 w-5 shrink-0 text-sun" />
-              <span>
-                {site.address}
-                <span className="block text-sm text-sage-light">({site.locationNote})</span>
-              </span>
-            </li>
-            <li className="flex items-start gap-3 text-lg">
-              <Icon name="clock" className="mt-1 h-5 w-5 shrink-0 text-sun" />
-              {site.hours}
-            </li>
-          </ul>
-        </div>
-
-        <nav aria-label="Footer">
-          <h3 className="text-base font-semibold text-sage-light">Quick links</h3>
-          <ul className="mt-4 space-y-1">
-            {[{ to: '/', label: 'Home' }, ...navLinks].map((l) => (
-              <li key={l.to}>
-                <Link href={l.to} className="inline-flex min-h-[44px] items-center text-lg hover:underline">{l.label}</Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div>
-          <h3 className="text-base font-semibold text-sage-light">Follow &amp; book</h3>
-          <ul className="mt-4 space-y-1">
-            {socials.map((s) => (
-              <li key={s.label}>
-                <a href={s.href} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] items-center gap-3 text-lg hover:underline">
-                  <Icon name={s.icon} className="h-5 w-5 text-sun" /> {s.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
-
-      {/* mountain silhouette + giant wordmark */}
-      <div className="relative overflow-hidden pt-6">
-        <svg viewBox="0 0 1440 120" preserveAspectRatio="none" className="block h-14 w-full text-forest-dark md:h-20" fill="currentColor" aria-hidden="true">
-          <path opacity="0.55" d={RIDGE_BACK} />
-          <path d={RIDGE_FRONT} />
-        </svg>
-        <div className="bg-forest-dark pb-6">
-          <div className="wrap flex items-center justify-center gap-[2vw] pt-2">
-            <span className="flex shrink-0 items-center rounded-[2vw] bg-cream p-[1.6vw] md:p-[1.2vw]">
-              <img src="/images/logo-icon.webp" alt="" className="h-[7vw] w-auto md:h-[6vw]" />
-            </span>
-            <p className="font-display text-[11.5vw] font-semibold leading-none text-cream md:text-[9.5vw]" aria-label="G'Host Villa">
-              G'HOST VILLA
-            </p>
+    <footer className="on-dark overflow-hidden bg-[#07120f] text-cream">
+      <section className="relative isolate min-h-[28rem] overflow-hidden border-b border-white/10 sm:min-h-[32rem]">
+        <img src="/images/night-aerial.webp" alt="G'Host Villa glowing above Pokhara after dusk" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" loading="lazy" />
+        <div className="absolute inset-0 -z-10 bg-[#07120f]/70" />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#07120f]/85 via-[#07120f]/35 to-[#07120f]/70" />
+        <div className="mx-auto flex min-h-[28rem] max-w-[1440px] items-end px-6 py-12 sm:min-h-[32rem] sm:px-10 sm:py-16 lg:px-14">
+          <div className="max-w-2xl">
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sun">Sarangkot, Pokhara</p>
+            <h2 className="mt-4 font-display text-5xl font-semibold leading-[0.95] tracking-[-0.055em] text-white sm:text-7xl">
+              Your next escape starts up here.
+            </h2>
+            <p className="mt-5 max-w-lg text-lg text-white/80">A private villa stay, a table with a view, and a slower pace for a little while.</p>
+            <a href={waLink('Hello G\'Host Villa! I\'d like to book a stay.')} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-12 items-center bg-sun px-6 text-[0.7rem] font-bold uppercase tracking-[0.15em] text-forest-dark transition-colors hover:bg-sun-dark">
+              Book a stay
+            </a>
           </div>
-          <p className="wrap mt-4 text-center text-base text-sage-light">
-            Restro &amp; Bar · Sarangkot, Pokhara, Nepal
-          </p>
-          <p className="wrap mt-2 pb-16 text-center text-sm text-cream/70 md:pb-0">
-            © {new Date().getFullYear()} {site.fullName}
-          </p>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-[1440px] px-6 py-12 sm:px-10 lg:px-14 lg:py-16">
+        <div className="flex flex-wrap items-end justify-between gap-5">
+          <div>
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">From the hilltop</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">Follow G&apos;Host Villa</h2>
+          </div>
+          <a href={site.social.instagram} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-sun hover:text-white">
+            @the_g_host_villa_pokhara <Icon name="arrow" className="h-4 w-4" />
+          </a>
+        </div>
+        <div className="mt-8 grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
+          {gallery.slice(0, 6).map((photo) => (
+            <a key={photo.src} href={site.social.instagram} target="_blank" rel="noopener noreferrer" className="group aspect-square overflow-hidden bg-forest-dark">
+              <img src={photo.src} alt={photo.alt} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-110 group-hover:opacity-80" />
+            </a>
+          ))}
+        </div>
+      </section>
+
+      <section className="border-t border-white/10">
+        <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-12 sm:px-10 md:grid-cols-[1.3fr_0.7fr_0.9fr] lg:px-14 lg:py-16">
+          <div>
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Come stay awhile</p>
+            <p className="mt-4 max-w-md font-display text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-white">A villa, restro and bar above the city lights.</p>
+            <a href={directionsLink} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sun hover:text-white">
+              Get directions <Icon name="arrow" className="h-4 w-4" />
+            </a>
+          </div>
+          <div>
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Explore</p>
+            <ul className="mt-4 space-y-2.5">
+              {[{ to: '/', label: 'Home' }, ...navLinks].map((link) => (
+                <li key={link.to}><Link href={link.to} className="text-base text-white/80 transition-colors hover:text-sun">{link.label}</Link></li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Get in touch</p>
+            <ul className="mt-4 space-y-3 text-base text-white/80">
+              <li><a href={telLink} className="transition-colors hover:text-sun">{site.phoneDisplay}</a></li>
+              <li><a href={waLink()} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-sun">WhatsApp us</a></li>
+              <li><a href={`mailto:${site.email}`} className="transition-colors hover:text-sun">{site.email}</a></li>
+            </ul>
+            <div className="mt-6 flex gap-3">
+              {socials.map((social) => (
+                <a key={social.label} href={social.href} target="_blank" rel="noopener noreferrer" aria-label={social.label} className="grid h-9 w-9 place-items-center border border-white/25 text-white transition-colors hover:border-sun hover:bg-sun hover:text-forest-dark">
+                  <Icon name={social.icon} className="h-4 w-4" />
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div className="border-t border-white/10 px-4 pt-8 text-center sm:px-8">
+        <p className="whitespace-nowrap font-display text-[15vw] font-semibold leading-[0.72] tracking-[-0.075em] text-white sm:text-[12vw]">G&apos;HOST VILLA</p>
+        <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-2 py-7 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-sage-light sm:flex-row sm:items-center sm:justify-between">
+          <span>Restro &amp; Bar · Sarangkot, Pokhara</span>
+          <span>© {new Date().getFullYear()} G&apos;Host Villa</span>
         </div>
       </div>
     </footer>
