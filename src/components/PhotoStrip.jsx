@@ -105,7 +105,7 @@ export default function PhotoStrip() {
     <section id="gallery" className="pb-10 pt-6 md:pb-16 md:pt-10" aria-label="Photo gallery">
       <div
         ref={scroller}
-        className="no-scrollbar flex items-end gap-5 overflow-x-auto px-5 py-3"
+        className="no-scrollbar flex items-center gap-5 overflow-x-auto px-5 py-3"
         onMouseEnter={pause}
         onMouseLeave={() => resume(0)}
         onTouchStart={pause}
@@ -124,14 +124,14 @@ export default function PhotoStrip() {
               aria-hidden={dup || undefined}
               aria-label={dup ? undefined : `Enlarge photo: ${g.alt}`}
               onClick={() => setOpen(i % gallery.length)}
-              className={`group shrink-0 overflow-hidden rounded-3xl shadow-soft ${g.h}`}
+              className="group relative h-64 w-80 shrink-0 overflow-hidden rounded-3xl shadow-soft sm:h-72 sm:w-[22rem] md:h-80 md:w-[26rem]"
             >
               <img
                 src={g.src}
                 alt={dup ? '' : g.alt}
                 loading="lazy"
                 draggable="false"
-                className="h-full w-auto max-w-none object-cover transition-transform duration-700 group-hover:scale-105"
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
             </button>
           )

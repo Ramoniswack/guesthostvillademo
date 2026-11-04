@@ -196,19 +196,11 @@ export default function Rooms({ preview = false }) {
     : rooms.filter((r) => r.category === filter)
 
   return (
-    <section id="rooms" className={preview ? 'section' : 'pb-24 pt-16 md:pb-40 md:pt-24'}>
+    <section id="rooms" className={preview ? 'section' : 'pb-24 pt-8 md:pb-40 md:pt-12'}>
       <div className="wrap">
-        <Reveal className="mx-auto max-w-3xl text-center">
-          <p className="label">Accommodations &amp; Villa Packages</p>
-          <h2 className="h2">Rest well in Sarangkot</h2>
-          <p className="lead mt-4">
-            From private couple rooms with vintage wood interiors to multi-BHK configurations and full 24-guest villa buyouts, 20 minutes from central Pokhara.
-          </p>
-        </Reveal>
-
         {/* Filter buttons on full rooms page */}
         {!preview && (
-          <div className="mt-10 flex flex-wrap justify-center gap-2.5">
+          <div className="flex flex-wrap justify-center gap-2.5">
             {[
               { id: 'all', label: 'All Stays & Packages' },
               { id: 'individual', label: '1 BHK Rooms (Couples & Solo)' },
