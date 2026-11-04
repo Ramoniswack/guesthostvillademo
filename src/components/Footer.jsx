@@ -3,12 +3,13 @@
 import Link from 'next/link'
 import Icon from './Icons.jsx'
 import { gallery } from '../data/gallery.js'
-import { directionsLink, navLinks, site, telLink, waLink } from '../data/site.js'
+import { altTelLink, directionsLink, navLinks, site, telLink, waLink } from '../data/site.js'
 
 const socials = [
   { icon: 'insta', label: 'Instagram', href: site.social.instagram },
   { icon: 'fb', label: 'Facebook', href: site.social.facebook },
   { icon: 'globe', label: 'eSewa Hotels', href: site.social.esewa },
+  { icon: 'bed', label: 'MakeMyTrip', href: site.social.makemytrip },
 ]
 
 export default function Footer() {
@@ -60,20 +61,23 @@ export default function Footer() {
               Get directions <Icon name="arrow" className="h-4 w-4" />
             </a>
           </div>
-          <div>
+          <nav aria-label="Footer navigation">
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Explore</p>
             <ul className="mt-4 space-y-2.5">
               {[{ to: '/', label: 'Home' }, ...navLinks].map((link) => (
                 <li key={link.to}><Link href={link.to} className="text-base text-white/80 transition-colors hover:text-sun">{link.label}</Link></li>
               ))}
             </ul>
-          </div>
+          </nav>
           <div>
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Get in touch</p>
             <ul className="mt-4 space-y-3 text-base text-white/80">
               <li><a href={telLink} className="transition-colors hover:text-sun">{site.phoneDisplay}</a></li>
+              <li><a href={altTelLink} className="transition-colors hover:text-sun">{site.altPhoneDisplay}</a></li>
               <li><a href={waLink()} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-sun">WhatsApp us</a></li>
               <li><a href={`mailto:${site.email}`} className="transition-colors hover:text-sun">{site.email}</a></li>
+              <li className="max-w-xs text-sm leading-relaxed">{site.address}</li>
+              <li className="text-sm">{site.hours}</li>
             </ul>
             <div className="mt-6 flex gap-3">
               {socials.map((social) => (
@@ -86,7 +90,7 @@ export default function Footer() {
         </div>
       </section>
 
-      <div className="border-t border-white/10 px-4 pt-8 text-center sm:px-8">
+      <div className="border-t border-white/10 px-4 pb-[calc(4rem+env(safe-area-inset-bottom))] pt-8 text-center sm:px-8 md:pb-0">
         <p className="whitespace-nowrap font-display text-[15vw] font-semibold leading-[0.72] tracking-[-0.075em] text-white sm:text-[12vw]">G&apos;HOST VILLA</p>
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-2 py-7 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-sage-light sm:flex-row sm:items-center sm:justify-between">
           <span>Restro &amp; Bar · Sarangkot, Pokhara</span>

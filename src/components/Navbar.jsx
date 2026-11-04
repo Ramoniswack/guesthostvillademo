@@ -145,7 +145,7 @@ export default function Navbar() {
 
 export function MobileBar() {
   return (
-    <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-px bg-forest/20 md:hidden" aria-label="Quick contact">
+    <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-px bg-forest/20 pb-[env(safe-area-inset-bottom)] md:hidden" aria-label="Quick contact">
       <a href={telLink} className="flex min-h-14 items-center justify-center gap-2 bg-cream text-xs font-bold uppercase tracking-[0.12em] text-forest">
         <Icon name="phone" className="h-4 w-4" /> Call
       </a>
