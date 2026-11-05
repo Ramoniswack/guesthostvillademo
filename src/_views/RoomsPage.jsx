@@ -8,11 +8,11 @@ export default function RoomsPage() {
   return (
     <>
       <PageHero
-        eyebrow="Accommodations & BHK Packages"
-        title="Rest well in Sarangkot."
-        text="From 1 BHK couple suites with private Annapurna balconies to 4 BHK and 7 BHK full private villa estates for up to 24 guests. All rooms include hot water, Wi-Fi, and breakfast."
-        image="/images/room-couple.webp"
-        position="50% 55%"
+        eyebrow="Private stays · rooms · full villa buyouts"
+        title="Choose your level of privacy."
+        text="Book a quiet couple suite, a private room, a group villa wing, or the entire G’Host estate. Every stay comes with mountain air, breakfast, hot water and the freedom to make the place your own."
+        image="/images/pyramid.webp"
+        position="50% 58%"
       />
       <Rooms />
       <CtaBanner />

@@ -1,294 +1,88 @@
 'use client'
 
 import { useState } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion } from 'framer-motion'
 import Icon from './Icons.jsx'
 import { Button, Reveal } from './ui.jsx'
 import { rooms } from '../data/rooms.js'
-import { telLink, waLink, site } from '../data/site.js'
+import { telLink, waLink } from '../data/site.js'
 
-const AMENITY = {
-  breakfast: ['utensils', 'Breakfast included'],
-  wifi: ['wifi', 'Wi-Fi'],
-  bathroom: ['bath', 'Attached bath'],
-  hotwater: ['flame', '24/7 Hot water'],
-  ac: ['snow', 'AC & Heating'],
-  coffee: ['coffee', 'Tea / coffee maker'],
-  balcony: ['door', 'Private balcony'],
-  toiletries: ['drop', 'Toiletries'],
-  slippers: ['feet', 'Slippers'],
-}
+const npr = (value) => `NPR ${value.toLocaleString('en-US')}`
 
-const npr = (n) => `NPR ${n.toLocaleString('en-US')}`
+const bookingModes = [
+  { id: 'all', label: 'All spaces', description: 'Compare every way to stay at G’Host.' },
+  { id: 'couple', label: 'For two', description: 'A private suite for slow, scenic stays.', roomIds: ['couple-deluxe'] },
+  { id: 'private', label: 'Private room', description: 'Your own hillside room with garden calm.', roomIds: ['hilltop-double'] },
+  { id: 'group', label: 'Group villa', description: 'A private wing for families and friend groups.', roomIds: ['four-bhk-wing'] },
+  { id: 'buyout', label: 'Entire villa buyout', description: 'The full estate, entirely yours.', roomIds: ['seven-bhk-full-villa'] },
+]
 
-function RoomCard({ r }) {
-  const [showFeatures, setShowFeatures] = useState(false)
-
-  const bookingMsg = r.category === 'group'
-    ? `Hello G'Host Villa! I'd like to ask about booking the ${r.name} (${r.bhk}, for ${r.capacity}). Rates starting from ${npr(r.price)}.`
-    : `Hello G'Host Villa! I'd like to book the ${r.name} (${r.bhk}, ${npr(r.price)} ${r.rateType}).`
+function SpaceCard({ room, index }) {
+  const bookingMessage = room.category === 'group'
+    ? `Hello G'Host Villa! I would like to enquire about the ${room.name} for ${room.capacity}.`
+    : `Hello G'Host Villa! I would like to book the ${room.name} for ${room.capacity}.`
 
   return (
-    <article className="group overflow-hidden rounded-[32px] border border-sage/20 bg-sand shadow-sm transition-all duration-300 hover:shadow-warm lg:grid lg:grid-cols-[1.1fr_1fr]">
-      {/* Image container with badges */}
-      <div className="relative min-h-[280px] overflow-hidden sm:min-h-[360px] lg:min-h-full">
-        <img
-          src={r.image}
-          alt={r.alt}
-          width="1200"
-          height="799"
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/80 via-transparent to-black/20" />
-
-        {/* Top Badges: BHK and Badge */}
-        <div className="absolute left-4 top-4 flex flex-wrap gap-2">
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-forest px-3.5 py-1.5 text-xs font-bold uppercase tracking-wider text-cream shadow-md">
-            <Icon name="home" className="h-3.5 w-3.5 text-sun" />
-            {r.bhk}
-          </span>
-          {r.badge && (
-            <span className="inline-flex items-center gap-1 rounded-full bg-sun px-3 py-1.5 text-xs font-bold text-forest-dark shadow-md">
-              <Icon name="star" className="h-3.5 w-3.5" />
-              {r.badge}
-            </span>
-          )}
-        </div>
-
-        {/* Bottom Specs on Image */}
-        <div className="absolute inset-x-4 bottom-4 flex flex-wrap items-center justify-between gap-2 text-white">
-          <div className="flex flex-wrap gap-2">
-            <span className="inline-flex items-center gap-1 rounded-lg bg-forest-dark/85 px-2.5 py-1 text-xs font-medium backdrop-blur-md">
-              <Icon name="maximize" className="h-3.5 w-3.5 text-sun" />
-              {r.measurement}
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-lg bg-forest-dark/85 px-2.5 py-1 text-xs font-medium backdrop-blur-md">
-              <Icon name="users" className="h-3.5 w-3.5 text-sun" />
-              {r.capacity}
-            </span>
-          </div>
-          <span className="inline-flex items-center gap-1 rounded-lg bg-forest-dark/85 px-2.5 py-1 text-xs font-medium backdrop-blur-md">
-            <Icon name="mountain" className="h-3.5 w-3.5 text-sun" />
-            {r.view}
-          </span>
+    <motion.article
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-70px' }}
+      transition={{ duration: 0.5, delay: index * 0.06 }}
+      className="group overflow-hidden border border-forest/15 bg-cream transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-forest/10"
+    >
+      <div className="relative aspect-[4/3] overflow-hidden bg-forest-dark">
+        <img src={room.image} alt={room.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+        <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-forest-dark/10 to-transparent" />
+        <span className="absolute left-4 top-4 bg-sun px-3 py-2 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest-dark">{room.badge}</span>
+        <div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-3 text-cream">
+          <div><p className="text-xs font-bold uppercase tracking-[0.14em] text-cream/70">From</p><p className="mt-1 font-display text-3xl leading-none">{npr(room.price)}</p></div>
+          <p className="text-right text-xs font-semibold uppercase tracking-[0.1em] text-cream/80">{room.rateType}</p>
         </div>
       </div>
 
-      {/* Content Side */}
-      <div className="flex flex-col p-6 sm:p-8 md:p-10">
-        <div>
-          <div className="flex items-center justify-between gap-2">
-            <p className="text-xs font-bold uppercase tracking-widest text-sun-text">{r.bhk}</p>
-            <span className="text-xs text-muted">Bed: {r.bed}</span>
-          </div>
-
-          <h3 className="mt-1 font-display text-2xl font-semibold text-forest md:text-3xl">
-            {r.name}
-          </h3>
-
-          <p className="mt-3 text-base leading-relaxed text-ink/80">{r.blurb}</p>
+      <div className="p-6 sm:p-7">
+        <div className="flex flex-wrap gap-2 text-xs font-semibold text-forest/75">
+          <span className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-1.5"><Icon name="users" className="h-3.5 w-3.5 text-sun-text" />{room.capacity}</span>
+          <span className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-1.5"><Icon name="home" className="h-3.5 w-3.5 text-sun-text" />{room.bhk}</span>
         </div>
-
-        {/* Quick Amenities Grid */}
-        <div className="mt-6 border-t border-sage/20 pt-5">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted">Key Amenities</p>
-          <ul className="mt-3 grid grid-cols-2 gap-x-3 gap-y-2.5 text-sm text-forest sm:grid-cols-3">
-            {r.amenities.slice(0, 6).map((k) => (
-              <li key={k} className="flex items-center gap-2">
-                <Icon name={AMENITY[k][0]} className="h-4 w-4 shrink-0 text-sage-dark" />
-                <span className="truncate">{AMENITY[k][1]}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        {/* Collapsible Every Feature section */}
-        <div className="mt-5 border-t border-sage/20 pt-4">
-          <button
-            type="button"
-            onClick={() => setShowFeatures(!showFeatures)}
-            className="flex w-full items-center justify-between text-left text-sm font-semibold text-forest hover:text-sun-text"
-          >
-            <span>{showFeatures ? 'Hide full room features' : `View all features (${r.features.length})`}</span>
-            <Icon
-              name="chevron"
-              className={`h-4 w-4 transition-transform duration-300 ${showFeatures ? 'rotate-180 text-sun-text' : 'text-forest'}`}
-            />
-          </button>
-
-          <AnimatePresence>
-            {showFeatures && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="overflow-hidden"
-              >
-                <ul className="mt-3 space-y-2 rounded-2xl bg-cream/70 p-4 text-xs text-ink/85 sm:text-sm">
-                  {r.features.map((f, i) => (
-                    <li key={i} className="flex items-start gap-2">
-                      <Icon name="check" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-leaf" strokeWidth={2.5} />
-                      <span>{f}</span>
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Pricing & CTA */}
-        <div className="mt-auto border-t border-sage/30 pt-6">
-          <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-display text-3xl font-semibold text-forest md:text-4xl" style={{ letterSpacing: '-0.03em' }}>
-                  {npr(r.price)}
-                </span>
-                <span className="text-sm font-medium text-muted">
-                  {r.rateType}
-                </span>
-              </div>
-              <p className="mt-1 text-xs text-muted">
-                {r.priceDetails}
-              </p>
-            </div>
-            <span className="rounded-full bg-cream px-3 py-1 text-xs font-semibold text-leaf">
-              Breakfast included
-            </span>
-          </div>
-
-          <div className="mt-5 flex flex-wrap gap-3">
-            <Button
-              href={waLink(bookingMsg)}
-              icon="chat"
-              arrow={false}
-              className="flex-1 !min-h-[46px] !px-5 !py-2.5 !text-base"
-            >
-              Inquire on WhatsApp
-            </Button>
-            <Button
-              href={telLink}
-              variant="outline"
-              icon="phone"
-              arrow={false}
-              className="!min-h-[46px] !px-4 !py-2.5 !text-base"
-            >
-              Call
-            </Button>
-          </div>
+        <p className="mt-5 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-sun-text">{room.view}</p>
+        <h2 className="mt-2 font-display text-3xl font-semibold leading-[0.95] tracking-[-0.04em] text-forest">{room.name}</h2>
+        <p className="mt-4 line-clamp-3 leading-relaxed text-forest/70">{room.blurb}</p>
+        <details className="mt-5 border-y border-forest/10 py-3 text-sm text-forest/75">
+          <summary className="cursor-pointer font-semibold text-forest">What’s included</summary>
+          <ul className="mt-3 space-y-2 leading-relaxed">{room.features.slice(0, 4).map((feature) => <li key={feature} className="flex gap-2"><span className="text-sun-text">•</span>{feature}</li>)}</ul>
+        </details>
+        <p className="mt-4 text-xs leading-relaxed text-forest/60">{room.priceDetails}</p>
+        <div className="mt-6 grid grid-cols-[1fr_auto] gap-3">
+          <Button href={waLink(bookingMessage)} icon="chat" arrow={false} className="!min-h-11 !rounded-none !px-4 !py-2 !text-sm">Check availability</Button>
+          <Button href={telLink} variant="outline" icon="phone" arrow={false} className="!min-h-11 !rounded-none !px-4 !py-2 !text-sm">Call</Button>
         </div>
       </div>
-    </article>
+    </motion.article>
   )
 }
 
-/** All rooms. On the home page `preview` shows top configurations with a link to the full Rooms page. */
 export default function Rooms({ preview = false }) {
-  const [filter, setFilter] = useState('all')
-
-  const displayedRooms = preview
-    ? rooms
-    : filter === 'all'
-    ? rooms
-    : rooms.filter((r) => r.category === filter)
+  const [activeMode, setActiveMode] = useState('all')
+  const mode = bookingModes.find((item) => item.id === activeMode) ?? bookingModes[0]
+  const visibleRooms = preview
+    ? rooms.slice(0, 2)
+    : mode.roomIds ? rooms.filter((room) => mode.roomIds.includes(room.id)) : rooms
 
   return (
-    <section id="rooms" className={preview ? 'section' : 'pb-24 pt-8 md:pb-40 md:pt-12'}>
+    <section id="rooms" className={preview ? 'section bg-cream' : 'bg-cream py-20 md:py-28'}>
       <div className="wrap">
-        {/* Filter buttons on full rooms page */}
-        {!preview && (
-          <div className="flex flex-wrap justify-center gap-2.5">
-            {[
-              { id: 'all', label: 'All Stays & Packages' },
-              { id: 'individual', label: '1 BHK Rooms (Couples & Solo)' },
-              { id: 'group', label: '4 & 7 BHK Group Villas' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => setFilter(tab.id)}
-                className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-all duration-300 ${
-                  filter === tab.id
-                    ? 'bg-forest text-cream shadow-sm'
-                    : 'bg-sand text-forest hover:bg-sand/80'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
-        )}
+        {!preview && <Reveal className="grid gap-7 border-b border-forest/15 pb-10 md:grid-cols-[1fr_auto] md:items-end"><div><p className="label">The G’Host collection</p><h2 className="max-w-2xl font-display text-5xl font-semibold leading-[0.94] tracking-[-0.05em] text-forest sm:text-6xl">Book the room, wing or whole villa that fits your plans.</h2></div><p className="max-w-sm leading-relaxed text-forest/70">Every stay is private in its own way—from a balcony for two to an estate exclusively for your group.</p></Reveal>}
 
-        <div className="mt-12 space-y-10 md:mt-16 md:space-y-12">
-          {displayedRooms.map((r) => (
-            <Reveal key={r.id}>
-              <RoomCard r={r} />
-            </Reveal>
-          ))}
+        {!preview && <div className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" aria-label="Choose a booking type">{bookingModes.map((item) => <button key={item.id} type="button" onClick={() => setActiveMode(item.id)} aria-pressed={activeMode === item.id} className={`min-h-28 border p-4 text-left transition ${activeMode === item.id ? 'border-forest bg-forest text-cream shadow-lg shadow-forest/15' : 'border-forest/15 bg-sand text-forest hover:border-forest/45'}`}><span className="block text-xs font-bold uppercase tracking-[0.14em]">{item.label}</span><span className={`mt-3 block text-sm leading-snug ${activeMode === item.id ? 'text-cream/70' : 'text-forest/60'}`}>{item.description}</span></button>)}</div>}
+
+        {!preview && <div className="mt-12 flex flex-wrap items-center justify-between gap-4"><div><p className="label !mb-1">{mode.label}</p><p className="text-forest/65">{mode.description}</p></div><p className="text-sm font-semibold text-forest/60">{visibleRooms.length} {visibleRooms.length === 1 ? 'space' : 'spaces'} available to enquire about</p></div>}
+
+        <div className={`grid gap-7 ${preview ? 'mt-10 md:grid-cols-2' : 'mt-9 md:grid-cols-2 xl:grid-cols-3'}`}>
+          {visibleRooms.map((room, index) => <SpaceCard key={room.id} room={room} index={index} />)}
         </div>
 
-        {/* Highlights banner */}
-        <Reveal className="mt-14 rounded-3xl bg-sand/80 p-6 sm:p-8">
-          <div className="grid gap-6 md:grid-cols-3">
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cream text-forest">
-                <Icon name="home" className="h-5 w-5" />
-              </span>
-              <div>
-                <h4 className="font-semibold text-forest">BHK &amp; Villa Sizes</h4>
-                <p className="mt-1 text-sm text-muted">
-                  From cozy 260 sq.ft 1 BHK rooms up to 2,800 sq.ft 7 BHK full villa estate for 20–24 guests.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cream text-forest">
-                <Icon name="users" className="h-5 w-5" />
-              </span>
-              <div>
-                <h4 className="font-semibold text-forest">Group Rates from NPR 1,550</h4>
-                <p className="mt-1 text-sm text-muted">
-                  Enjoy shared group packages starting at NPR 1,550 per person (min. 4 guests) with welcome drinks &amp; breakfast.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-start gap-3">
-              <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-cream text-forest">
-                <Icon name="pin" className="h-5 w-5" />
-              </span>
-              <div>
-                <h4 className="font-semibold text-forest">20 Mins from Lakeside</h4>
-                <p className="mt-1 text-sm text-muted">
-                  Located along Sarangkot Road &amp; Ranipauwa with mountain air, Japanese-style architecture &amp; pyramid restro.
-                </p>
-              </div>
-            </div>
-          </div>
-        </Reveal>
-
-        <p className="mt-8 text-center text-sm text-muted">
-          Need a custom arrangement, family gathering, or long stay? Contact us directly via WhatsApp at{' '}
-          <a href={waLink()} className="font-semibold text-forest underline hover:text-sun-text">
-            {site.phoneDisplay}
-          </a>{' '}
-          or call{' '}
-          <a href={telLink} className="font-semibold text-forest underline hover:text-sun-text">
-            {site.phoneDisplay}
-          </a>.
-        </p>
-
-        {preview && (
-          <div className="mt-10 text-center">
-            <Button href="/rooms" variant="outline">
-              Explore All BHK Options &amp; Packages
-            </Button>
-          </div>
-        )}
+        {!preview && <Reveal className="mt-14 grid gap-7 bg-sand p-7 md:grid-cols-[1fr_auto] md:items-center md:p-10"><div><p className="label">Need something custom?</p><h3 className="mt-2 font-display text-4xl leading-none tracking-[-0.04em] text-forest">Tell us who’s coming. We’ll shape the stay around you.</h3><p className="mt-4 max-w-2xl leading-relaxed text-forest/70">Birthday weekends, family reunions, company off-sites and long stays can include the right mix of rooms, food, garden space and private moments.</p></div><Button href={waLink('Hello G\'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.')}>Plan a custom stay</Button></Reveal>}
       </div>
     </section>
   )
