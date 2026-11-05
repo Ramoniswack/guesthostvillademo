@@ -12,6 +12,8 @@ const socials = [
   { icon: 'bed', label: 'MakeMyTrip', href: site.social.makemytrip },
 ]
 
+const wordmarkLetters = [..."G'HOST VILLA"]
+
 export default function Footer() {
   return (
     <footer className="on-dark overflow-hidden bg-[#07120f] text-cream">
@@ -91,7 +93,13 @@ export default function Footer() {
       </section>
 
       <div className="border-t border-white/10 px-4 pb-[calc(4rem+env(safe-area-inset-bottom))] pt-8 text-center sm:px-8 md:pb-0">
-        <p className="group whitespace-nowrap font-display text-[15vw] font-semibold leading-[0.72] tracking-[-0.075em] text-white sm:text-[12vw]"><span className="transition duration-500 group-hover:text-sun group-hover:[text-shadow:0_0_28px_rgba(255,174,41,0.55)]">G&apos;HOST VILLA</span></p>
+        <p aria-label="G'Host Villa" className="group whitespace-nowrap font-display text-[15vw] font-semibold leading-[0.72] tracking-[-0.075em] text-white sm:text-[12vw]">
+          {wordmarkLetters.map((letter, index) => (
+            <span key={`${letter}-${index}`} aria-hidden="true" style={{ transitionDelay: `${index * 35}ms` }} className="inline-block transition-[color,text-shadow,transform] duration-500 group-hover:-translate-y-1 group-hover:text-sun group-hover:[text-shadow:0_0_24px_rgba(255,174,41,0.72)]">
+              {letter === ' ' ? '\u00a0' : letter}
+            </span>
+          ))}
+        </p>
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-2 py-7 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-sage-light sm:flex-row sm:items-center sm:justify-between">
           <span>Restro &amp; Bar · Sarangkot, Pokhara</span>
           <span>© {new Date().getFullYear()} G&apos;Host Villa</span>
