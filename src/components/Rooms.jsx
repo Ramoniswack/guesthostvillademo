@@ -22,7 +22,10 @@ function BookingBar() {
   const bookingBarRef = useRef(null)
 
   useEffect(() => {
-    const updateCompactState = () => setIsCompact((bookingBarRef.current?.getBoundingClientRect().top ?? Infinity) <= 76)
+    const updateCompactState = () => {
+      if (!bookingBarRef.current) return
+      setIsCompact(window.scrollY >= bookingBarRef.current.offsetTop - 72)
+    }
     updateCompactState()
     window.addEventListener('scroll', updateCompactState, { passive: true })
     return () => window.removeEventListener('scroll', updateCompactState)
@@ -34,7 +37,7 @@ function BookingBar() {
   }
 
   return (
-    <div ref={bookingBarRef} className="sticky top-[4.5rem] z-30 border-b border-forest/10 bg-sand/95 py-3 backdrop-blur-md transition-all duration-300">
+    <div ref={bookingBarRef} className={`sticky top-[4.5rem] z-30 border-b border-forest/10 bg-sand/95 backdrop-blur-md transition-all duration-300 ${isCompact ? 'py-0' : 'py-3'}`}>
       <form onSubmit={submit} className={`relative mx-auto grid max-w-[1540px] gap-px bg-forest/15 p-px shadow-lg shadow-forest/10 transition-all duration-300 md:grid-cols-[1.25fr_1fr_1fr_0.7fr_auto] ${isCompact ? 'max-w-[1120px]' : ''}`} aria-label="Search G’Host stays">
         <label className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}><span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Stay type</span><select defaultValue="all" className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`}><option value="all">Any G’Host space</option><option value="couple">Couple suite</option><option value="group">Group villa</option><option value="buyout">Entire villa</option></select></label>
         <label className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}><span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Check in</span><input aria-label="Check in" type="date" className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`} /></label>
