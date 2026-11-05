@@ -75,6 +75,8 @@ test('the exported home page promotes booking and social discovery', () => {
   assert.doesNotMatch(roomsComponent, /-mt-8/)
   assert.match(roomsComponent, /min-h-\[3\.8rem\]/)
   assert.match(roomsComponent, /min-h-\[2\.75rem\]/)
+  assert.match(roomsComponent, /grid-cols-3 gap-px bg-forest\/15/)
+  assert.doesNotMatch(roomsComponent, /flex flex-wrap gap-px bg-forest\/15 text-xs/)
   assert.doesNotMatch(roomsComponent, /room\.blurb/)
   assert.match(roomsComponent, /bookingBarRef/)
   assert.match(roomsComponent, /useState\(false\)/)
