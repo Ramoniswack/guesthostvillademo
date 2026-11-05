@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Icon from './Icons.jsx'
 import { Button, Reveal } from './ui.jsx'
 import { rooms } from '../data/rooms.js'
-import { telLink, waLink } from '../data/site.js'
+import { waLink } from '../data/site.js'
 
 const npr = (value) => `NPR ${value.toLocaleString('en-US')}`
 
@@ -35,7 +35,6 @@ function BookingBar() {
 }
 
 function SpaceCard({ room }) {
-  const bookingMessage = `Hello G'Host Villa! I would like to enquire about the ${room.name} for ${room.capacity}.`
   return (
     <article className="group">
       <div className="relative aspect-[4/3] overflow-hidden bg-forest-dark">
@@ -45,10 +44,8 @@ function SpaceCard({ room }) {
         <div className="absolute bottom-4 left-5 text-cream"><span className="block text-xs font-bold uppercase tracking-[0.14em] text-cream/75">From</span><span className="mt-1 block font-display text-3xl leading-none">{npr(room.price)}</span><span className="mt-1 block text-xs font-semibold text-cream/80">{room.rateType}</span></div>
       </div>
       <div className="mt-3 flex flex-wrap gap-px bg-forest/15 text-xs font-semibold text-forest"><span className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-2"><Icon name="home" className="h-3.5 w-3.5 text-sun-text" />{room.bhk}</span><span className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-2"><Icon name="users" className="h-3.5 w-3.5 text-sun-text" />{room.capacity}</span><span className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-2"><Icon name="mountain" className="h-3.5 w-3.5 text-sun-text" />View</span></div>
-      <h2 className="mt-5 font-display text-3xl font-semibold leading-none tracking-[-0.04em] text-forest">{room.name}</h2>
-      <p className="mt-2 text-sm leading-relaxed text-forest/65">{room.view}</p>
-      <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-forest/70">{room.blurb}</p>
-      <div className="mt-5 flex gap-3"><a href={waLink(bookingMessage)} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-forest underline decoration-sun decoration-2 underline-offset-4 transition hover:text-sun-text">Check availability</a><a href={telLink} className="text-sm font-semibold text-forest/60 transition hover:text-forest">Call</a></div>
+      <h2 className="mt-5 min-h-[3.8rem] font-display text-3xl font-semibold leading-none tracking-[-0.04em] text-forest">{room.name}</h2>
+      <p className="mt-2 min-h-[2.75rem] text-sm leading-relaxed text-forest/65">{room.view}</p>
     </article>
   )
 }
