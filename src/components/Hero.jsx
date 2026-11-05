@@ -2,19 +2,11 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import Icon, { Stars } from './Icons.jsx'
+import Icon from './Icons.jsx'
 import { Button, Divider } from './ui.jsx'
-import { directionsLink } from '../data/site.js'
-import { reviews } from '../data/reviews.js'
-
-const chips = [
-  { icon: 'pin', text: 'Sarangkot, Pokhara' },
-  { icon: 'utensils', text: 'Restaurant & Bar' },
-  { icon: 'bed', text: 'Rooms with breakfast' },
-]
 
 const heroMedia = [
-  { type: 'video', src: '/videos/hero-pool.mp4', poster: '/images/hero.webp', position: '50% 54%' },
+  { type: 'video', src: '/videos/stock-hero.mp4', poster: '/images/hero.webp', position: '50% 54%' },
   { type: 'image', src: '/images/hero.webp', position: '52% 62%' },
   { type: 'image', src: '/images/day-aerial.webp', position: '50% 54%' },
   { type: 'image', src: '/images/garden.webp', position: '50% 52%' },
@@ -22,11 +14,11 @@ const heroMedia = [
 ]
 
 export default function Hero() {
-  const [i, setI] = useState(0)
   const [heroIndex, setHeroIndex] = useState(0)
   const { scrollY } = useScroll()
   const shouldReduceMotion = useReducedMotion()
   const dragStart = useRef(null)
+  const videoRef = useRef(null)
   const currentMedia = heroMedia[heroIndex]
   const nextSlide = useCallback(() => setHeroIndex((index) => (index + 1) % heroMedia.length), [])
   const previousSlide = useCallback(() => setHeroIndex((index) => (index - 1 + heroMedia.length) % heroMedia.length), [])
@@ -38,11 +30,6 @@ export default function Hero() {
   // Description: fades in and moves up as you scroll
   const descY = useTransform(scrollY, [0, 200], [50, 0])
   const descOpacity = useTransform(scrollY, [0, 200], [0, 1])
-
-  useEffect(() => {
-    const t = setInterval(() => setI((n) => (n + 1) % reviews.length), 6000)
-    return () => clearInterval(t)
-  }, [])
 
   useEffect(() => {
     if (shouldReduceMotion || currentMedia.type === 'video') return undefined
@@ -65,6 +52,10 @@ export default function Hero() {
     }
   }, [currentMedia.type, nextSlide, shouldReduceMotion])
 
+  useEffect(() => {
+    if (currentMedia.type === 'video' && !shouldReduceMotion) videoRef.current?.play().catch(() => {})
+  }, [currentMedia.type, heroIndex, shouldReduceMotion])
+
   const handlePointerUp = (event) => {
     if (dragStart.current === null) return
     const distance = event.clientX - dragStart.current
@@ -74,14 +65,12 @@ export default function Hero() {
     else previousSlide()
   }
 
-  const r = reviews[i]
-
   return (
     <section id="home" data-hero onPointerDown={(event) => { dragStart.current = event.clientX }} onPointerUp={handlePointerUp}
       className="relative isolate flex min-h-[100svh] cursor-grab items-end overflow-hidden bg-forest-dark active:cursor-grabbing">
       <AnimatePresence initial={false}>
         {currentMedia.type === 'video' ? (
-          <motion.video key={currentMedia.src} src={currentMedia.src} poster={currentMedia.poster} autoPlay={!shouldReduceMotion} muted playsInline preload="metadata" onEnded={nextSlide} initial={{ opacity: 0, scale: 1.03 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeInOut' }} className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: currentMedia.position }} />
+          <motion.video ref={videoRef} key={currentMedia.src} src={currentMedia.src} poster={currentMedia.poster} autoPlay={!shouldReduceMotion} muted playsInline preload="auto" onEnded={nextSlide} initial={{ opacity: 0, scale: 1.03 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeInOut' }} className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: currentMedia.position }} />
         ) : (
           <motion.img key={currentMedia.src} src={currentMedia.src} alt="" aria-hidden="true" fetchPriority="high" initial={{ opacity: 0, scale: 1.03 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeInOut' }} className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: currentMedia.position }} />
         )}
@@ -93,64 +82,27 @@ export default function Hero() {
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-forest-dark/45 via-transparent to-transparent" />
 
       <div className="absolute inset-x-3 top-1/2 z-20 flex -translate-y-1/2 justify-between sm:inset-x-5">
-        <button type="button" aria-label="Previous hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={previousSlide} className="grid h-10 w-10 place-items-center border border-white/50 bg-forest-dark/35 text-xl text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12 sm:text-2xl">←</button>
-        <button type="button" aria-label="Next hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={nextSlide} className="grid h-10 w-10 place-items-center border border-white/50 bg-forest-dark/35 text-xl text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12 sm:text-2xl">→</button>
+        <button type="button" aria-label="Previous hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={previousSlide} className="grid h-10 w-10 place-items-center border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronL" className="h-5 w-5" /></button>
+        <button type="button" aria-label="Next hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={nextSlide} className="grid h-10 w-10 place-items-center border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronR" className="h-5 w-5" /></button>
       </div>
 
-      <div className="wrap relative pb-20 pt-32 md:pb-28">
-        <div className="grid items-end gap-12 lg:grid-cols-[1fr_20rem]">
+      <div className="wrap relative flex min-h-[100svh] select-none items-center justify-center py-32 text-center">
           <div className="max-w-5xl">
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sun">Sarangkot, Pokhara · Nepal</p>
             <motion.h1
-              className="font-display text-[2.9rem] font-semibold leading-[1.03] text-white sm:text-6xl lg:text-[5.25rem]"
+              className="mt-6 font-display text-5xl font-semibold leading-[0.92] text-white sm:text-7xl lg:text-[7rem]"
               style={{ letterSpacing: '-0.04em', y: headlineY, opacity: headlineOpacity }}
             >
-              Stay, Dine &amp; Breathe Above&nbsp;Pokhara.
+              Your private space.<br />Hosted your way.
             </motion.h1>
             <motion.p
-              className="mt-5 max-w-xl text-xl leading-[1.4] text-white/90 md:text-[1.4rem]"
+              className="mx-auto mt-6 max-w-xl text-lg leading-[1.4] text-white/85 md:text-xl"
               style={{ y: descY, opacity: descOpacity }}
             >
-              A hilltop villa, restaurant and bar in Sarangkot with valley and Himalayan views.
+              A hilltop villa, restro and bar made for quiet stays, big gatherings and slow Pokhara days.
             </motion.p>
-
-            <ul className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-base text-white/90">
-              {chips.map((c) => (
-                <li key={c.text} className="inline-flex items-center gap-2">
-                  <Icon name={c.icon} className="h-5 w-5 text-sun" /> {c.text}
-                </li>
-              ))}
-            </ul>
+            <div className="mt-9" onPointerDown={(event) => event.stopPropagation()}><Button href="/rooms" className="!rounded-none">Find your stay</Button></div>
           </div>
-
-          {/* Rotating "Guests say" card, bottom right on desktop */}
-          <aside className="glass hidden -mt-16 mr-8 rounded-[28px] p-6 lg:block self-end" aria-label="Guest review">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-semibold text-white/80">
-                Guests say
-              </span>
-              <Stars />
-            </div>
-            <div className="mt-3 min-h-[4.5rem]" aria-live="off">
-              <AnimatePresence mode="wait">
-                <motion.p
-                  key={i}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="font-display text-lg font-medium leading-snug text-white"
-                >
-                  “{r.short}”
-                </motion.p>
-              </AnimatePresence>
-            </div>
-            {r.source ? (
-              <p className="mt-2 text-xs font-semibold text-sun">{r.source} · 4.5★</p>
-            ) : r.placeholder ? (
-              <p className="mt-2 text-xs font-semibold text-white/70">Sample review</p>
-            ) : null}
-          </aside>
-        </div>
       </div>
 
       <div className="absolute inset-x-0 bottom-0">

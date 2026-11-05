@@ -91,7 +91,7 @@ export default function Footer() {
       </section>
 
       <div className="border-t border-white/10 px-4 pb-[calc(4rem+env(safe-area-inset-bottom))] pt-8 text-center sm:px-8 md:pb-0">
-        <p className="whitespace-nowrap font-display text-[15vw] font-semibold leading-[0.72] tracking-[-0.075em] text-white sm:text-[12vw]">G&apos;HOST VILLA</p>
+        <p className="group whitespace-nowrap font-display text-[15vw] font-semibold leading-[0.72] tracking-[-0.075em] text-white sm:text-[12vw]"><span className="transition duration-500 group-hover:text-sun group-hover:[text-shadow:0_0_28px_rgba(255,174,41,0.55)]">G&apos;HOST VILLA</span></p>
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-2 py-7 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-sage-light sm:flex-row sm:items-center sm:justify-between">
           <span>Restro &amp; Bar · Sarangkot, Pokhara</span>
           <span>© {new Date().getFullYear()} G&apos;Host Villa</span>
