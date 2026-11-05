@@ -45,6 +45,8 @@ test('the exported home page promotes booking and social discovery', () => {
   assert.match(home, /aria-label="Guest testimonials"/)
   assert.match(home, /\/videos\/stock-hero\.mp4/)
   assert.match(home, /autoPlay muted playsInline loop/)
+  assert.match(home, /flex min-h-\[34rem\] flex-col/)
+  assert.match(home, /TextLink href=\{space\.href\}>See stay options/)
   assert.match(home, /activeMoment/)
   assert.match(home, /const spaces = \[/)
   assert.match(home, /activeSpace/)
