@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { motion } from 'framer-motion'
 import Icon from './Icons.jsx'
 import { Button, Reveal } from './ui.jsx'
 import { rooms } from '../data/rooms.js'
@@ -10,78 +9,80 @@ import { telLink, waLink } from '../data/site.js'
 const npr = (value) => `NPR ${value.toLocaleString('en-US')}`
 
 const bookingModes = [
-  { id: 'all', label: 'All spaces', description: 'Compare every way to stay at G’Host.' },
-  { id: 'couple', label: 'For two', description: 'A private suite for slow, scenic stays.', roomIds: ['couple-deluxe'] },
-  { id: 'private', label: 'Private room', description: 'Your own hillside room with garden calm.', roomIds: ['hilltop-double'] },
-  { id: 'group', label: 'Group villa', description: 'A private wing for families and friend groups.', roomIds: ['four-bhk-wing'] },
-  { id: 'buyout', label: 'Entire villa buyout', description: 'The full estate, entirely yours.', roomIds: ['seven-bhk-full-villa'] },
+  { id: 'all', label: 'All spaces', roomIds: null },
+  { id: 'couple', label: 'For two', roomIds: ['couple-deluxe'] },
+  { id: 'private', label: 'Private room', roomIds: ['hilltop-double'] },
+  { id: 'group', label: 'Group villa', roomIds: ['four-bhk-wing'] },
+  { id: 'buyout', label: 'Entire villa buyout', roomIds: ['seven-bhk-full-villa'] },
 ]
 
-function SpaceCard({ room, index }) {
-  const bookingMessage = room.category === 'group'
-    ? `Hello G'Host Villa! I would like to enquire about the ${room.name} for ${room.capacity}.`
-    : `Hello G'Host Villa! I would like to book the ${room.name} for ${room.capacity}.`
+function BookingBar() {
+  const [guests, setGuests] = useState(2)
+  const submit = (event) => {
+    event.preventDefault()
+    document.getElementById('stay-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
 
   return (
-    <motion.article
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-70px' }}
-      transition={{ duration: 0.5, delay: index * 0.06 }}
-      className="group overflow-hidden border border-forest/15 bg-cream transition duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-forest/10"
-    >
+    <form onSubmit={submit} className="mx-auto -mt-8 grid max-w-[1120px] gap-px bg-forest/15 p-px shadow-xl shadow-forest/10 md:-mt-12 md:grid-cols-[1.25fr_1fr_1fr_0.7fr_auto]" aria-label="Search G’Host stays">
+      <label className="bg-cream px-5 py-4"><span className="block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Stay type</span><select defaultValue="all" className="mt-1 w-full bg-transparent font-semibold text-forest outline-none"><option value="all">Any G’Host space</option><option value="couple">Couple suite</option><option value="group">Group villa</option><option value="buyout">Entire villa</option></select></label>
+      <label className="bg-cream px-5 py-4"><span className="block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Check in</span><input aria-label="Check in" type="date" className="mt-1 w-full bg-transparent font-semibold text-forest outline-none" /></label>
+      <label className="bg-cream px-5 py-4"><span className="block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Check out</span><input aria-label="Check out" type="date" className="mt-1 w-full bg-transparent font-semibold text-forest outline-none" /></label>
+      <div className="bg-cream px-5 py-4"><span className="block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Guests</span><div className="mt-1 flex items-center justify-between font-semibold text-forest"><button type="button" aria-label="Remove guest" onClick={() => setGuests((count) => Math.max(1, count - 1))} className="grid h-6 w-6 place-items-center border border-forest/20">−</button>{guests}<button type="button" aria-label="Add guest" onClick={() => setGuests((count) => Math.min(24, count + 1))} className="grid h-6 w-6 place-items-center border border-forest/20">+</button></div></div>
+      <button type="submit" className="min-h-16 bg-sun px-7 text-sm font-bold uppercase tracking-[0.12em] text-forest transition hover:bg-sun-dark">Find a stay</button>
+    </form>
+  )
+}
+
+function SpaceCard({ room }) {
+  const bookingMessage = `Hello G'Host Villa! I would like to enquire about the ${room.name} for ${room.capacity}.`
+  return (
+    <article className="group">
       <div className="relative aspect-[4/3] overflow-hidden bg-forest-dark">
         <img src={room.image} alt={room.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-        <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-forest-dark/10 to-transparent" />
-        <span className="absolute left-4 top-4 bg-sun px-3 py-2 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest-dark">{room.badge}</span>
-        <div className="absolute inset-x-5 bottom-5 flex items-end justify-between gap-3 text-cream">
-          <div><p className="text-xs font-bold uppercase tracking-[0.14em] text-cream/70">From</p><p className="mt-1 font-display text-3xl leading-none">{npr(room.price)}</p></div>
-          <p className="text-right text-xs font-semibold uppercase tracking-[0.1em] text-cream/80">{room.rateType}</p>
-        </div>
+        <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-transparent to-transparent" />
+        <span className="absolute left-4 top-4 bg-sun px-3 py-2 text-[0.62rem] font-bold uppercase tracking-[0.13em] text-forest-dark">{room.badge}</span>
+        <div className="absolute bottom-4 left-5 text-cream"><span className="block text-xs font-bold uppercase tracking-[0.14em] text-cream/75">From</span><span className="mt-1 block font-display text-3xl leading-none">{npr(room.price)}</span><span className="mt-1 block text-xs font-semibold text-cream/80">{room.rateType}</span></div>
       </div>
-
-      <div className="p-6 sm:p-7">
-        <div className="flex flex-wrap gap-2 text-xs font-semibold text-forest/75">
-          <span className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-1.5"><Icon name="users" className="h-3.5 w-3.5 text-sun-text" />{room.capacity}</span>
-          <span className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-1.5"><Icon name="home" className="h-3.5 w-3.5 text-sun-text" />{room.bhk}</span>
-        </div>
-        <p className="mt-5 text-[0.68rem] font-bold uppercase tracking-[0.14em] text-sun-text">{room.view}</p>
-        <h2 className="mt-2 font-display text-3xl font-semibold leading-[0.95] tracking-[-0.04em] text-forest">{room.name}</h2>
-        <p className="mt-4 line-clamp-3 leading-relaxed text-forest/70">{room.blurb}</p>
-        <details className="mt-5 border-y border-forest/10 py-3 text-sm text-forest/75">
-          <summary className="cursor-pointer font-semibold text-forest">What’s included</summary>
-          <ul className="mt-3 space-y-2 leading-relaxed">{room.features.slice(0, 4).map((feature) => <li key={feature} className="flex gap-2"><span className="text-sun-text">•</span>{feature}</li>)}</ul>
-        </details>
-        <p className="mt-4 text-xs leading-relaxed text-forest/60">{room.priceDetails}</p>
-        <div className="mt-6 grid grid-cols-[1fr_auto] gap-3">
-          <Button href={waLink(bookingMessage)} icon="chat" arrow={false} className="!min-h-11 !rounded-none !px-4 !py-2 !text-sm">Check availability</Button>
-          <Button href={telLink} variant="outline" icon="phone" arrow={false} className="!min-h-11 !rounded-none !px-4 !py-2 !text-sm">Call</Button>
-        </div>
-      </div>
-    </motion.article>
+      <div className="mt-3 flex flex-wrap gap-px bg-forest/15 text-xs font-semibold text-forest"><span className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-2"><Icon name="home" className="h-3.5 w-3.5 text-sun-text" />{room.bhk}</span><span className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-2"><Icon name="users" className="h-3.5 w-3.5 text-sun-text" />{room.capacity}</span><span className="inline-flex items-center gap-1.5 bg-sand px-2.5 py-2"><Icon name="mountain" className="h-3.5 w-3.5 text-sun-text" />View</span></div>
+      <h2 className="mt-5 font-display text-3xl font-semibold leading-none tracking-[-0.04em] text-forest">{room.name}</h2>
+      <p className="mt-2 text-sm leading-relaxed text-forest/65">{room.view}</p>
+      <p className="mt-3 line-clamp-2 text-sm leading-relaxed text-forest/70">{room.blurb}</p>
+      <div className="mt-5 flex gap-3"><a href={waLink(bookingMessage)} target="_blank" rel="noopener noreferrer" className="text-sm font-bold text-forest underline decoration-sun decoration-2 underline-offset-4 transition hover:text-sun-text">Check availability</a><a href={telLink} className="text-sm font-semibold text-forest/60 transition hover:text-forest">Call</a></div>
+    </article>
   )
 }
 
 export default function Rooms({ preview = false }) {
   const [activeMode, setActiveMode] = useState('all')
+  const [priceLimit, setPriceLimit] = useState(8000)
+  const [capacity, setCapacity] = useState('any')
+  const [view, setView] = useState('any')
+  const [breakfastOnly, setBreakfastOnly] = useState(false)
   const mode = bookingModes.find((item) => item.id === activeMode) ?? bookingModes[0]
-  const visibleRooms = preview
-    ? rooms.slice(0, 2)
-    : mode.roomIds ? rooms.filter((room) => mode.roomIds.includes(room.id)) : rooms
+  const visibleRooms = rooms.filter((room) => {
+    const fitsMode = !mode.roomIds || mode.roomIds.includes(room.id)
+    const fitsPrice = room.price <= priceLimit
+    const capacityStart = Number(room.capacity.match(/\d+/)?.[0] ?? 0)
+    const fitsCapacity = capacity === 'any' || (capacity === 'two' ? capacityStart <= 2 : capacityStart >= 4)
+    const fitsView = view === 'any' || room.view.toLowerCase().includes(view)
+    const fitsBreakfast = !breakfastOnly || room.amenities.includes('breakfast')
+    return fitsMode && fitsPrice && fitsCapacity && fitsView && fitsBreakfast
+  })
+  const previewRooms = rooms.slice(0, 2)
+
+  if (preview) return <section id="rooms" className="section bg-cream"><div className="wrap grid gap-7 md:grid-cols-2">{previewRooms.map((room) => <SpaceCard key={room.id} room={room} />)}</div></section>
 
   return (
-    <section id="rooms" className={preview ? 'section bg-cream' : 'bg-cream py-20 md:py-28'}>
-      <div className="wrap">
-        {!preview && <Reveal className="grid gap-7 border-b border-forest/15 pb-10 md:grid-cols-[1fr_auto] md:items-end"><div><p className="label">The G’Host collection</p><h2 className="max-w-2xl font-display text-5xl font-semibold leading-[0.94] tracking-[-0.05em] text-forest sm:text-6xl">Book the room, wing or whole villa that fits your plans.</h2></div><p className="max-w-sm leading-relaxed text-forest/70">Every stay is private in its own way—from a balcony for two to an estate exclusively for your group.</p></Reveal>}
-
-        {!preview && <div className="mt-9 grid gap-3 sm:grid-cols-2 lg:grid-cols-5" aria-label="Choose a booking type">{bookingModes.map((item) => <button key={item.id} type="button" onClick={() => setActiveMode(item.id)} aria-pressed={activeMode === item.id} className={`min-h-28 border p-4 text-left transition ${activeMode === item.id ? 'border-forest bg-forest text-cream shadow-lg shadow-forest/15' : 'border-forest/15 bg-sand text-forest hover:border-forest/45'}`}><span className="block text-xs font-bold uppercase tracking-[0.14em]">{item.label}</span><span className={`mt-3 block text-sm leading-snug ${activeMode === item.id ? 'text-cream/70' : 'text-forest/60'}`}>{item.description}</span></button>)}</div>}
-
-        {!preview && <div className="mt-12 flex flex-wrap items-center justify-between gap-4"><div><p className="label !mb-1">{mode.label}</p><p className="text-forest/65">{mode.description}</p></div><p className="text-sm font-semibold text-forest/60">{visibleRooms.length} {visibleRooms.length === 1 ? 'space' : 'spaces'} available to enquire about</p></div>}
-
-        <div className={`grid gap-7 ${preview ? 'mt-10 md:grid-cols-2' : 'mt-9 md:grid-cols-2 xl:grid-cols-3'}`}>
-          {visibleRooms.map((room, index) => <SpaceCard key={room.id} room={room} index={index} />)}
+    <section id="rooms" className="bg-cream pb-24">
+      <BookingBar />
+      <div className="wrap pt-16 md:pt-24">
+        <Reveal className="mb-12 grid gap-6 md:grid-cols-[1fr_auto] md:items-end"><div><p className="label">Stay collection</p><h2 className="max-w-2xl font-display text-5xl font-semibold leading-[0.94] tracking-[-0.05em] text-forest sm:text-6xl">Find the G’Host space that fits your stay.</h2></div><p className="max-w-sm leading-relaxed text-forest/70">For two people, a family weekend, or a full estate celebration—filter by the way you want to stay.</p></Reveal>
+        <div className="grid gap-12 lg:grid-cols-[minmax(0,1fr)_300px] lg:items-start">
+          <div id="stay-results"><div className="mb-8 flex flex-wrap items-center justify-between gap-4"><p className="text-sm font-semibold text-forest/65">Showing {visibleRooms.length} {visibleRooms.length === 1 ? 'space' : 'spaces'}</p><button type="button" onClick={() => { setActiveMode('all'); setPriceLimit(8000); setCapacity('any'); setView('any'); setBreakfastOnly(false) }} className="text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">Clear filters</button></div><div className="grid gap-x-7 gap-y-12 sm:grid-cols-2 xl:grid-cols-3">{visibleRooms.map((room) => <SpaceCard key={room.id} room={room} />)}{visibleRooms.length === 0 && <p className="col-span-full border border-forest/15 p-8 text-forest/70">No spaces match those filters. Try widening your choices or ask us for a custom stay.</p>}</div></div>
+          <aside aria-label="Filter rooms" className="border border-forest/15 bg-sand p-6 lg:sticky lg:top-28"><h2 className="font-display text-3xl text-forest">Filter by</h2><div className="mt-6 border-t border-forest/15 pt-6"><label className="text-sm font-bold text-forest">Price per stay</label><input aria-label="Maximum price per stay" type="range" min="1550" max="8000" step="250" value={priceLimit} onChange={(event) => setPriceLimit(Number(event.target.value))} className="mt-4 w-full accent-forest" /><div className="mt-2 flex justify-between text-sm font-semibold text-forest/70"><span>{npr(1550)}</span><span>Up to {npr(priceLimit)}</span></div></div><fieldset className="mt-7 border-t border-forest/15 pt-6"><legend className="text-sm font-bold text-forest">Space type</legend><div className="mt-3 space-y-3">{bookingModes.map((item) => <label key={item.id} className="flex cursor-pointer items-center gap-3 text-sm text-forest/75"><input type="radio" name="space-type" checked={activeMode === item.id} onChange={() => setActiveMode(item.id)} className="accent-forest" />{item.label}</label>)}</div></fieldset><fieldset className="mt-7 border-t border-forest/15 pt-6"><legend className="text-sm font-bold text-forest">Capacity</legend><div className="mt-3 space-y-3">{[['any', 'Any size'], ['two', '1–2 guests'], ['group', '4+ guests']].map(([id, label]) => <label key={id} className="flex cursor-pointer items-center gap-3 text-sm text-forest/75"><input type="radio" name="capacity" checked={capacity === id} onChange={() => setCapacity(id)} className="accent-forest" />{label}</label>)}</div></fieldset><fieldset className="mt-7 border-t border-forest/15 pt-6"><legend className="text-sm font-bold text-forest">View</legend><div className="mt-3 space-y-3">{[['any', 'Any view'], ['annapurna', 'Mountain / Annapurna'], ['garden', 'Garden / hillside'], ['valley', 'Valley panorama']].map(([id, label]) => <label key={id} className="flex cursor-pointer items-center gap-3 text-sm text-forest/75"><input type="radio" name="view" checked={view === id} onChange={() => setView(id)} className="accent-forest" />{label}</label>)}</div></fieldset><label className="mt-7 flex cursor-pointer items-center gap-3 border-t border-forest/15 pt-6 text-sm font-semibold text-forest"><input type="checkbox" checked={breakfastOnly} onChange={(event) => setBreakfastOnly(event.target.checked)} className="h-4 w-4 accent-forest" />Breakfast included</label></aside>
         </div>
-
-        {!preview && <Reveal className="mt-14 grid gap-7 bg-sand p-7 md:grid-cols-[1fr_auto] md:items-center md:p-10"><div><p className="label">Need something custom?</p><h3 className="mt-2 font-display text-4xl leading-none tracking-[-0.04em] text-forest">Tell us who’s coming. We’ll shape the stay around you.</h3><p className="mt-4 max-w-2xl leading-relaxed text-forest/70">Birthday weekends, family reunions, company off-sites and long stays can include the right mix of rooms, food, garden space and private moments.</p></div><Button href={waLink('Hello G\'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.')}>Plan a custom stay</Button></Reveal>}
+        <Reveal className="mt-16 grid gap-7 bg-forest p-8 text-cream md:grid-cols-[1fr_auto] md:items-center md:p-10"><div><p className="text-xs font-bold uppercase tracking-[0.15em] text-sun">Need a tailored plan?</p><h3 className="mt-3 font-display text-4xl leading-none tracking-[-0.04em]">Tell us who’s coming. We’ll shape the stay around you.</h3></div><Button href={waLink('Hello G\'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.')} variant="light">Plan a custom stay</Button></Reveal>
       </div>
     </section>
   )
