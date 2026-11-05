@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { faqs } from '../data/faq.js'
@@ -62,10 +62,32 @@ export default function HomeEditorial() {
   const [activeSpace, setActiveSpace] = useState(0)
   const [activeGallery, setActiveGallery] = useState(null)
   const [reviewIndex, setReviewIndex] = useState(0)
+  const galleryCloseRef = useRef(null)
+  const galleryTriggerRef = useRef(null)
   const moment = moments[activeMoment]
   const space = spaces[activeSpace]
   const quote = reviews[reviewIndex]
   const changeReview = (direction) => setReviewIndex((index) => (index + direction + reviews.length) % reviews.length)
+
+  useEffect(() => {
+    if (!activeGallery) return undefined
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    galleryCloseRef.current?.focus()
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') setActiveGallery(null)
+      if (event.key === 'Tab') {
+        event.preventDefault()
+        galleryCloseRef.current?.focus()
+      }
+    }
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      document.removeEventListener('keydown', handleKeyDown)
+      galleryTriggerRef.current?.focus()
+    }
+  }, [activeGallery])
 
   return (
     <div>
@@ -92,7 +114,7 @@ export default function HomeEditorial() {
 
       <section className="border-y border-forest/15 bg-sand py-9 md:py-12">
         <div className="wrap grid grid-cols-2 md:grid-cols-4">
-          {stats.map((stat, index) => <motion.div key={stat.label} initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: index * 0.08, duration: 0.5 }} className={`px-4 py-5 text-center first:pl-0 last:pr-0 md:px-7 ${index % 2 === 1 ? 'border-l border-forest/15' : ''} ${index >= 2 ? 'border-t border-forest/15 md:border-t-0' : ''} ${index > 0 ? 'md:border-l md:border-forest/15' : ''}`}><p className="font-display text-3xl leading-none tracking-[-0.04em] text-forest sm:text-4xl">{stat.value}{stat.suffix}</p><p className="mx-auto mt-3 max-w-32 text-xs font-semibold leading-snug text-forest/65">{stat.label}</p></motion.div>)}
+          {stats.map((stat, index) => <motion.div key={stat.label} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: index * 0.08, duration: 0.5 }} className={`px-4 py-5 text-center first:pl-0 last:pr-0 md:px-7 ${index % 2 === 1 ? 'border-l border-forest/15' : ''} ${index >= 2 ? 'border-t border-forest/15 md:border-t-0' : ''} ${index > 0 ? 'md:border-l md:border-forest/15' : ''}`}><p className="font-display text-3xl leading-none tracking-[-0.04em] text-forest sm:text-4xl">{stat.value}{stat.suffix}</p><p className="mx-auto mt-3 max-w-32 text-xs font-semibold leading-snug text-forest/65">{stat.label}</p></motion.div>)}
         </div>
       </section>
 
@@ -126,11 +148,11 @@ export default function HomeEditorial() {
       <section className="bg-forest-dark px-6 py-20 text-cream md:py-28">
         <div className="mx-auto max-w-[1440px]">
           <Reveal className="mb-10 flex flex-col justify-between gap-5 md:mb-14 md:flex-row md:items-end"><div><p className="label !text-sun">Villa experiences</p><h2 className="mt-4 max-w-2xl font-display text-5xl font-semibold leading-[0.94] tracking-[-0.045em] text-cream sm:text-6xl">A little more colour for your stay.</h2></div><p className="max-w-sm leading-relaxed text-cream/65">Tap any moment to see it closer—from quiet corners to the nights everyone talks about later.</p></Reveal>
-          <div aria-label="Villa gallery" className="grid auto-rows-[150px] grid-cols-2 gap-3 sm:auto-rows-[190px] sm:gap-5 md:grid-cols-4"><>{gallery.slice(0, 6).map((photo, index) => <motion.button key={photo.src} type="button" onClick={() => setActiveGallery(photo)} whileHover={{ scale: 0.985 }} className={`group relative overflow-hidden text-left ${index === 0 ? 'row-span-2 md:row-span-3' : ''} ${index === 1 ? 'md:row-span-2' : ''} ${index === 2 ? 'md:col-span-2' : ''} ${index === 3 ? 'row-span-2' : ''}`}><img src={photo.src} alt={photo.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105 group-hover:opacity-80" /><span className="absolute inset-x-3 bottom-3 translate-y-3 text-xs font-bold uppercase tracking-[0.14em] text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 sm:inset-x-5 sm:bottom-5">View moment <span aria-hidden="true">↗</span></span></motion.button>)}</></div>
+          <div aria-label="Villa gallery" className="grid auto-rows-[150px] grid-cols-2 gap-3 sm:auto-rows-[190px] sm:gap-5 md:grid-cols-4"><>{gallery.slice(0, 6).map((photo, index) => <motion.button key={photo.src} type="button" onClick={(event) => { galleryTriggerRef.current = event.currentTarget; setActiveGallery(photo) }} whileHover={{ scale: 0.985 }} className={`group relative overflow-hidden text-left ${index === 0 ? 'row-span-2 md:row-span-3' : ''} ${index === 1 ? 'md:row-span-2' : ''} ${index === 2 ? 'md:col-span-2' : ''} ${index === 3 ? 'row-span-2' : ''}`}><img src={photo.src} alt={photo.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105 group-hover:opacity-80" /><span className="absolute inset-x-3 bottom-3 translate-y-3 text-xs font-bold uppercase tracking-[0.14em] text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 sm:inset-x-5 sm:bottom-5">View moment <span aria-hidden="true">↗</span></span></motion.button>)}</></div>
         </div>
       </section>
 
-      <AnimatePresence>{activeGallery && <motion.div className="fixed inset-0 z-50 grid place-items-center bg-forest-dark/95 p-5 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Expanded gallery image" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActiveGallery(null)}><motion.div initial={{ scale: 0.96 }} animate={{ scale: 1 }} exit={{ scale: 0.96 }} className="relative max-h-[90svh] max-w-6xl" onClick={(event) => event.stopPropagation()}><img src={activeGallery.src} alt={activeGallery.alt} className="max-h-[82svh] w-auto max-w-full object-contain" /><button type="button" aria-label="Close gallery" onClick={() => setActiveGallery(null)} className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full bg-forest-dark/80 text-2xl text-cream transition hover:bg-sun hover:text-forest">×</button><p className="mt-3 text-sm text-cream/70">{activeGallery.alt}</p></motion.div></motion.div>}</AnimatePresence>
+      <AnimatePresence>{activeGallery && <motion.div className="fixed inset-0 z-50 grid place-items-center bg-forest-dark/95 p-5 backdrop-blur-sm" role="dialog" aria-modal="true" aria-label="Expanded gallery image" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setActiveGallery(null)}><motion.div initial={{ scale: 0.96 }} animate={{ scale: 1 }} exit={{ scale: 0.96 }} className="relative max-h-[90svh] max-w-6xl" onClick={(event) => event.stopPropagation()}><img src={activeGallery.src} alt={activeGallery.alt} className="max-h-[82svh] w-auto max-w-full object-contain" /><button ref={galleryCloseRef} type="button" aria-label="Close gallery" onClick={() => setActiveGallery(null)} className="absolute right-3 top-3 grid h-11 w-11 place-items-center rounded-full bg-forest-dark/80 text-2xl text-cream transition hover:bg-sun hover:text-forest">×</button><p className="mt-3 text-sm text-cream/70">{activeGallery.alt}</p></motion.div></motion.div>}</AnimatePresence>
 
       <section className="bg-forest-dark px-6 py-20 text-cream md:py-32">
         <Reveal className="mx-auto max-w-5xl text-center"><p className="label !text-sun">Made for the moments between plans</p><h2 className="mt-6 font-display text-5xl font-semibold leading-[0.94] tracking-[-0.05em] sm:text-7xl lg:text-8xl">Less rushing.<br />More remembering.</h2><p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-cream/75">Wake up with the hills, linger over breakfast, then let the day decide what it wants to be.</p><div className="mt-9"><Button href={waLink('Hello G\'Host Villa! I would like to plan a stay.')}>Plan your escape</Button></div></Reveal>
