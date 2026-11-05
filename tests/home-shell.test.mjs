@@ -82,6 +82,7 @@ test('the exported home page promotes booking and social discovery', () => {
   assert.match(roomsComponent, /sticky top-\[4\.5rem\]/)
   assert.match(roomsComponent, /const \[isCompact\] = useState\(true\)/)
   assert.match(roomsComponent, /isCompact \? 'py-0' : 'py-3'/)
+  assert.match(roomsComponent, /isCompact \? 'max-w-\[1120px\]' : 'max-w-\[1540px\]'/)
   assert.doesNotMatch(roomsComponent, /initial=\{\{ opacity: 0, y: 20 \}\}/)
   const layout = readFileSync('src/app/layout.jsx', 'utf8')
   assert.doesNotMatch(jobs, /placeholder/)
