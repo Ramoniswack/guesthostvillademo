@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useRef, useState } from 'react'
 import Icon from './Icons.jsx'
 import { Button, Reveal } from './ui.jsx'
 import { rooms } from '../data/rooms.js'
@@ -18,18 +18,8 @@ const bookingModes = [
 
 function BookingBar() {
   const [guests, setGuests] = useState(2)
-  const [isCompact, setIsCompact] = useState(false)
+  const [isCompact] = useState(true)
   const bookingBarRef = useRef(null)
-
-  useEffect(() => {
-    const updateCompactState = () => {
-      if (!bookingBarRef.current) return
-      setIsCompact(window.scrollY >= bookingBarRef.current.offsetTop - 72)
-    }
-    updateCompactState()
-    window.addEventListener('scroll', updateCompactState, { passive: true })
-    return () => window.removeEventListener('scroll', updateCompactState)
-  }, [])
 
   const submit = (event) => {
     event.preventDefault()
