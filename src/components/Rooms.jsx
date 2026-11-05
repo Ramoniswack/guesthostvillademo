@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import Icon from './Icons.jsx'
 import { Button, Reveal } from './ui.jsx'
 import { rooms } from '../data/rooms.js'
@@ -18,19 +18,31 @@ const bookingModes = [
 
 function BookingBar() {
   const [guests, setGuests] = useState(2)
+  const [isCompact, setIsCompact] = useState(false)
+  const bookingBarRef = useRef(null)
+
+  useEffect(() => {
+    const updateCompactState = () => setIsCompact((bookingBarRef.current?.getBoundingClientRect().top ?? Infinity) <= 76)
+    updateCompactState()
+    window.addEventListener('scroll', updateCompactState, { passive: true })
+    return () => window.removeEventListener('scroll', updateCompactState)
+  }, [])
+
   const submit = (event) => {
     event.preventDefault()
     document.getElementById('stay-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
   return (
-    <form onSubmit={submit} className="relative z-10 mx-auto grid max-w-[1540px] gap-px bg-forest/15 p-px shadow-xl shadow-forest/10 md:grid-cols-[1.25fr_1fr_1fr_0.7fr_auto]" aria-label="Search G’Host stays">
-      <label className="bg-cream px-5 py-4"><span className="block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Stay type</span><select defaultValue="all" className="mt-1 w-full bg-transparent font-semibold text-forest outline-none"><option value="all">Any G’Host space</option><option value="couple">Couple suite</option><option value="group">Group villa</option><option value="buyout">Entire villa</option></select></label>
-      <label className="bg-cream px-5 py-4"><span className="block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Check in</span><input aria-label="Check in" type="date" className="mt-1 w-full bg-transparent font-semibold text-forest outline-none" /></label>
-      <label className="bg-cream px-5 py-4"><span className="block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Check out</span><input aria-label="Check out" type="date" className="mt-1 w-full bg-transparent font-semibold text-forest outline-none" /></label>
-      <div className="bg-cream px-5 py-4"><span className="block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Guests</span><div className="mt-1 flex items-center justify-between font-semibold text-forest"><button type="button" aria-label="Remove guest" onClick={() => setGuests((count) => Math.max(1, count - 1))} className="grid h-6 w-6 place-items-center border border-forest/20">−</button>{guests}<button type="button" aria-label="Add guest" onClick={() => setGuests((count) => Math.min(24, count + 1))} className="grid h-6 w-6 place-items-center border border-forest/20">+</button></div></div>
-      <button type="submit" className="min-h-16 bg-sun px-7 text-sm font-bold uppercase tracking-[0.12em] text-forest transition hover:bg-sun-dark">Find a stay</button>
-    </form>
+    <div ref={bookingBarRef} className="sticky top-[4.5rem] z-30 border-b border-forest/10 bg-sand/95 py-3 backdrop-blur-md transition-all duration-300">
+      <form onSubmit={submit} className={`relative mx-auto grid max-w-[1540px] gap-px bg-forest/15 p-px shadow-lg shadow-forest/10 transition-all duration-300 md:grid-cols-[1.25fr_1fr_1fr_0.7fr_auto] ${isCompact ? 'max-w-[1120px]' : ''}`} aria-label="Search G’Host stays">
+        <label className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}><span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Stay type</span><select defaultValue="all" className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`}><option value="all">Any G’Host space</option><option value="couple">Couple suite</option><option value="group">Group villa</option><option value="buyout">Entire villa</option></select></label>
+        <label className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}><span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Check in</span><input aria-label="Check in" type="date" className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`} /></label>
+        <label className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}><span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Check out</span><input aria-label="Check out" type="date" className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`} /></label>
+        <div className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}><span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Guests</span><div className={`${isCompact ? '' : 'mt-1'} flex items-center justify-between font-semibold text-forest`}><button type="button" aria-label="Remove guest" onClick={() => setGuests((count) => Math.max(1, count - 1))} className="grid h-6 w-6 place-items-center border border-forest/20">−</button>{guests}<button type="button" aria-label="Add guest" onClick={() => setGuests((count) => Math.min(24, count + 1))} className="grid h-6 w-6 place-items-center border border-forest/20">+</button></div></div>
+        <button type="submit" className={`bg-sun px-7 text-sm font-bold uppercase tracking-[0.12em] text-forest transition hover:bg-sun-dark ${isCompact ? 'min-h-12' : 'min-h-16'}`}>Find a stay</button>
+      </form>
+    </div>
   )
 }
 
