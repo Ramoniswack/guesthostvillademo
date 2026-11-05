@@ -62,6 +62,7 @@ test('the exported home page promotes booking and social discovery', () => {
   assert.match(roomsComponent, /bookingModes/)
   assert.match(roomsComponent, /Entire villa buyout/)
   assert.match(roomsComponent, /aria-label="Choose a booking type"/)
+  assert.doesNotMatch(roomsComponent, /initial=\{\{ opacity: 0, y: 20 \}\}/)
   const layout = readFileSync('src/app/layout.jsx', 'utf8')
   assert.doesNotMatch(jobs, /placeholder/)
   assert.doesNotMatch(layout, /YOUR-DOMAIN/)
