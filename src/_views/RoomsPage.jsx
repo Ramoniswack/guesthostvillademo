@@ -13,6 +13,8 @@ export default function RoomsPage() {
         text="Book a quiet couple suite, a private room, a group villa wing, or the entire G’Host estate. Every stay comes with mountain air, breakfast, hot water and the freedom to make the place your own."
         image="/images/pyramid.webp"
         position="50% 58%"
+        center
+        compact
       />
       <Rooms />
       <CtaBanner />

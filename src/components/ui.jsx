@@ -62,23 +62,23 @@ export function Button({ variant = 'primary', href, children, arrow = true, icon
 }
 
 /** Dark photo banner that opens every inner page. `data-hero` tells the navbar when it has been scrolled past. */
-export function PageHero({ eyebrow, title, text, image, position = '50% 50%' }) {
+export function PageHero({ eyebrow, title, text, image, position = '50% 50%', center = false, compact = false }) {
   return (
-    <section data-hero className="relative isolate flex min-h-[58svh] items-end overflow-hidden bg-forest-dark">
+    <section data-hero className={`relative isolate flex overflow-hidden bg-forest-dark ${compact ? 'min-h-[42svh] items-center' : 'min-h-[58svh] items-end'}`}>
       <img src={image} alt="" fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: position }} />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-forest-dark/95 via-forest-dark/55 to-forest-dark/30" />
-      <div className="wrap pb-20 pt-44 md:pb-28">
+      <div className={`wrap ${compact ? 'py-28 md:py-32' : 'pb-20 pt-44 md:pb-28'}`}>
         <motion.div
           initial={{ opacity: 0, y: 22 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.22, 0.61, 0.36, 1] }}
-          className="max-w-3xl"
+          className={`max-w-3xl ${center ? 'mx-auto text-center' : ''}`}
         >
           <p className="mb-3 text-[1.0625rem] font-semibold text-sun" style={{ letterSpacing: '-0.01em' }}>{eyebrow}</p>
-          <h1 className="font-display text-[2.75rem] font-semibold leading-[1.04] text-white sm:text-6xl lg:text-7xl" style={{ letterSpacing: '-0.035em' }}>
+          <h1 className={`font-display font-semibold leading-[1.04] text-white ${compact ? 'text-[2.6rem] sm:text-5xl lg:text-6xl' : 'text-[2.75rem] sm:text-6xl lg:text-7xl'}`} style={{ letterSpacing: '-0.035em' }}>
             {title}
           </h1>
-          {text && <p className="mt-6 max-w-xl text-xl leading-[1.4] text-white/85">{text}</p>}
+          {text && <p className={`mt-6 max-w-xl text-xl leading-[1.4] text-white/85 ${center ? 'mx-auto' : ''}`}>{text}</p>}
         </motion.div>
       </div>
     </section>
