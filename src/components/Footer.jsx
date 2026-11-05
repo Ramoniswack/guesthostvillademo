@@ -95,7 +95,7 @@ export default function Footer() {
       <div className="border-t border-white/10 px-4 pb-[calc(4rem+env(safe-area-inset-bottom))] pt-8 text-center sm:px-8 md:pb-0">
         <p aria-label="G'Host Villa" className="whitespace-nowrap font-display text-[15vw] font-semibold leading-[0.72] tracking-[-0.075em] text-white sm:text-[12vw]">
           {wordmarkLetters.map((letter, index) => (
-            <span key={`${letter}-${index}`} aria-hidden="true" className="inline-block cursor-default transition-[color,text-shadow,transform] duration-300 hover:-translate-y-1 hover:text-sun hover:[text-shadow:0_0_24px_rgba(255,174,41,0.72)]">
+            <span key={`${letter}-${index}`} aria-hidden="true" className="inline-block cursor-default transition-[color,text-shadow,transform] duration-300 hover:-translate-y-1 hover:bg-gradient-to-b hover:from-[#FFD15A] hover:via-[#FF9625] hover:to-[#E76F00] hover:bg-clip-text hover:text-transparent hover:[text-shadow:0_0_18px_rgba(255,160,35,0.35)]">
               {letter === ' ' ? '\u00a0' : letter}
             </span>
           ))}
