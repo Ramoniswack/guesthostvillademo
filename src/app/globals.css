@@ -49,6 +49,15 @@
     padding: 2rem;
   }
 
+  #stay-results > div.grid > a {
+    min-height: 34rem;
+  }
+
+  #stay-results > div.grid > a > div:first-child {
+    min-height: 0;
+    height: 100%;
+  }
+
   #stay-results > div.grid > a > div:last-child > div:nth-child(2) {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 1rem;
@@ -68,6 +77,11 @@
     line-height: 1.35;
   }
 
+  #stay-results > div.grid > a > div:last-child > div:nth-child(2) svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
   #stay-results > div.grid > a > div:last-child > p {
     max-width: 34ch;
     margin-top: 1.5rem;
@@ -77,5 +91,33 @@
     gap: 1rem;
     border-top: 1px solid rgba(19, 56, 42, 0.1);
     padding-top: 1.5rem;
+  }
+
+  #stay-results > div.grid > a > div:last-child > div:last-child > span:first-child {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    gap: 0.55rem;
+    white-space: nowrap;
+    text-decoration: none;
+    border: 1px solid rgba(19, 56, 42, 0.34);
+    padding: 0.7rem 0.85rem;
+    transition: background-color 180ms ease, border-color 180ms ease;
+  }
+
+  #stay-results > div.grid > a:hover > div:last-child > div:last-child > span:first-child {
+    border-color: #fb9418;
+    background: rgba(251, 148, 24, 0.12);
+  }
+
+  #stay-results > div.grid > a > div:last-child > div:last-child > span:first-child > span {
+    display: inline-grid;
+    height: 1.35rem;
+    width: 1.35rem;
+    place-items: center;
+    margin-left: 0.1rem;
+    border: 1px solid currentColor;
+    font-size: 0.9rem;
+    line-height: 1;
   }
 }
