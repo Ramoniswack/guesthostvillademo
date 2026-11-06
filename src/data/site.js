@@ -43,6 +43,7 @@ export const mapEmbed = `https://www.google.com/maps?q=${encodeURIComponent(site
 // Main navigation: each item is its own page
 export const navLinks = [
   { to: '/rooms', label: 'Rooms' },
+  { to: '/packages', label: 'Packages' },
   { to: '/menu', label: 'Menu' },
   { to: '/faq', label: 'FAQ' },
   { to: '/jobs', label: 'Jobs' },

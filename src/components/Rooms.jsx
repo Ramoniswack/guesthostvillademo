@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import Link from 'next/link'
 import Icon from './Icons.jsx'
 import { Button, Reveal } from './ui.jsx'
 import { rooms } from '../data/rooms.js'
@@ -50,7 +51,7 @@ function BookingBar() {
 
 function SpaceCard({ room }) {
   return (
-    <article className="group">
+    <Link href={`/packages?space=${room.id}`} className="group block">
       <div className="relative aspect-[4/3] overflow-hidden bg-forest-dark">
         <img src={room.image} alt={room.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
         <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-transparent to-transparent" />
@@ -60,7 +61,7 @@ function SpaceCard({ room }) {
       <div className="mt-3 grid grid-cols-2 gap-px bg-forest/15 text-sm font-semibold text-forest sm:grid-cols-3"><span className="flex min-w-0 items-start gap-1.5 bg-sand px-2.5 py-2.5 leading-tight"><Icon name="home" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sun-text" /><span className="break-words">{room.bhk}</span></span><span className="flex min-w-0 items-start gap-1.5 bg-sand px-2.5 py-2.5 leading-tight"><Icon name="users" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sun-text" /><span className="break-words">{room.capacity}</span></span><span className="col-span-2 flex min-w-0 items-start gap-1.5 bg-sand px-2.5 py-2.5 leading-tight sm:col-span-1"><Icon name="mountain" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sun-text" /><span>View</span></span></div>
       <h2 className="mt-5 min-h-[3.8rem] font-display text-3xl font-semibold leading-none tracking-[-0.04em] text-forest">{room.name}</h2>
       <p className="mt-2 min-h-[2.75rem] text-sm leading-relaxed text-forest/65">{room.view}</p>
-    </article>
+    </Link>
   )
 }
 
