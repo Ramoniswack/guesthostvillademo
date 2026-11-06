@@ -50,17 +50,19 @@ function BookingBar() {
 }
 
 function SpaceCard({ room }) {
+  const type = room.id === 'couple-deluxe' ? 'Private suite' : room.id === 'hilltop-double' ? 'Vintage room' : room.id === 'four-bhk-wing' ? 'Villa wing' : 'Private buyout'
+  const view = room.view.includes('Annapurna') || room.view.includes('Panorama') ? 'Mountain view' : room.view.includes('Forest') ? 'Hillside view' : 'Valley view'
+
   return (
-    <Link href={`/rooms/${room.id}`} className="group block">
+    <Link href={`/rooms/${room.id}`} className="group flex h-full flex-col">
       <div className="relative aspect-[4/3] overflow-hidden bg-forest-dark">
         <img src={room.image} alt={room.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
         <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-transparent to-transparent" />
-        <span className="absolute left-4 top-4 bg-sun px-3 py-2 text-[0.62rem] font-bold uppercase tracking-[0.13em] text-forest-dark">{room.badge}</span>
+        <span className="absolute left-4 top-4 max-w-[80%] bg-sun px-3 py-2 text-[0.62rem] font-bold uppercase tracking-[0.13em] text-forest-dark">{room.badge}</span>
         <div className="absolute bottom-4 left-5 text-cream"><span className="block text-xs font-bold uppercase tracking-[0.14em] text-cream/75">From</span><span className="mt-1 block font-display text-3xl leading-none">{npr(room.price)}</span><span className="mt-1 block text-xs font-semibold text-cream/80">{room.rateType}</span></div>
       </div>
-      <div className="mt-3 grid grid-cols-2 gap-px bg-forest/15 text-sm font-semibold text-forest sm:grid-cols-3"><span className="flex min-w-0 items-start gap-1.5 bg-sand px-2.5 py-2.5 leading-tight"><Icon name="home" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sun-text" /><span className="break-words">{room.bhk}</span></span><span className="flex min-w-0 items-start gap-1.5 bg-sand px-2.5 py-2.5 leading-tight"><Icon name="users" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sun-text" /><span className="break-words">{room.capacity}</span></span><span className="col-span-2 flex min-w-0 items-start gap-1.5 bg-sand px-2.5 py-2.5 leading-tight sm:col-span-1"><Icon name="mountain" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sun-text" /><span>View</span></span></div>
-      <h2 className="mt-5 min-h-[3.8rem] font-display text-3xl font-semibold leading-none tracking-[-0.04em] text-forest">{room.name}</h2>
-      <p className="mt-2 min-h-[2.75rem] text-sm leading-relaxed text-forest/65">{room.view}</p>
+      <div className="mt-3 grid grid-cols-3 divide-x divide-forest/15 border-y border-forest/15 text-xs font-bold uppercase tracking-[0.08em] text-forest"><span className="min-w-0 px-2.5 py-3"><span className="block text-forest/45">Type</span><span className="mt-1 block truncate normal-case tracking-normal">{type}</span></span><span className="min-w-0 px-2.5 py-3"><span className="block text-forest/45">Guests</span><span className="mt-1 block truncate normal-case tracking-normal">{room.capacity}</span></span><span className="min-w-0 px-2.5 py-3"><span className="block text-forest/45">View</span><span className="mt-1 block truncate normal-case tracking-normal">{view}</span></span></div>
+      <div className="flex flex-1 flex-col pt-5"><h2 className="min-h-[3.8rem] font-display text-3xl font-semibold leading-none tracking-[-0.04em] text-forest">{room.name}</h2><p className="mt-3 line-clamp-2 min-h-[3rem] text-sm leading-relaxed text-forest/65">{room.blurb}</p><div className="mt-auto flex items-center justify-between border-t border-forest/15 pt-5 text-xs font-bold uppercase tracking-[0.12em] text-forest"><span>View room</span><span aria-hidden="true" className="grid h-8 w-8 place-items-center rounded-full border border-forest/25 text-base transition group-hover:bg-sun group-hover:text-forest">↗</span></div></div>
     </Link>
   )
 }
