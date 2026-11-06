@@ -33,3 +33,49 @@
 @keyframes slowzoom { from { transform: scale(1); } to { transform: scale(1.09); } }
 .animate-slowzoom { animation: slowzoom 26s ease-out forwards; transform-origin: 55% 62%; }
 @media (prefers-reduced-motion: reduce) { .animate-slowzoom { animation: none; } }
+
+/* Rooms listing: keep the utility panel in view while the wider editorial cards scroll. */
+@media (min-width: 1280px) {
+  #stay-results + aside {
+    align-self: start;
+    position: sticky;
+    top: 7rem;
+    max-height: calc(100vh - 8rem);
+    overflow-y: auto;
+  }
+
+  #stay-results > div.grid > a > div:last-child {
+    min-width: 0;
+    padding: 2rem;
+  }
+
+  #stay-results > div.grid > a > div:last-child > div:nth-child(2) {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1rem;
+    align-items: start;
+  }
+
+  #stay-results > div.grid > a > div:last-child > div:nth-child(2) > span {
+    min-width: 0;
+    align-items: flex-start;
+  }
+
+  #stay-results > div.grid > a > div:last-child > div:nth-child(2) > span > span {
+    min-width: 0;
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  #stay-results > div.grid > a > div:last-child > p {
+    max-width: 34ch;
+    margin-top: 1.5rem;
+  }
+
+  #stay-results > div.grid > a > div:last-child > div:last-child {
+    gap: 1rem;
+    border-top: 1px solid rgba(19, 56, 42, 0.1);
+    padding-top: 1.5rem;
+  }
+}
