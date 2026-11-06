@@ -51,7 +51,7 @@ function BookingBar() {
 
 function SpaceCard({ room }) {
   return (
-    <Link href={`/packages?space=${room.id}`} className="group block">
+    <Link href={`/rooms/${room.id}`} className="group block">
       <div className="relative aspect-[4/3] overflow-hidden bg-forest-dark">
         <img src={room.image} alt={room.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
         <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-transparent to-transparent" />
