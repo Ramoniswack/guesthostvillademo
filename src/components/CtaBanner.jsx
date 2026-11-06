@@ -7,7 +7,7 @@ export default function CtaBanner() {
   return (
     <section id="book" className="px-6 pb-24 pt-4 sm:px-10 md:pb-40">
       <Reveal className="mx-auto max-w-7xl">
-        <div className="relative overflow-hidden rounded-2xl bg-forest-dark">
+        <div className="relative overflow-hidden bg-forest-dark">
           <img
             src="/images/night-aerial.webp"
             alt="G'Host Villa lit up at night among the dark forested hills"
@@ -25,7 +25,7 @@ export default function CtaBanner() {
           </div>
         </div>
 
-        <div className="relative z-10 mx-4 -mt-16 flex flex-col items-center justify-between gap-5 rounded-xl bg-cream p-6 text-center shadow-warm md:mx-14 md:-mt-12 md:flex-row md:p-8 md:text-left">
+        <div className="relative z-10 mx-4 -mt-16 flex flex-col items-center justify-between gap-5 border border-forest/15 bg-cream p-6 text-center shadow-warm md:mx-14 md:-mt-12 md:flex-row md:p-8 md:text-left">
           <p className="font-display text-2xl font-semibold text-forest md:text-3xl">Planning a stay or a meal with a view?</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Button href={waLink()} icon="chat" arrow={false}>Book on WhatsApp</Button>

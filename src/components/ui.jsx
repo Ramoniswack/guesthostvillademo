@@ -43,7 +43,7 @@ const variants = {
 
 /** Pill button. Internal paths ("/rooms") render a router <Link>, other hrefs an <a>, no href a <button>. */
 export function Button({ variant = 'primary', href, children, arrow = true, icon, className = '', ...rest }) {
-  const cls = `inline-flex min-h-[52px] items-center justify-center gap-3 rounded-full px-7 py-3 text-[1.0625rem] font-semibold transition-all duration-300 ${variants[variant]} ${className}`
+  const cls = `inline-flex min-h-[52px] items-center justify-center gap-3 rounded-none px-7 py-3 text-[1.0625rem] font-semibold transition-all duration-300 ${variants[variant]} ${className}`
   const inner = (
     <>
       {icon && <Icon name={icon} className="h-5 w-5" />}
