@@ -50,7 +50,7 @@
   }
 
   #stay-results > div.grid > a {
-    min-height: 34rem;
+    min-height: 27rem;
   }
 
   #stay-results > div.grid > a > div:first-child {
@@ -88,9 +88,15 @@
   }
 
   #stay-results > div.grid > a > div:last-child > div:last-child {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
     border-top: 1px solid rgba(19, 56, 42, 0.1);
     padding-top: 1.5rem;
+  }
+
+  #stay-results > div.grid > a > div:last-child > div:last-child > span:last-child {
+    order: -1;
   }
 
   #stay-results > div.grid > a > div:last-child > div:last-child > span:first-child {
