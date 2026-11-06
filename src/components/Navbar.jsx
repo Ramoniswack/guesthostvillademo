@@ -53,9 +53,9 @@ function Brand({ light = false, solid = false }) {
 }
 
 export default function Navbar() {
-  const solid = usePastHero()
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
+  const solid = usePastHero() || pathname.startsWith('/rooms')
   const text = solid ? 'text-forest' : 'text-white'
 
   useEffect(() => setOpen(false), [pathname])
