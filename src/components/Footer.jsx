@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
+import { Phone, MessageCircle } from 'lucide-react'
 import Icon from './Icons.jsx'
-import { gallery } from '../data/gallery.js'
 import { altTelLink, directionsLink, navLinks, site, telLink, waLink } from '../data/site.js'
 
 const socials = [
@@ -45,13 +45,6 @@ export default function Footer() {
             @the_g_host_villa_pokhara <Icon name="arrow" className="h-4 w-4" />
           </a>
         </div>
-        <div className="mt-8 grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-3">
-          {gallery.slice(0, 6).map((photo) => (
-            <a key={photo.src} href={site.social.instagram} target="_blank" rel="noopener noreferrer" className="group aspect-square overflow-hidden bg-forest-dark">
-              <img src={photo.src} alt={photo.alt} loading="lazy" className="h-full w-full object-cover transition duration-500 group-hover:scale-110 group-hover:opacity-80" />
-            </a>
-          ))}
-        </div>
       </section>
 
       <section className="border-t border-white/10">
@@ -74,6 +67,10 @@ export default function Footer() {
           <div>
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Get in touch</p>
             <ul className="mt-4 space-y-3 text-base text-white/80">
+              <li className="flex flex-wrap gap-3 pb-1">
+                <a href={waLink()} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 bg-sun px-5 text-sm font-bold text-forest-dark transition-colors hover:bg-sun-dark"><MessageCircle className="h-4 w-4" aria-hidden="true" />WhatsApp</a>
+                <a href={telLink} className="inline-flex min-h-11 items-center gap-2 border border-white/40 px-5 text-sm font-bold text-white transition-colors hover:border-sun hover:text-sun"><Phone className="h-4 w-4" aria-hidden="true" />Call now</a>
+              </li>
               <li><a href={telLink} className="transition-colors hover:text-sun">{site.phoneDisplay}</a></li>
               <li><a href={altTelLink} className="transition-colors hover:text-sun">{site.altPhoneDisplay}</a></li>
               <li><a href={waLink()} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-sun">WhatsApp us</a></li>
@@ -100,6 +97,7 @@ export default function Footer() {
             </span>
           ))}
         </p>
+        <p className="mx-auto mt-6 max-w-xl text-sm text-white/70"><span className="font-semibold text-sun">G’Host</span> = your gracious host. A warm welcome in the hills above Pokhara.</p>
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-2 py-7 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-sage-light sm:flex-row sm:items-center sm:justify-between">
           <span>Restro &amp; Bar · Sarangkot, Pokhara</span>
           <span>© {new Date().getFullYear()} G&apos;Host Villa</span>

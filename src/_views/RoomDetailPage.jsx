@@ -1,81 +1,576 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
-import Icon from '../components/Icons.jsx'
+import {
+  BedDouble, Building2, CalendarCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Clock, Coffee, DoorOpen,
+  Eye, Heart, Images, KeyRound, Mail, MapPin, MessageCircle, Mountain, Send, Share2, ShieldCheck, Sparkles, Star, Sun, User,
+  Users, Utensils, Wallet, Wifi, Bath, Wine, X, ArrowRight,
+} from 'lucide-react'
+import { Stars } from '../components/Icons.jsx'
 import { Button, Reveal } from '../components/ui.jsx'
 import CtaBanner from '../components/CtaBanner.jsx'
-import { rooms } from '../data/rooms.js'
+import BookingPanel from '../components/BookingPanel.jsx'
+import {
+  rooms, findStay, buildingLabel, describePrice, rateTable, formatNpr, stayMessage, MAP_ADD, plans,
+} from '../data/rooms.js'
 import { reviews } from '../data/reviews.js'
-import { waLink } from '../data/site.js'
+import { faqs } from '../data/faq.js'
+import { gallery as siteGallery } from '../data/gallery.js'
+import { site, waLink } from '../data/site.js'
+import { blockedSetFor, fmtDate, nightsBetween, parseISO, rangeBlocked, stayQuery, stayQuote, todayISO } from '../lib/booking.js'
 
-const galleryFor = (room) => [room.image, '/images/room-deluxe.webp', '/images/garden.webp', '/images/pyramid.webp', '/images/night-aerial.webp']
-
-function formatNpr(value) {
-  return `NPR ${value.toLocaleString('en-US')}`
+const cellText = (result) => {
+  if (result.kind === 'ask') return 'On WhatsApp'
+  if (result.kind === 'range') return `${formatNpr(result.min)} – ${result.max.toLocaleString('en-US')}`
+  return formatNpr(result.total)
 }
 
-function BookingCard({ room, guests, setGuests, selectedDate, setSelectedDate, monthDate, setMonthDate }) {
-  const monthLabel = monthDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-  const daysInMonth = new Date(monthDate.getFullYear(), monthDate.getMonth() + 1, 0).getDate()
-  const firstDay = new Date(monthDate.getFullYear(), monthDate.getMonth(), 1).getDay()
-  const days = Array.from({ length: firstDay + daysInMonth }, (_, index) => index < firstDay ? null : index - firstDay + 1)
-  const shiftMonth = (amount) => setMonthDate((value) => new Date(value.getFullYear(), value.getMonth() + amount, 1))
-  const chooseDate = (day) => setSelectedDate(`${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`)
+// Picks a lucide icon that matches a feature line
+function featureIcon(text) {
+  const t = text.toLowerCase()
+  if (t.includes('wi-fi') || t.includes('wifi')) return Wifi
+  if (t.includes('bathroom') || t.includes('hot water')) return Bath
+  if (t.includes('breakfast')) return Coffee
+  if (t.includes('restro') || t.includes('bar')) return Wine
+  if (t.includes('view')) return Mountain
+  if (t.includes('sleeps') || t.includes('guest') || t.includes('group')) return Users
+  if (t.includes('bedroom') || t.includes('bed')) return BedDouble
+  return Sparkles
+}
 
+/** Collapsible FAQ list. */
+function Accordion({ items }) {
+  const [open, setOpen] = useState(0)
   return (
-    <aside className="border border-forest/15 bg-cream p-4 shadow-[0_18px_45px_rgba(35,70,53,0.08)] sm:p-5" aria-label="Check room availability">
-      <div className="flex items-baseline justify-between gap-3"><p className="text-sm text-forest/60">From:</p><p className="font-display text-3xl leading-none text-forest">{formatNpr(room.price)} <span className="font-sans text-sm font-normal text-forest/60">/ {room.rateType}</span></p></div>
-      <div className="mt-7 flex items-center justify-between"><button type="button" aria-label="Previous month" onClick={() => shiftMonth(-1)} className="grid h-9 w-9 place-items-center text-2xl text-forest/60 transition hover:bg-sun/15">←</button><p className="font-semibold text-forest">{monthLabel}</p><button type="button" aria-label="Next month" onClick={() => shiftMonth(1)} className="grid h-9 w-9 place-items-center text-2xl text-forest/60 transition hover:bg-sun/15">→</button></div>
-      <div className="mt-3 grid grid-cols-7 gap-1 text-center text-[0.68rem] text-forest/55">{['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => <span key={day} className="py-1.5 font-semibold">{day.slice(0, 1)}</span>)}{days.map((day, index) => day ? <button key={day} type="button" onClick={() => chooseDate(day)} className={`min-h-9 border p-1 text-xs text-forest transition ${selectedDate === `${monthDate.getFullYear()}-${String(monthDate.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}` ? 'border-sun bg-sun/20' : 'border-forest/10 hover:border-sun'}`}><span>{day}</span></button> : <span key={`empty-${index}`} />)}</div>
-      <div className="mt-6 grid gap-3"><div className="flex items-center justify-between border border-forest/15 px-4 py-4"><span className="text-sm font-semibold text-forest">Adults</span><div className="flex items-center gap-4"><button type="button" aria-label="Remove adult" onClick={() => setGuests((value) => Math.max(1, value - 1))} className="grid h-8 w-8 place-items-center rounded-full bg-forest text-cream">−</button><span className="font-semibold text-forest">{guests}</span><button type="button" aria-label="Add adult" onClick={() => setGuests((value) => Math.min(24, value + 1))} className="grid h-8 w-8 place-items-center rounded-full bg-forest text-cream">+</button></div></div><div className="flex items-center justify-between border border-forest/15 px-4 py-4"><span className="text-sm font-semibold text-forest">Children</span><span className="text-sm text-forest/60">0</span></div></div>
-      <p className="mt-5 text-sm text-forest/60">{selectedDate ? `Selected: ${selectedDate}` : 'Select a date to begin'}</p>
-      <Button className="mt-4 w-full" href={waLink(`Hello G'Host Villa! I would like to check the rate for ${room.name}${selectedDate ? ` on ${selectedDate}` : ''}.`)}>Check rate</Button>
-    </aside>
+    <ul className="divide-y divide-forest/10 border-y border-forest/10">
+      {items.map((item, index) => {
+        const isOpen = open === index
+        return (
+          <li key={item.title}>
+            <h3>
+              <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? -1 : index)} className="flex w-full items-center gap-4 py-4 text-left">
+                <span className="min-w-0 flex-1 text-[0.95rem] font-semibold leading-snug text-forest">{item.title}</span>
+                <ChevronDown className={`h-5 w-5 shrink-0 text-forest/50 transition ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+              </button>
+            </h3>
+            {isOpen && <div className="pb-5 pr-8 text-[0.95rem] leading-relaxed text-forest/70">{item.body}</div>}
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+/** Numbered vertical timeline (the "itinerary" of a stay). */
+function Timeline({ items }) {
+  const [open, setOpen] = useState(0)
+  return (
+    <ol className="relative">
+      {items.map((item, index) => {
+        const isOpen = open === index
+        const last = index === items.length - 1
+        const Ico = item.icon
+        return (
+          <li key={item.title} className="relative flex gap-4 pb-2">
+            {!last && <span aria-hidden="true" className="absolute left-[1.0625rem] top-10 bottom-0 w-px bg-forest/15" />}
+            <span className={`relative z-10 grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold transition ${isOpen ? 'bg-sun text-forest-dark' : 'bg-sand text-forest'}`}>{index + 1}</span>
+            <div className="min-w-0 flex-1 pb-4">
+              <h3>
+                <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? -1 : index)} className="flex w-full items-center gap-3 pt-1.5 text-left">
+                  <span className="min-w-0 flex-1 font-semibold leading-snug text-forest">{item.title}</span>
+                  {Ico && <Ico className="hidden h-4 w-4 shrink-0 text-sun-text sm:block" aria-hidden="true" />}
+                  <ChevronDown className={`h-4 w-4 shrink-0 text-forest/50 transition ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+                </button>
+              </h3>
+              {isOpen && <p className="mt-2 text-[0.95rem] leading-relaxed text-forest/70">{item.body}</p>}
+            </div>
+          </li>
+        )
+      })}
+    </ol>
+  )
+}
+
+function SectionTitle({ id, children, sub }) {
+  return (
+    <header>
+      <h2 id={id} className="scroll-mt-28 font-display text-2xl font-semibold leading-tight tracking-[-0.03em] text-forest md:text-[1.75rem]">{children}</h2>
+      {sub && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-forest/60">{sub}</p>}
+    </header>
+  )
+}
+
+/** Full-screen photo viewer. */
+function Lightbox({ photos, index, setIndex, alt }) {
+  const closeRef = useRef(null)
+  const open = index !== null
+  useEffect(() => {
+    if (!open) return undefined
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    closeRef.current?.focus()
+    const onKey = (e) => {
+      if (e.key === 'Escape') setIndex(null)
+      if (e.key === 'ArrowRight') setIndex((i) => (i + 1) % photos.length)
+      if (e.key === 'ArrowLeft') setIndex((i) => (i - 1 + photos.length) % photos.length)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => { document.body.style.overflow = prev; document.removeEventListener('keydown', onKey) }
+  }, [open, photos.length, setIndex])
+  if (!open) return null
+  const btn = 'grid h-11 w-11 place-items-center border border-white/40 bg-forest-dark/60 text-white backdrop-blur transition hover:bg-sun hover:text-forest-dark'
+  return (
+    <div role="dialog" aria-modal="true" aria-label="Room photos" className="fixed inset-0 z-[60] flex flex-col bg-forest-dark/95 p-4 sm:p-8" onClick={() => setIndex(null)}>
+      <div className="flex items-center justify-between text-sm text-white/80" onClick={(e) => e.stopPropagation()}>
+        <span>{index + 1} / {photos.length}</span>
+        <button ref={closeRef} type="button" aria-label="Close photos" onClick={() => setIndex(null)} className={btn}><X className="h-5 w-5" /></button>
+      </div>
+      <div className="relative flex min-h-0 flex-1 items-center justify-center py-4" onClick={(e) => e.stopPropagation()}>
+        <img src={photos[index]} alt={`${alt} (photo ${index + 1})`} className="max-h-full max-w-full object-contain" />
+        <button type="button" aria-label="Previous photo" onClick={() => setIndex((index - 1 + photos.length) % photos.length)} className={`${btn} absolute left-0 top-1/2 -translate-y-1/2`}><ChevronLeft className="h-5 w-5" /></button>
+        <button type="button" aria-label="Next photo" onClick={() => setIndex((index + 1) % photos.length)} className={`${btn} absolute right-0 top-1/2 -translate-y-1/2`}><ChevronRight className="h-5 w-5" /></button>
+      </div>
+      <div className="no-scrollbar flex justify-center gap-2 overflow-x-auto" onClick={(e) => e.stopPropagation()}>
+        {photos.map((src, i) => (
+          <button key={src} type="button" aria-label={`Show photo ${i + 1}`} onClick={() => setIndex(i)} className={`h-14 w-20 shrink-0 overflow-hidden border-2 transition ${i === index ? 'border-sun' : 'border-transparent opacity-60 hover:opacity-100'}`}>
+            <img src={src} alt="" className="h-full w-full object-cover" />
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 
 export default function RoomDetailPage({ room }) {
-  const [guests, setGuests] = useState(2)
-  const [selectedDate, setSelectedDate] = useState('')
-  const [monthDate, setMonthDate] = useState(() => new Date(new Date().getFullYear(), new Date().getMonth(), 1))
-  const [gallerySlide, setGallerySlide] = useState(0)
-  const [heroVideoDone, setHeroVideoDone] = useState(false)
-  const [heroImageIndex, setHeroImageIndex] = useState(0)
-  const gallery = galleryFor(room)
-  const heroImages = [room.image, gallery[1], gallery[2]]
+  const [guests, setGuests] = useState(room.defaultGuests)
+  const [plan, setPlan] = useState('BB')
+  const [checkIn, setCheckIn] = useState('')
+  const [checkOut, setCheckOut] = useState('')
+  const [panelVisible, setPanelVisible] = useState(true)
+  const [ready, setReady] = useState(false)
+  const [tab, setTab] = useState('booking') // booking | enquiry (sidebar card)
+  const [saved, setSaved] = useState(false)
+  const [copied, setCopied] = useState(false)
+  const [photo, setPhoto] = useState(null) // lightbox index
+  const [enquiry, setEnquiry] = useState({ name: '', phone: '', message: '' })
+  const panelRef = useRef(null)
+  const setDates = (inDate, outDate) => { setCheckIn(inDate); setCheckOut(outDate) }
+
+  // Pick up what the guest chose on the rooms list (?guests=&plan=&in=&out=)
   useEffect(() => {
-    if (!heroVideoDone) return undefined
-    const timer = window.setInterval(() => setHeroImageIndex((index) => (index + 1) % heroImages.length), 2500)
-    return () => window.clearInterval(timer)
-  }, [heroVideoDone, heroImages.length])
-  const relatedRooms = rooms.filter((item) => item.id !== room.id).slice(0, 3)
-  const quote = reviews[0]
-  const amenities = room.features.slice(0, 8)
-  const highlights = useMemo(() => [
-    { label: 'Space', value: room.measurement, icon: 'maximize' },
-    { label: 'Bed', value: room.bed, icon: 'bed' },
-    { label: 'Guests', value: room.capacity, icon: 'users' },
-  ], [room])
+    const q = new URLSearchParams(window.location.search)
+    const g = Number(q.get('guests'))
+    if (g >= room.minGuests && g <= room.maxGuests) setGuests(g)
+    if (q.get('plan') === 'MAP') setPlan('MAP')
+    const i = q.get('in'), o = q.get('out')
+    if (parseISO(i) && parseISO(o) && i >= todayISO() && o > i && !rangeBlocked(blockedSetFor(room), i, o)) setDates(i, o)
+    try { setSaved(localStorage.getItem(`saved:${room.id}`) === '1') } catch { /* storage unavailable */ }
+    setReady(true)
+  }, [room])
+
+  // Keep the address bar shareable
+  useEffect(() => {
+    if (!ready) return
+    const query = stayQuery({ guests: guests !== room.defaultGuests ? guests : null, plan, checkIn, checkOut })
+    window.history.replaceState(null, '', `${window.location.pathname}${query}`)
+  }, [ready, guests, plan, checkIn, checkOut, room])
+
+  // The mobile booking bar only shows while the full booking panel is off screen
+  useEffect(() => {
+    const el = panelRef.current
+    if (!el || typeof IntersectionObserver === 'undefined') return undefined
+    const observer = new IntersectionObserver(([entry]) => setPanelVisible(entry.isIntersecting), { threshold: 0.05 })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [tab])
+
+  const toggleSaved = () => {
+    const next = !saved
+    setSaved(next)
+    try { localStorage.setItem(`saved:${room.id}`, next ? '1' : '0') } catch { /* storage unavailable */ }
+  }
+  const share = async () => {
+    const url = window.location.href
+    try {
+      if (navigator.share) await navigator.share({ title: room.name, url })
+      else { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 2000) }
+    } catch { /* cancelled */ }
+  }
+  const goToBooking = () => { setTab('booking'); requestAnimationFrame(() => panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })) }
+
+  // Room photos first, topped up with villa photos so the mosaic always has five tiles
+  const photos = useMemo(() => {
+    const list = [...new Set([room.image, ...(room.gallery ?? []), ...siteGallery.map((g) => g.src)])]
+    return list.slice(0, Math.max(5, new Set([room.image, ...(room.gallery ?? [])]).size))
+  }, [room])
+
+  const includes = (room.includes ?? []).map(findStay).filter(Boolean)
+  const table = useMemo(() => rateTable(room), [room])
+  const similar = useMemo(() => {
+    const others = rooms.filter((item) => item.id !== room.id && item.catalog)
+    return [...others.filter((item) => item.building === room.building), ...others.filter((item) => item.building !== room.building)].slice(0, 3)
+  }, [room])
+  const askOnly = table.every((row) => row.bb.kind === 'ask')
+  const nights = nightsBetween(checkIn, checkOut)
+  const quote = nights > 0 && !room.whatsappOnly ? stayQuote(room, guests, plan, nights) : null
+  const barPrice = describePrice(room, guests, plan)
+  const fromPrice = describePrice(room, null, 'BB')
+  const barReady = room.whatsappOnly || nights > 0
+
+  const facts = [
+    { icon: Users, title: 'Capacity', text: room.capacity },
+    { icon: BedDouble, title: 'Bed', text: room.bed },
+    { icon: Building2, title: 'Building', text: buildingLabel(room) },
+    { icon: Eye, title: 'View', text: room.viewText || 'Hilltop and garden' },
+    { icon: Clock, title: 'Check-in / out', text: '2 PM / 10 AM' },
+    { icon: Utensils, title: 'Meals', text: 'Breakfast included' },
+  ]
+
+  const steps = [
+    { icon: KeyRound, title: 'Arrive and check in', body: `Check-in is from 2 PM. ${site.locationNote} on ${site.address.split(',')[0]}, an easy taxi, car or scooter ride. The team meets you at the pyramid and shows you to ${room.name}.` },
+    { icon: BedDouble, title: 'Settle into your room', body: `${room.bhk}. ${room.bed}${room.viewText ? `, with ${room.viewText.toLowerCase()}` : ''}. ${room.bestFor}` },
+    { icon: Utensils, title: 'Eat and drink', body: `Breakfast is included on the BB plan. Lunch and dinner are at the pyramid restro and bottle bar, or add the meal plan for NPR ${MAP_ADD} per person per night.` },
+    { icon: Mountain, title: 'Enjoy the hilltop', body: 'You are up in the hills above Pokhara, so mornings start quiet and clear. Take the views in, then head down to Lakeside whenever you like.' },
+    { icon: DoorOpen, title: 'Check out', body: 'Check-out is by 10 AM. Need a later departure? Ask on WhatsApp and the team will help where they can.' },
+  ]
+
+  const included = [...room.features, 'Check-in from 2 PM, check-out by 10 AM', 'Free cancellation within 48 hours of booking (at least 24 hours before check-in)']
+  const excluded = [
+    'Lunch and dinner on the Bed & Breakfast plan',
+    'Drinks and orders at the restro and bottle bar',
+    'Transport to and from Lakeside or the airport',
+    'Extra guests beyond the number in the rate',
+    'Personal expenses and tips',
+  ]
+  const roomFaqs = faqs.slice(0, 6).map((item) => ({ title: item.q, body: item.a }))
+  const reviewCount = '379+'
+
+  const sendEnquiry = (event) => {
+    event.preventDefault()
+    const lines = [`Hello G'Host Villa! I have a question about ${room.name}.`]
+    if (enquiry.message.trim()) lines.push(enquiry.message.trim())
+    if (enquiry.name.trim()) lines.push(`Name: ${enquiry.name.trim()}`)
+    if (enquiry.phone.trim()) lines.push(`Phone: ${enquiry.phone.trim()}`)
+    window.open(waLink(lines.join('\n')), '_blank', 'noopener,noreferrer')
+  }
+  const field = 'mt-1.5 w-full border border-forest/20 bg-cream px-3 py-2.5 text-sm text-forest outline-none placeholder:text-forest/40 focus:border-forest'
 
   return (
-    <main className="bg-cream pb-16 pt-0">
-      <section className="relative min-h-[36rem] overflow-visible bg-forest-dark text-cream md:min-h-[40rem]"><img src={heroImages[heroImageIndex]} alt={room.alt} className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${heroVideoDone ? 'opacity-100' : 'opacity-0'}`} /><video className={`absolute inset-0 h-full w-full object-cover transition-opacity duration-700 ${heroVideoDone ? 'opacity-0' : 'opacity-100'}`} autoPlay muted playsInline preload="metadata" poster={room.image} onEnded={() => setHeroVideoDone(true)} onError={() => setHeroVideoDone(true)} aria-label={`${room.name} room video`}><source src="/videos/stock.mp4" type="video/mp4" /></video><div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/45 to-black/20" /><div className="wrap relative flex min-h-[36rem] items-end pb-14 md:min-h-[40rem] md:pb-20"><div className="max-w-4xl"><Link href="/rooms" className="text-xs font-bold uppercase tracking-[0.14em] text-cream/70 transition hover:text-sun">Rooms / {room.name}</Link><p className="mt-10 text-sm font-semibold text-sun">{room.badge}</p><h1 className="mt-3 max-w-4xl font-display text-5xl leading-[0.92] tracking-[-0.05em] text-cream sm:text-6xl md:text-7xl">{room.name}</h1><p className="mt-4 text-base text-cream/80">G’Host Villa · Sarangkot, Pokhara</p><div className="mt-6 flex flex-wrap gap-x-7 gap-y-3 text-sm text-cream/85">{highlights.map((item) => <span key={item.label} className="inline-flex items-center gap-2"><Icon name={item.icon} className="h-5 w-5 text-sun" />{item.value}</span>)}</div><p className="mt-6 max-w-3xl text-sm leading-relaxed text-cream/80 md:text-base">{room.blurb}</p><Button className="mt-7" href={waLink(`Hello G'Host Villa! I would like to reserve the ${room.name}.`)} variant="light">Book this room</Button></div></div></section>
+    <div className="bg-cream pb-40 md:pb-28 lg:pb-16">
+      {/* 1 · Title row */}
+      <header className="wrap pt-28 md:pt-32">
+        <nav aria-label="Breadcrumb" className="text-xs text-forest/55">
+          <ol className="flex flex-wrap items-center gap-1.5">
+            <li><Link href="/" className="transition hover:text-forest">Home</Link></li>
+            <li aria-hidden="true">›</li>
+            <li><Link href="/rooms" className="transition hover:text-forest">Rooms</Link></li>
+            <li aria-hidden="true">›</li>
+            <li className="text-forest/80">{buildingLabel(room)}</li>
+          </ol>
+        </nav>
+        <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
+          <div className="min-w-0">
+            <h1 className="font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-forest sm:text-4xl">{room.name}</h1>
+            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-forest/70">
+              <span className="inline-flex items-center gap-1.5"><Stars n={5} className="h-4 w-4" /><strong className="font-semibold text-forest">4.5</strong> · <a href="#reviews" className="underline decoration-forest/30 underline-offset-4 hover:decoration-sun">{reviewCount} reviews</a></span>
+              <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4 text-sun-text" aria-hidden="true" />Sarangkot, Pokhara</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 text-sm font-semibold text-forest">
+            <button type="button" onClick={share} className="inline-flex items-center gap-2 px-3 py-2 transition hover:bg-sand"><Share2 className="h-4 w-4" aria-hidden="true" />{copied ? 'Link copied' : 'Share'}</button>
+            <button type="button" onClick={toggleSaved} aria-pressed={saved} className="inline-flex items-center gap-2 px-3 py-2 transition hover:bg-sand"><Heart className={`h-4 w-4 ${saved ? 'fill-sun text-sun-text' : ''}`} aria-hidden="true" />{saved ? 'Saved' : 'Save'}</button>
+          </div>
+        </div>
+      </header>
 
-      <section className="wrap relative grid gap-12 py-16 lg:grid-cols-[minmax(0,1fr)_27rem] lg:gap-16 lg:py-24"><div><div className="flex flex-wrap items-center gap-3 border-b border-forest/15 pb-5 text-xs font-bold uppercase tracking-[0.12em] text-forest/55"><a href="#overview" className="hover:text-forest">Overview</a><a href="#gallery" className="hover:text-forest">Gallery</a><a href="#amenities" className="hover:text-forest">Amenities</a><a href="#similar" className="hover:text-forest">Similar rooms</a></div><section id="overview" className="pt-10"><p className="label">Room overview</p><h2 className="mt-4 max-w-3xl font-display text-5xl leading-[0.92] tracking-[-0.05em] text-forest sm:text-6xl">A private corner above the city.</h2><p className="mt-6 max-w-3xl text-lg leading-relaxed text-forest/70">{room.blurb} Wake up to open mountain air, settle into warm Nepalese details and let the day happen at its own pace.</p><ul className="mt-8 grid gap-3 sm:grid-cols-2">{room.features.slice(0, 6).map((feature) => <li key={feature} className="flex gap-3 border-t border-forest/15 pt-3 text-sm text-forest/75"><Icon name="check" className="h-4 w-4 shrink-0 text-sun-text" />{feature}</li>)}</ul></section><section className="mt-16 border-t border-forest/15 pt-12"><p className="label">Rules & cancellation policy</p><h2 className="mt-3 font-display text-4xl leading-none text-forest">Easy to plan, clear to keep.</h2><div className="mt-6 grid gap-7 text-forest/70 md:grid-cols-2"><div><h3 className="font-semibold text-forest">Room rules</h3><ul className="mt-3 list-disc space-y-2 pl-5 text-sm"><li>No smoking, parties or events.</li><li>Check-in from 2 PM, check-out by 10 AM.</li></ul></div><div><h3 className="font-semibold text-forest">Cancellation</h3><p className="mt-3 text-sm leading-relaxed">Guests receive a full refund if they cancel within 48 hours of booking and at least 24 hours before check-in. We will confirm the final policy with your booking.</p></div></div></section></div><div className="lg:relative lg:z-10 lg:-mt-36 lg:self-start"><BookingCard room={room} guests={guests} setGuests={setGuests} selectedDate={selectedDate} setSelectedDate={setSelectedDate} monthDate={monthDate} setMonthDate={setMonthDate} /></div></section>
+      {/* 2 · Photo mosaic: one large photo + four small */}
+      <section aria-label="Room photos" className="wrap mt-5">
+        <div className="relative grid h-[17rem] grid-cols-4 grid-rows-2 gap-2 overflow-hidden sm:h-[22rem] lg:h-[26rem]">
+          {photos.slice(0, 5).map((src, i) => (
+            <button key={src} type="button" onClick={() => setPhoto(i)} aria-label={`Open photo ${i + 1} of ${photos.length}`}
+              className={`group relative overflow-hidden bg-sand ${i === 0 ? 'col-span-4 row-span-2 md:col-span-2' : 'hidden md:block'}`}>
+              <img src={src} alt={i === 0 ? room.alt : ''} fetchPriority={i === 0 ? 'high' : undefined} loading={i === 0 ? undefined : 'lazy'} className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
+              <span className="absolute inset-0 bg-forest-dark/0 transition group-hover:bg-forest-dark/15" />
+            </button>
+          ))}
+          {room.badge && <span className="pointer-events-none absolute left-3 top-3 bg-cream px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest">{room.badge}</span>}
+          <button type="button" onClick={() => setPhoto(0)} className="absolute bottom-3 right-3 inline-flex items-center gap-2 border border-forest/15 bg-cream px-4 py-2 text-sm font-semibold text-forest shadow-soft transition hover:bg-sand">
+            <Images className="h-4 w-4" aria-hidden="true" />Show all {photos.length} photos
+          </button>
+        </div>
+      </section>
 
-      <section id="gallery" className="bg-sand py-16 md:py-24"><div className="wrap"><Reveal className="mb-8 flex flex-wrap items-end justify-between gap-5"><div><p className="label">A closer look</p><h2 className="mt-3 font-display text-5xl leading-none tracking-[-0.05em] text-forest sm:text-6xl">The room, in its own rhythm.</h2></div><p className="max-w-sm text-sm leading-relaxed text-forest/65">Private corners, shared spaces and the small details that make a stay feel like yours.</p></Reveal></div><div className="relative"><div className="grid gap-1 md:grid-cols-3">{[0, 1, 2].map((offset) => <img key={offset} src={gallery[(gallerySlide + offset) % gallery.length]} alt={`${room.name} gallery ${gallerySlide + offset + 1}`} className="aspect-[1.25] w-full object-cover" />)}</div><div className="mt-5 flex items-center justify-center gap-2">{gallery.map((image, index) => <button key={image} type="button" aria-label={`Show gallery slide ${index + 1}`} onClick={() => setGallerySlide(index)} className={`h-2.5 w-2.5 rounded-full border border-forest/40 transition ${gallerySlide === index ? 'bg-forest' : 'bg-transparent'}`} />)}</div><div className="absolute inset-x-0 top-1/2 flex -translate-y-1/2 justify-between px-3"><button type="button" aria-label="Previous gallery slide" onClick={() => setGallerySlide((gallerySlide - 1 + gallery.length) % gallery.length)} className="grid h-11 w-11 place-items-center rounded-full bg-cream/90 text-xl text-forest shadow-lg">←</button><button type="button" aria-label="Next gallery slide" onClick={() => setGallerySlide((gallerySlide + 1) % gallery.length)} className="grid h-11 w-11 place-items-center rounded-full bg-cream/90 text-xl text-forest shadow-lg">→</button></div></div></section>
+      <div className="wrap grid grid-cols-[minmax(0,1fr)] gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-14">
+        {/* Sidebar: first on phones, sticky beside the details on desktop */}
+        <aside className="space-y-5 lg:order-2 lg:self-start">
+          <div className="border border-forest/15 bg-cream shadow-[0_18px_45px_rgba(35,70,53,0.08)]">
+            <div className="px-5 pt-5">
+              <p className="inline-flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-forest/55"><Wallet className="h-3.5 w-3.5" aria-hidden="true" />Price</p>
+              <p className="mt-1.5 font-display text-2xl font-semibold leading-none tracking-[-0.02em] text-forest"><span className="mr-1.5 text-sm font-normal text-forest/55">{fromPrice.label}</span>{fromPrice.main}</p>
+              <p className="mt-1.5 text-xs text-forest/55">{fromPrice.note}</p>
+            </div>
+            <div role="tablist" aria-label="Booking or enquiry" className="mt-4 grid grid-cols-2 border-b border-forest/15 px-5">
+              {[['booking', 'Booking form', CalendarCheck], ['enquiry', 'Enquiry form', Mail]].map(([id, label, Ico]) => (
+                <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
+                  className={`inline-flex items-center justify-center gap-2 border-b-2 py-3 text-sm font-semibold transition ${tab === id ? 'border-sun text-forest' : 'border-transparent text-forest/50 hover:text-forest'}`}>
+                  <Ico className="h-4 w-4" aria-hidden="true" />{label}
+                </button>
+              ))}
+            </div>
+            {tab === 'booking' ? (
+              <BookingPanel embedded room={room} guests={guests} setGuests={setGuests} plan={plan} setPlan={setPlan} checkIn={checkIn} checkOut={checkOut} setDates={setDates} panelRef={panelRef} />
+            ) : (
+              <form onSubmit={sendEnquiry} className="space-y-4 p-5">
+                <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Your name
+                  <input value={enquiry.name} onChange={(e) => setEnquiry({ ...enquiry, name: e.target.value })} autoComplete="name" className={`${field} normal-case tracking-normal`} placeholder="Full name" /></label>
+                <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Phone or WhatsApp
+                  <input value={enquiry.phone} onChange={(e) => setEnquiry({ ...enquiry, phone: e.target.value })} autoComplete="tel" inputMode="tel" className={`${field} normal-case tracking-normal`} placeholder="+977…" /></label>
+                <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Message
+                  <textarea rows={4} value={enquiry.message} onChange={(e) => setEnquiry({ ...enquiry, message: e.target.value })} className={`${field} normal-case tracking-normal`} placeholder="Dates, group size, questions…" /></label>
+                <button type="submit" className="inline-flex min-h-[54px] w-full items-center justify-center gap-3 bg-sun px-6 text-base font-semibold text-forest-dark transition hover:bg-sun-dark"><Send className="h-5 w-5" aria-hidden="true" />Send on WhatsApp</button>
+              </form>
+            )}
+            <ul className="space-y-2 border-t border-forest/10 px-5 py-4 text-sm text-forest/70">
+              <li className="flex gap-2.5"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />Free cancellation within 48 hours of booking</li>
+              <li className="flex gap-2.5"><MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />Confirmed directly by the villa team</li>
+            </ul>
+          </div>
 
-      <section id="amenities" className="bg-cream py-16 md:py-24"><div className="wrap"><Reveal className="mx-auto max-w-2xl text-center"><p className="label">Amenities</p><h2 className="mt-3 font-display text-5xl leading-none tracking-[-0.05em] text-forest sm:text-6xl">Everything you need, nothing you don’t.</h2><p className="mt-5 text-forest/65">Amenities and services included with this accommodation.</p></Reveal><div className="mt-12 grid border-y border-forest/15 sm:grid-cols-2 lg:grid-cols-4">{amenities.map((amenity, index) => <div key={amenity} className="flex min-h-24 items-center gap-3 border-b border-forest/15 px-4 py-5 text-sm text-forest/75 lg:border-b-0 lg:nth-[n+5]:border-t lg:nth-[n+5]:border-t-forest/15 lg:nth-[n+2]:border-l lg:nth-[n+2]:border-l-forest/15"><Icon name={['wifi', 'bath', 'coffee', 'mountain', 'snow', 'check'][index % 6]} className="h-5 w-5 shrink-0 text-sun-text" />{amenity}</div>)}</div></div></section>
+          <div className="flex items-center gap-4 border border-forest/15 bg-sand p-5">
+            <div className="min-w-0 flex-1">
+              <p className="font-display text-lg font-semibold text-forest">Have questions?</p>
+              <p className="mt-1 text-sm leading-relaxed text-forest/70">We’ll shape the stay around you.</p>
+            </div>
+            <Button href={waLink(`Hello G'Host Villa! I have a question about ${room.name}.`)} icon="chat" arrow={false} className="!min-h-[44px] shrink-0 !px-4 text-sm">Ask us</Button>
+          </div>
+        </aside>
 
-      <section className="bg-sand py-16 md:py-24"><div className="wrap grid gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:gap-20"><Reveal><p className="label">Elegance and comfort</p><h2 className="mt-4 font-display text-5xl leading-[0.92] tracking-[-0.05em] text-forest sm:text-6xl">A softer way to stay in Pokhara.</h2><p className="mt-6 max-w-xl leading-relaxed text-forest/70">Book direct with G’Host Villa for the best available rate. Your room comes with the essentials already considered, plus a warm place to begin and end every day.</p><p className="mt-6 font-display text-3xl text-forest">From {formatNpr(room.price)} <span className="font-sans text-base text-forest/60">/ {room.rateType}</span></p><Button className="mt-7" href={waLink(`Hello G'Host Villa! I would like to book ${room.name}.`)}>Book now</Button></Reveal><Reveal delay={0.1}><img src={gallery[3]} alt="G’Host Villa pyramid restaurant" className="aspect-[4/3] w-full object-cover" /></Reveal></div></section>
+        {/* Main column */}
+        <div className="space-y-12 lg:order-1">
+          {/* 3 · Intro + key facts */}
+          <section aria-labelledby="overview">
+            <h2 id="overview" className="sr-only">Overview</h2>
+            <p className="max-w-3xl text-lg leading-relaxed text-forest/80">{room.blurb}</p>
+            <dl className="mt-8 grid grid-cols-1 gap-x-8 gap-y-5 sm:grid-cols-2">
+              {facts.map(({ icon: Ico, title, text }) => (
+                <div key={title} className="flex items-start gap-3.5">
+                  <Ico className="mt-0.5 h-6 w-6 shrink-0 text-sun-text" strokeWidth={1.6} aria-hidden="true" />
+                  <div className="min-w-0"><dt className="text-sm font-semibold text-forest">{title}</dt><dd className="mt-0.5 text-sm leading-snug text-forest/65">{text}</dd></div>
+                </div>
+              ))}
+            </dl>
+          </section>
 
-      <section className="bg-forest-dark px-6 py-10 text-cream md:py-12"><div className="mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-5"><p className="font-display text-2xl sm:text-3xl">Need help choosing a room?</p><Button href={waLink(`Hello G'Host Villa! I have a question about ${room.name}.`)} variant="light">Contact us</Button></div></section>
+          {/* 4 · Plan options (pick one, syncs with the booking form) */}
+          <section aria-labelledby="options">
+            <SectionTitle id="options" sub={room.whatsappOnly ? undefined : `Prices shown for ${guests} ${guests === 1 ? 'guest' : 'guests'} per night. Change the group size in the booking form.`}>Choose your plan</SectionTitle>
+            <div className="mt-5 grid gap-4 sm:grid-cols-2">
+              {plans.map((p) => {
+                const price = describePrice(room, guests, p.id)
+                const selected = plan === p.id
+                return (
+                  <div key={p.id} className={`flex flex-col border-2 p-5 transition ${selected ? 'border-sun bg-sun/[0.06]' : 'border-forest/15 bg-cream'}`}>
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-forest">{p.label}</p>
+                        <p className="mt-0.5 text-xs text-forest/60">{p.note}</p>
+                      </div>
+                      {selected && <span className="inline-flex items-center gap-1 bg-sun px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-forest-dark"><Check className="h-3 w-3" aria-hidden="true" />Selected</span>}
+                    </div>
+                    <ul className="mt-4 space-y-1.5 text-sm text-forest/70">
+                      <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />Breakfast every morning</li>
+                      <li className="flex gap-2">{p.id === 'MAP' ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" /> : <X className="mt-0.5 h-4 w-4 shrink-0 text-forest/35" aria-hidden="true" />}Lunch or dinner at the restro</li>
+                    </ul>
+                    <p className="mt-5 font-display text-xl font-semibold text-forest">{price.main}</p>
+                    <p className="text-xs text-forest/55">{price.note}</p>
+                    <button type="button" onClick={() => { setPlan(p.id); goToBooking() }}
+                      className={`mt-4 inline-flex min-h-[46px] items-center justify-center gap-2 px-5 text-sm font-semibold transition ${selected ? 'bg-sun text-forest-dark hover:bg-sun-dark' : 'border border-forest/25 text-forest hover:border-forest'}`}>
+                      {selected ? 'Choose dates' : 'Select'}<ArrowRight className="h-4 w-4" aria-hidden="true" />
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          </section>
 
-      <section id="similar" className="bg-cream py-16 md:py-24"><div className="wrap"><Reveal><p className="label">Similar rooms</p><h2 className="mt-3 font-display text-5xl leading-none tracking-[-0.05em] text-forest sm:text-6xl">More ways to stay.</h2></Reveal><div className="mt-10 grid gap-8 md:grid-cols-3">{relatedRooms.map((item) => <Link key={item.id} href={`/rooms/${item.id}`} className="group block"><img src={item.image} alt={item.alt} className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-[1.02]" /><h3 className="mt-4 font-display text-3xl leading-none text-forest">{item.name}</h3><div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-forest/60"><span>{item.measurement}</span><span>{item.capacity}</span></div><p className="mt-4 text-sm leading-relaxed text-forest/65">{item.blurb}</p><p className="mt-5 text-sm font-bold uppercase tracking-[0.12em] text-forest underline decoration-sun underline-offset-4">View detail</p></Link>)}</div></div></section>
+          {/* 5 · Highlights */}
+          <section aria-labelledby="highlights">
+            <SectionTitle id="highlights">Highlights</SectionTitle>
+            <ul className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2">
+              {room.features.map((feature) => {
+                const Ico = featureIcon(feature)
+                return <li key={feature} className="flex items-start gap-3 text-[0.95rem] leading-snug text-forest/80"><Ico className="mt-0.5 h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />{feature}</li>
+              })}
+            </ul>
+            <div className="mt-6 border-l-4 border-sun bg-sand px-5 py-4">
+              <p className="text-sm font-semibold text-forest">Is this room right for you?</p>
+              <p className="mt-1 text-sm leading-relaxed text-forest/70">{room.bestFor}</p>
+            </div>
+          </section>
 
-      <section className="wrap py-4"><Reveal><div className="grid gap-4 border border-forest/15 bg-cream p-6 sm:grid-cols-[1fr_auto] sm:items-center sm:p-8"><div><p className="label">Guest note</p><h2 className="mt-2 font-display text-3xl text-forest">{quote.text}</h2><p className="mt-2 text-sm text-forest/60">{quote.name} · {quote.source}</p></div><Link href="/rooms" className="text-sm font-bold uppercase tracking-[0.12em] text-forest underline decoration-sun underline-offset-4">Browse all rooms</Link></div></Reveal></section>
-      <div className="mt-12"><CtaBanner /></div>
-    </main>
+          {/* 6 · Your stay (the itinerary) */}
+          <section aria-labelledby="your-stay">
+            <SectionTitle id="your-stay" sub="From the moment you arrive to the morning you leave.">Your stay</SectionTitle>
+            <div className="mt-6"><Timeline items={steps} /></div>
+          </section>
+
+          {/* 7 · Rates */}
+          <section aria-labelledby="rates">
+            <SectionTitle id="rates" sub={askOnly ? undefined : `Rates are per night. The meal plan adds NPR ${MAP_ADD} per person. Final price is confirmed when you book.`}>Rates by group size</SectionTitle>
+            {askOnly ? (
+              <p className="mt-5 max-w-2xl leading-relaxed text-forest/70">Bigger groups are booked directly. Send us your dates and group size on WhatsApp and the team will confirm the price.</p>
+            ) : (
+              <div className="mt-5 overflow-x-auto border border-forest/15">
+                <table className="w-full min-w-[30rem] text-left text-sm">
+                  <thead className="bg-sand text-xs font-bold uppercase tracking-[0.12em] text-forest/60">
+                    <tr><th className="px-5 py-3.5">Guests</th><th className="px-5 py-3.5">Bed &amp; Breakfast</th><th className="px-5 py-3.5">With meal plan</th></tr>
+                  </thead>
+                  <tbody>
+                    {table.map((row) => (
+                      <tr key={row.guests} className={`border-t border-forest/10 ${row.guests === guests ? 'bg-sun/15' : ''}`}>
+                        <td className="px-5 py-3.5 font-semibold text-forest">{row.guests}</td>
+                        <td className="px-5 py-3.5 text-forest/80">{cellText(row.bb)}</td>
+                        <td className="px-5 py-3.5 text-forest/80">{cellText(row.map)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
+          {/* 8 · Included / Excluded side by side */}
+          <section aria-labelledby="included">
+            <SectionTitle id="included">What’s included</SectionTitle>
+            <div className="mt-5 grid gap-8 md:grid-cols-2">
+              <div>
+                <h3 className="text-xs font-bold uppercase tracking-[0.14em] text-leaf">Included</h3>
+                <ul className="mt-3 space-y-2.5">
+                  {included.map((item) => <li key={item} className="flex gap-2.5 text-[0.95rem] leading-snug text-forest/80"><Check className="mt-0.5 h-5 w-5 shrink-0 text-leaf" aria-hidden="true" />{item}</li>)}
+                </ul>
+              </div>
+              <div>
+                <h3 id="excluded" className="text-xs font-bold uppercase tracking-[0.14em] text-meat">Not included</h3>
+                <ul className="mt-3 space-y-2.5">
+                  {excluded.map((item) => <li key={item} className="flex gap-2.5 text-[0.95rem] leading-snug text-forest/80"><X className="mt-0.5 h-5 w-5 shrink-0 text-meat" aria-hidden="true" />{item}</li>)}
+                </ul>
+              </div>
+            </div>
+            {includes.length > 0 && (
+              <>
+                <h3 className="mt-8 text-sm font-bold text-forest">This stay combines</h3>
+                <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                  {includes.map((item) => (
+                    <Link key={item.id} href={`/rooms/${item.id}`} className="group flex gap-4 border border-forest/15 bg-cream p-3 transition hover:border-forest/40">
+                      <img src={item.image} alt={item.alt} loading="lazy" className="h-20 w-24 shrink-0 object-cover" />
+                      <span className="min-w-0 self-center"><span className="block font-display text-lg leading-tight text-forest">{item.name}</span><span className="mt-1 block text-xs text-forest/60">{buildingLabel(item)}</span></span>
+                    </Link>
+                  ))}
+                </div>
+              </>
+            )}
+          </section>
+
+          {/* 9 · Good to know */}
+          <section aria-labelledby="good-to-know">
+            <SectionTitle id="good-to-know">Good to know</SectionTitle>
+            <div className="mt-5 grid gap-px border border-forest/15 bg-forest/15 md:grid-cols-3">
+              <div className="bg-cream p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><ShieldCheck className="h-5 w-5 text-sun-text" aria-hidden="true" />Stay rules</h3><ul className="mt-2 space-y-1 text-sm leading-relaxed text-forest/70"><li>No smoking, parties or events.</li><li>Check-in from 2 PM, check-out by 10 AM.</li></ul></div>
+              <div className="bg-cream p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><CalendarDays className="h-5 w-5 text-sun-text" aria-hidden="true" />Cancellation</h3><p className="mt-2 text-sm leading-relaxed text-forest/70">Full refund if you cancel within 48 hours of booking and at least 24 hours before check-in.</p></div>
+              <div className="bg-cream p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><Sun className="h-5 w-5 text-sun-text" aria-hidden="true" />When to visit</h3><p className="mt-2 text-sm leading-relaxed text-forest/70">Sept–Nov and Mar–May bring the clearest mountain views from the hilltop.</p></div>
+            </div>
+          </section>
+
+          {/* 10 · FAQs */}
+          <section aria-labelledby="faqs">
+            <SectionTitle id="faqs">Frequently asked questions</SectionTitle>
+            <div className="mt-4"><Accordion items={roomFaqs} /></div>
+          </section>
+        </div>
+      </div>
+
+      {/* 11 · Reviews: summary on the left, list on the right */}
+      <section aria-labelledby="reviews" className="border-t border-forest/10">
+        <div className="wrap grid gap-10 py-14 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-14">
+          <div>
+            <h2 id="reviews" className="scroll-mt-28 font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">Guest reviews</h2>
+            <p className="mt-5 font-display text-5xl font-semibold leading-none text-forest">4.5<span className="text-xl text-forest/45">/5</span></p>
+            <div className="mt-3"><Stars n={5} className="h-5 w-5" /></div>
+            <p className="mt-2 text-sm text-forest/60">Based on {reviewCount} Google reviews</p>
+            <a href={site.social.tripadvisor} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4"><Star className="h-4 w-4" aria-hidden="true" />Write a review</a>
+          </div>
+          <ul className="divide-y divide-forest/10">
+            {reviews.map((r) => (
+              <li key={r.name} className="py-5 first:pt-0">
+                <div className="flex items-center gap-3">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sand text-forest/60"><User className="h-5 w-5" aria-hidden="true" /></span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold leading-tight text-forest">{r.name}</p>
+                    <p className="text-xs text-forest/55">{r.country} · {r.source}</p>
+                  </div>
+                  <Stars n={r.rating} className="h-4 w-4" />
+                </div>
+                <p className="mt-3 text-[0.95rem] leading-relaxed text-forest/75">{r.text}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+
+      {/* 12 · Related stays */}
+      <section aria-labelledby="similar" className="bg-sand py-14">
+        <div className="wrap">
+          <div className="flex items-end justify-between gap-4">
+            <Reveal><h2 id="similar" className="font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">Related stays</h2></Reveal>
+            <Link href="/rooms" className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">All rooms<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+          </div>
+          <div className="mt-8 grid gap-6 md:grid-cols-3">
+            {similar.map((item) => {
+              const p = describePrice(item, null, 'BB')
+              return (
+                <Link key={item.id} href={`/rooms/${item.id}`} className="group flex flex-col border border-forest/15 bg-cream transition hover:-translate-y-1 hover:shadow-warm">
+                  <div className="overflow-hidden"><img src={item.image} alt={item.alt} loading="lazy" className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105" /></div>
+                  <div className="flex flex-1 flex-col p-5">
+                    <p className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-sun-text">{buildingLabel(item)}</p>
+                    <h3 className="mt-2 font-display text-xl leading-tight text-forest">{item.name}</h3>
+                    <p className="mt-1.5 flex items-center gap-1.5 text-sm text-forest/60"><Users className="h-4 w-4" aria-hidden="true" />{item.capacity}</p>
+                    <p className="mt-auto pt-4 font-display text-lg font-semibold text-forest">{p.label} {p.main}</p>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+      </section>
+
+      <CtaBanner />
+
+      <Lightbox photos={photos} index={photo} setIndex={setPhoto} alt={room.alt} />
+
+      {/* Phone booking bar: appears when the full panel has scrolled away */}
+      <div className={`fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-40 border-t border-forest/15 bg-cream/95 py-3 pl-5 pr-20 shadow-[0_-10px_30px_rgba(35,70,53,0.12)] backdrop-blur transition duration-300 md:bottom-0 md:pr-5 lg:hidden ${panelVisible ? 'pointer-events-none translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`} aria-hidden={panelVisible}>
+        <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
+          <div className="min-w-0">
+            {quote ? (
+              <>
+                <p className="truncate text-xs text-forest/60">{fmtDate(checkIn, { day: 'numeric', month: 'short' })} – {fmtDate(checkOut, { day: 'numeric', month: 'short' })}</p>
+                <p className="truncate font-display text-lg font-semibold leading-tight text-forest">{quote.kind === 'range' ? `NPR ${quote.min.toLocaleString('en-US')}+` : `NPR ${quote.total.toLocaleString('en-US')}`} <span className="font-body text-xs font-normal text-forest/60">· {nights}n</span></p>
+              </>
+            ) : (
+              <>
+                {barPrice.label && <p className="text-xs text-forest/60">{barPrice.label}</p>}
+                <p className="truncate font-display text-lg font-semibold leading-tight text-forest">{barPrice.main}</p>
+              </>
+            )}
+          </div>
+          {barReady ? (
+            <a tabIndex={panelVisible ? -1 : 0} href={waLink(stayMessage(room, { guests, plan, checkIn, checkOut }))} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 bg-sun px-5 text-sm font-semibold text-forest-dark"><MessageCircle className="h-4 w-4" aria-hidden="true" />{room.whatsappOnly ? 'Ask us' : 'Request stay'}</a>
+          ) : (
+            <button type="button" tabIndex={panelVisible ? -1 : 0} onClick={goToBooking} className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 bg-sun px-5 text-sm font-semibold text-forest-dark"><CalendarDays className="h-4 w-4" aria-hidden="true" />Choose dates</button>
+          )}
+        </div>
+      </div>
+    </div>
   )
 }

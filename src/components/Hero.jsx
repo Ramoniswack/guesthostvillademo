@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import Icon from './Icons.jsx'
-import { Button, Divider } from './ui.jsx'
+import { Button } from './ui.jsx'
 
 const heroMedia = [
   { type: 'video', src: '/videos/stock-hero.mp4', poster: '/images/hero.webp', position: '50% 54%' },
@@ -86,7 +86,7 @@ export default function Hero() {
         <button type="button" aria-label="Next hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={nextSlide} className="grid h-10 w-10 place-items-center border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronR" className="h-5 w-5" /></button>
       </div>
 
-      <div className="wrap relative flex min-h-[100svh] select-none items-center justify-center py-32 text-center">
+      <div className="wrap relative flex min-h-[100svh] select-none items-center justify-center pb-[clamp(6rem,22vw,22rem)] pt-24 text-center">
           <div className="max-w-5xl">
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sun">Sarangkot, Pokhara · Nepal</p>
             <motion.h1
@@ -101,13 +101,27 @@ export default function Hero() {
             >
               A hilltop villa, restro and bar made for quiet stays, big gatherings and slow Pokhara days.
             </motion.p>
-            <div className="mt-9" onPointerDown={(event) => event.stopPropagation()}><Button href="/rooms" className="!rounded-none">Find your stay</Button></div>
+            <div className="mt-3" onPointerDown={(event) => event.stopPropagation()}><Button href="/rooms" className="!rounded-none">Find your stay</Button></div>
           </div>
       </div>
 
-      <div className="absolute inset-x-0 bottom-0">
-        <Divider prev="transparent" next="cream" />
-      </div>
+      {/* Hero's bottom edge: page-coloured band masked by the traced outer line SVG of the mountain photo at its natural 1024:217 aspect ratio */}
+      <div
+        aria-hidden="true"
+        data-mountain-ridge
+        className="pointer-events-none absolute inset-x-0 -bottom-px z-10 aspect-[1024/217] w-full"
+        style={{
+          backgroundColor: '#FBF7EF',
+          WebkitMaskImage: 'url(/images/mountain-edge.svg)',
+          maskImage: 'url(/images/mountain-edge.svg)',
+          WebkitMaskRepeat: 'no-repeat',
+          maskRepeat: 'no-repeat',
+          WebkitMaskSize: '100% 100%',
+          maskSize: '100% 100%',
+          WebkitMaskPosition: 'center bottom',
+          maskPosition: 'center bottom',
+        }}
+      />
     </section>
   )
 }
