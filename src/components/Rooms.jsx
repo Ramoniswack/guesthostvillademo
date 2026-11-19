@@ -69,7 +69,7 @@ function BookingBar({ building, setBuilding, checkIn, setCheckIn, checkOut, setC
 
   useEffect(() => {
     if (!bookingBarRef.current) return
-    const dockY = window.scrollY + bookingBarRef.current.getBoundingClientRect().top - 72
+    const dockY = window.scrollY + bookingBarRef.current.getBoundingClientRect().top
     const updateCompactState = () => setIsCompact(window.scrollY >= dockY)
     updateCompactState()
     window.addEventListener('scroll', updateCompactState, { passive: true })
@@ -82,7 +82,7 @@ function BookingBar({ building, setBuilding, checkIn, setCheckIn, checkOut, setC
   }
 
   return (
-    <div ref={bookingBarRef} className={`relative z-30 border-b border-forest/10 bg-sand/95 px-6 backdrop-blur-md transition-all duration-300 sm:px-10 md:sticky md:top-[4.5rem] ${isCompact ? 'py-0' : 'py-3'}`}>
+    <div ref={bookingBarRef} className={`relative z-30 border-b border-forest/10 bg-cream/95 px-6 backdrop-blur-md transition-all duration-300 sm:px-10 md:sticky md:top-0 ${isCompact ? 'py-2 shadow-md shadow-forest/5' : 'py-3'}`}>
       <form onSubmit={submit} className={`relative mx-auto grid ${isCompact ? 'max-w-[1120px]' : 'max-w-[1360px]'} gap-px bg-forest/15 p-px shadow-lg shadow-forest/10 transition-all duration-300 md:grid-cols-[1.25fr_1fr_1fr_0.75fr_auto]`} aria-label="Search G’Host stays">
         <label className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}>
           <span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Stay type</span>
@@ -159,7 +159,7 @@ export default function Rooms() {
   const dateInput = 'mt-1.5 w-full border border-forest/20 bg-cream px-3 py-2 text-sm font-semibold normal-case tracking-normal text-forest outline-none focus:border-forest'
 
   return (
-    <section id="rooms" className="bg-sand pb-16 pt-20 md:pb-24 md:pt-24">
+    <section id="rooms" className="bg-cream pb-16 pt-20 md:pb-24 md:pt-24">
       <BookingBar
         building={building}
         setBuilding={setBuilding}
@@ -180,72 +180,74 @@ export default function Rooms() {
         </Reveal>
 
         <div className="mt-10 grid gap-8 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start lg:gap-8 xl:grid-cols-[320px_minmax(0,1fr)] xl:gap-10">
-          {/* Filters live on the left in the open 36f93ac sidebar style */}
-          <div className="lg:sticky lg:top-28">
+          {/* Filters live on the left in the same boxed style as the mini menu */}
+          <div className="lg:sticky lg:top-20">
             <button type="button" onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}
-              className="flex w-full items-center justify-between border border-forest/25 bg-cream px-5 py-4 text-sm font-bold text-forest lg:hidden">
+              className="flex w-full items-center justify-between border border-forest/25 bg-cream px-5 py-4 text-sm font-bold text-forest shadow-lg shadow-forest/10 lg:hidden">
               <span className="inline-flex items-center gap-2"><SlidersHorizontal className="h-4 w-4" aria-hidden="true" />Filters{activeCount > 0 ? ` · ${activeCount} active` : ''}</span>
               {filtersOpen ? <Minus className="h-4 w-4" aria-hidden="true" /> : <Plus className="h-4 w-4" aria-hidden="true" />}
             </button>
-            <aside aria-label="Filter stays" className={`${filtersOpen ? 'block' : 'hidden'} mt-4 border border-forest/15 bg-sand p-6 lg:mt-0 lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto`}>
-              <div className="mb-4 flex justify-end">
-                <button type="button" onClick={clearFilters} className="text-xs font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">Clear filters</button>
+            <aside aria-label="Filter stays" className={`${filtersOpen ? 'block' : 'hidden'} mt-4 bg-forest/15 p-px shadow-lg shadow-forest/10 lg:mt-0 lg:block lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto`}>
+              <div className="space-y-px">
+                <div className="flex items-center justify-between bg-cream px-5 py-4">
+                  <h2 className="font-display text-2xl text-forest">Filter by</h2>
+                  <button type="button" onClick={clearFilters} className="text-xs font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">Clear filters</button>
+                </div>
+
+                <div className="bg-cream px-5 py-4">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <label className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">People</label>
+                    <span className="text-sm font-semibold text-forest">{guestLabel}</span>
+                  </div>
+                  <div className="mt-3">
+                    <RangeSlider min={0} max={MAX_GUESTS} step={1} value={guests ?? 0} onChange={(n) => setGuests(n === 0 ? null : n)} labels={['Number of guests']} />
+                  </div>
+                  <div className="mt-2 flex justify-between text-xs text-forest/55"><span>Any</span><span>{MAX_GUESTS}</span></div>
+                  <p className="mt-2 text-xs leading-relaxed text-forest/60">{groupHint(guests)}</p>
+                </div>
+
+                <div className="bg-cream px-5 py-4">
+                  <div className="flex items-baseline justify-between gap-2">
+                    <label className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Price per night</label>
+                    <span className="text-sm font-semibold text-forest">NPR {priceText(priceMin)} – {priceText(priceMax)}</span>
+                  </div>
+                  <div className="mt-3">
+                    <RangeSlider min={0} max={PRICE_MAX} step={PRICE_STEP} value={[priceMin, priceMax]} onChange={([a, b]) => { setPriceMin(a); setPriceMax(b) }} labels={['Minimum price per night', 'Maximum price per night']} />
+                  </div>
+                  <div className="mt-2 flex justify-between text-xs text-forest/55"><span>NPR 0</span><span>{priceText(PRICE_MAX)}</span></div>
+                </div>
+
+                <fieldset className="bg-cream px-5 py-4">
+                  <legend className="pt-4 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Building</legend>
+                  <div className="mt-2 space-y-1.5">
+                    {[{ id: 'all', name: 'Both buildings' }, ...buildings].map((item) => (
+                      <Option key={item.id} name="building" checked={building === item.id} onChange={() => setBuilding(item.id)}>{item.name}</Option>
+                    ))}
+                  </div>
+                </fieldset>
+
+                <fieldset className="bg-cream px-5 py-4">
+                  <legend className="pt-4 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">View</legend>
+                  <div className="mt-2 space-y-1.5">
+                    {viewOptions.map((item) => <Option key={item.id} name="view" checked={view === item.id} onChange={() => setView(item.id)}>{item.label}</Option>)}
+                  </div>
+                </fieldset>
+
+                <fieldset className="bg-cream px-5 py-4">
+                  <legend className="pt-4 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Meal plan</legend>
+                  <div className="mt-2 space-y-1.5">
+                    {plans.map((item) => <Option key={item.id} name="plan" checked={plan === item.id} onChange={() => setPlan(item.id)} hint={item.note}>{item.label} ({item.short})</Option>)}
+                  </div>
+                </fieldset>
+
+                <fieldset className="bg-cream px-5 py-4">
+                  <legend className="pt-4 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Dates (optional)</legend>
+                  <div className="mt-2 grid gap-3">
+                    <label className="block text-xs font-semibold text-forest/70">Check in<input type="date" min={todayISO()} value={checkIn} onChange={(event) => setCheckIn(event.target.value)} className={dateInput} /></label>
+                    <label className="block text-xs font-semibold text-forest/70">Check out<input type="date" min={checkIn || todayISO()} value={checkOut} onChange={(event) => setCheckOut(event.target.value)} className={dateInput} /></label>
+                  </div>
+                </fieldset>
               </div>
-              <h2 className="font-display text-3xl text-forest">Filter by</h2>
-
-              <div className="mt-6 border-t border-forest/15 pt-6">
-                <div className="flex items-baseline justify-between gap-2">
-                  <label className="text-sm font-bold text-forest">People</label>
-                  <span className="text-sm font-semibold text-forest/75">{guestLabel}</span>
-                </div>
-                <div className="mt-4">
-                  <RangeSlider min={0} max={MAX_GUESTS} step={1} value={guests ?? 0} onChange={(n) => setGuests(n === 0 ? null : n)} labels={['Number of guests']} />
-                </div>
-                <div className="mt-2 flex justify-between text-xs text-forest/55"><span>Any</span><span>{MAX_GUESTS}</span></div>
-                <p className="mt-2 text-xs leading-relaxed text-forest/60">{groupHint(guests)}</p>
-              </div>
-
-              <div className="mt-7 border-t border-forest/15 pt-6">
-                <div className="flex items-baseline justify-between gap-2">
-                  <label className="text-sm font-bold text-forest">Price per night</label>
-                  <span className="text-sm font-semibold text-forest/75">NPR {priceText(priceMin)} – {priceText(priceMax)}</span>
-                </div>
-                <div className="mt-4">
-                  <RangeSlider min={0} max={PRICE_MAX} step={PRICE_STEP} value={[priceMin, priceMax]} onChange={([a, b]) => { setPriceMin(a); setPriceMax(b) }} labels={['Minimum price per night', 'Maximum price per night']} />
-                </div>
-                <div className="mt-2 flex justify-between text-xs text-forest/55"><span>NPR 0</span><span>{priceText(PRICE_MAX)}</span></div>
-              </div>
-
-              <fieldset className="mt-7 border-t border-forest/15 pt-6">
-                <legend className="text-sm font-bold text-forest">Building</legend>
-                <div className="mt-3 space-y-2">
-                  {[{ id: 'all', name: 'Both buildings' }, ...buildings].map((item) => (
-                    <Option key={item.id} name="building" checked={building === item.id} onChange={() => setBuilding(item.id)}>{item.name}</Option>
-                  ))}
-                </div>
-              </fieldset>
-
-              <fieldset className="mt-7 border-t border-forest/15 pt-6">
-                <legend className="text-sm font-bold text-forest">View</legend>
-                <div className="mt-3 space-y-2">
-                  {viewOptions.map((item) => <Option key={item.id} name="view" checked={view === item.id} onChange={() => setView(item.id)}>{item.label}</Option>)}
-                </div>
-              </fieldset>
-
-              <fieldset className="mt-7 border-t border-forest/15 pt-6">
-                <legend className="text-sm font-bold text-forest">Meal plan</legend>
-                <div className="mt-3 space-y-2">
-                  {plans.map((item) => <Option key={item.id} name="plan" checked={plan === item.id} onChange={() => setPlan(item.id)} hint={item.note}>{item.label} ({item.short})</Option>)}
-                </div>
-              </fieldset>
-
-              <fieldset className="mt-7 border-t border-forest/15 pt-6">
-                <legend className="text-sm font-bold text-forest">Dates (optional)</legend>
-                <div className="mt-3 grid gap-3">
-                  <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Check in<input type="date" min={todayISO()} value={checkIn} onChange={(event) => setCheckIn(event.target.value)} className={dateInput} /></label>
-                  <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Check out<input type="date" min={checkIn || todayISO()} value={checkOut} onChange={(event) => setCheckOut(event.target.value)} className={dateInput} /></label>
-                </div>
-              </fieldset>
             </aside>
           </div>
 

@@ -54,11 +54,23 @@ function Brand({ light = false, solid = false }) {
 
 export default function Navbar() {
   const [open, setOpen] = useState(false)
+  const [hideOnRoomsScroll, setHideOnRoomsScroll] = useState(false)
   const pathname = usePathname()
   const solid = usePastHero() || pathname.startsWith('/rooms')
   const text = solid ? 'text-forest' : 'text-white'
 
   useEffect(() => setOpen(false), [pathname])
+
+  useEffect(() => {
+    if (pathname !== '/rooms') {
+      setHideOnRoomsScroll(false)
+      return undefined
+    }
+    const onScroll = () => setHideOnRoomsScroll(window.scrollY > 36)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [pathname])
 
   useEffect(() => {
     lockScroll(open)
@@ -72,7 +84,7 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={`fixed inset-x-0 top-0 z-40 transition-colors duration-500 ${solid ? 'border-b border-forest/10 bg-cream/95 shadow-[0_10px_30px_rgba(29,45,35,0.08)] backdrop-blur-xl' : 'bg-gradient-to-b from-black/35 to-transparent'}`}>
+      <header className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${hideOnRoomsScroll ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} ${solid ? 'border-b border-forest/10 bg-cream/95 shadow-[0_10px_30px_rgba(29,45,35,0.08)] backdrop-blur-xl' : 'bg-gradient-to-b from-black/35 to-transparent'}`}>
         <div className="mx-auto flex h-[4.5rem] max-w-[1440px] items-center justify-between gap-5 px-5 sm:px-8 lg:px-12">
           <Brand solid={solid} />
 
