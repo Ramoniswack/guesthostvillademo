@@ -3,7 +3,8 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import Icon from './Icons.jsx'
-import { Button, Divider } from './ui.jsx'
+import { Button } from './ui.jsx'
+import MountainRange from './MountainRange.jsx'
 
 const heroMedia = [
   { type: 'video', src: '/videos/stock-hero.mp4', poster: '/images/hero.webp', position: '50% 54%' },
@@ -106,7 +107,7 @@ export default function Hero() {
       </div>
 
       <div className="absolute inset-x-0 bottom-0">
-        <Divider prev="transparent" next="cream" />
+        <MountainRange />
       </div>
     </section>
   )

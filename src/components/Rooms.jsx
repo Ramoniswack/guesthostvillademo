@@ -1,98 +1,226 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useMemo, useState } from 'react'
 import Link from 'next/link'
 import Icon from './Icons.jsx'
 import { Button, Reveal } from './ui.jsx'
-import { rooms } from '../data/rooms.js'
+import {
+  rooms, buildings, plans, MAX_GUESTS, WHATSAPP_FROM,
+  recommendedFor, describePrice, priceFor, buildingLabel, stayMessage,
+} from '../data/rooms.js'
 import { waLink } from '../data/site.js'
+import { nightsBetween, stayQuery, stayQuote, todayISO } from '../lib/booking.js'
 
-const npr = (value) => `NPR ${value.toLocaleString('en-US')}`
+const BUDGET_MAX = 40000
 
-const bookingModes = [
-  { id: 'all', label: 'All spaces', roomIds: null },
-  { id: 'couple', label: 'For two', roomIds: ['couple-deluxe'] },
-  { id: 'private', label: 'Private room', roomIds: ['hilltop-double'] },
-  { id: 'group', label: 'Group villa', roomIds: ['four-bhk-wing'] },
-  { id: 'buyout', label: 'Entire villa buyout', roomIds: ['seven-bhk-full-villa'] },
+const viewOptions = [
+  { id: 'any', label: 'Any view' },
+  { id: 'mountain', label: 'Mountain view (MV)' },
+  { id: 'city', label: 'City view (CV)' },
 ]
 
-function BookingBar() {
-  const [guests, setGuests] = useState(2)
-  const [isCompact, setIsCompact] = useState(false)
-  const bookingBarRef = useRef(null)
-
-  useEffect(() => {
-    if (!bookingBarRef.current) return
-    const dockY = window.scrollY + bookingBarRef.current.getBoundingClientRect().top - 72
-    const updateCompactState = () => setIsCompact(window.scrollY >= dockY)
-    updateCompactState()
-    window.addEventListener('scroll', updateCompactState, { passive: true })
-    return () => window.removeEventListener('scroll', updateCompactState)
-  }, [])
-
-  const submit = (event) => {
-    event.preventDefault()
-    document.getElementById('stay-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
-
+function Spec({ icon, children }) {
   return (
-    <div ref={bookingBarRef} className={`relative z-30 border-b border-forest/10 bg-sand/95 backdrop-blur-md transition-all duration-300 md:sticky md:top-[4.5rem] ${isCompact ? 'py-0' : 'py-3'}`}>
-      <form onSubmit={submit} className={`relative mx-auto grid ${isCompact ? 'max-w-[1120px]' : 'max-w-[1540px]'} gap-px bg-forest/15 p-px shadow-lg shadow-forest/10 transition-all duration-300 md:grid-cols-[1.25fr_1fr_1fr_0.7fr_auto]`} aria-label="Search G’Host stays">
-        <label className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}><span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Stay type</span><select defaultValue="all" className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`}><option value="all">Any G’Host space</option><option value="couple">Couple suite</option><option value="group">Group villa</option><option value="buyout">Entire villa</option></select></label>
-        <label className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}><span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Check in</span><input aria-label="Check in" type="date" className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`} /></label>
-        <label className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}><span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Check out</span><input aria-label="Check out" type="date" className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`} /></label>
-        <div className={`bg-cream px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}><span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Guests</span><div className={`${isCompact ? '' : 'mt-1'} flex items-center justify-between font-semibold text-forest`}><button type="button" aria-label="Remove guest" onClick={() => setGuests((count) => Math.max(1, count - 1))} className="grid h-6 w-6 place-items-center border border-forest/20">−</button>{guests}<button type="button" aria-label="Add guest" onClick={() => setGuests((count) => Math.min(24, count + 1))} className="grid h-6 w-6 place-items-center border border-forest/20">+</button></div></div>
-        <button type="submit" className={`bg-sun px-7 text-sm font-bold uppercase tracking-[0.12em] text-forest transition hover:bg-sun-dark ${isCompact ? 'min-h-12' : 'min-h-16'}`}>Find a stay</button>
-      </form>
-    </div>
+    <li className="flex items-center gap-2.5 text-sm text-forest/70">
+      <Icon name={icon} className="h-[1.125rem] w-[1.125rem] shrink-0 text-forest/60" />
+      <span>{children}</span>
+    </li>
   )
 }
 
-function SpaceCard({ room }) {
+function StayCard({ room, guests, plan, checkIn, checkOut }) {
+  const price = describePrice(room, guests, plan)
+  const nights = nightsBetween(checkIn, checkOut)
+  const quote = nights > 0 && !room.whatsappOnly ? stayQuote(room, guests ?? room.defaultGuests, plan, nights) : null
+  const href = `/rooms/${room.id}${stayQuery({ guests, plan, checkIn, checkOut })}`
   return (
-    <Link href={`/rooms/${room.id}`} className="group grid h-full overflow-hidden border border-forest/15 bg-cream lg:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)]">
-      <div className="relative min-h-[17rem] overflow-hidden bg-forest-dark lg:min-h-full">
-        <img src={room.image} alt={room.alt} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-        <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-transparent to-transparent" />
-        <span className="absolute left-4 top-4 max-w-[80%] bg-sun px-3 py-2 text-[0.62rem] font-bold uppercase tracking-[0.13em] text-forest-dark">{room.badge}</span>
-        <div className="absolute bottom-4 left-5 text-cream"><span className="block text-xs font-bold uppercase tracking-[0.14em] text-cream/75">From</span><span className="mt-1 block font-display text-3xl leading-none">{npr(room.price)}</span><span className="mt-1 block text-xs font-semibold text-cream/80">{room.rateType}</span></div>
-      </div>
-      <div className="flex min-h-[17rem] flex-col p-6 sm:p-8"><h2 className="font-display text-3xl font-semibold leading-none tracking-[-0.04em] text-forest">{room.name}</h2><div className="mt-8 grid grid-cols-3 gap-3 text-sm text-forest/65"><span className="flex min-w-0 items-center gap-2"><Icon name="bed" className="h-6 w-6 shrink-0 text-forest" /><span className="truncate">{room.bed.replace('Comfortable ', '').replace(' (Full Private Estate)', '')}</span></span><span className="flex min-w-0 items-center gap-2"><Icon name="users" className="h-6 w-6 shrink-0 text-forest" /><span className="truncate">{room.capacity}</span></span><span className="flex min-w-0 items-center gap-2"><Icon name="maximize" className="h-6 w-6 shrink-0 text-forest" /><span className="truncate">{room.measurement.replace(/\s*\([^)]*\)/, '')}</span></span></div><p className="mt-8 line-clamp-3 text-sm leading-relaxed text-forest/65">{room.blurb}</p><div className="mt-auto flex items-end justify-between gap-5 pt-8"><span className="text-xs font-bold uppercase tracking-[0.14em] text-forest underline decoration-sun decoration-2 underline-offset-4">Book now <span className="ml-2 text-base no-underline">→</span></span><span className="whitespace-nowrap font-display text-2xl text-forest">{npr(room.price)} <small className="font-sans text-sm text-forest/55">/ {room.rateType}</small></span></div></div>
-    </Link>
-  )
-}
+    <article className="group flex h-full flex-col overflow-hidden border border-forest/10 bg-cream shadow-soft transition duration-300 hover:-translate-y-1 hover:shadow-warm">
+      <Link href={href} aria-label={`View ${room.name}`} className="relative block overflow-hidden bg-forest-dark">
+        <img src={room.image} alt={room.alt} loading="lazy" className="aspect-[3/2] w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
+        <span className="absolute left-5 top-5 bg-sun px-3 py-1.5 text-[0.62rem] font-bold uppercase tracking-[0.13em] text-forest-dark">{room.badge}</span>
+      </Link>
 
-export default function Rooms({ preview = false }) {
-  const [activeMode, setActiveMode] = useState('all')
-  const [priceLimit, setPriceLimit] = useState(8000)
-  const [capacity, setCapacity] = useState('any')
-  const [view, setView] = useState('any')
-  const [breakfastOnly, setBreakfastOnly] = useState(false)
-  const mode = bookingModes.find((item) => item.id === activeMode) ?? bookingModes[0]
-  const visibleRooms = rooms.filter((room) => {
-    const fitsMode = !mode.roomIds || mode.roomIds.includes(room.id)
-    const fitsPrice = room.price <= priceLimit
-    const capacityStart = Number(room.capacity.match(/\d+/)?.[0] ?? 0)
-    const fitsCapacity = capacity === 'any' || (capacity === 'two' ? capacityStart <= 2 : capacityStart >= 4)
-    const fitsView = view === 'any' || room.view.toLowerCase().includes(view)
-    const fitsBreakfast = !breakfastOnly || room.amenities.includes('breakfast')
-    return fitsMode && fitsPrice && fitsCapacity && fitsView && fitsBreakfast
-  })
-  const previewRooms = rooms.slice(0, 2)
+      <div className="flex flex-1 flex-col px-7 pb-8 pt-8 sm:px-9 sm:pb-9 sm:pt-9">
+        <p className="text-[0.68rem] font-bold uppercase tracking-[0.16em] text-sun-text">{buildingLabel(room)}</p>
+        <h3 className="mt-3 font-display text-[1.75rem] font-semibold leading-[1.08] tracking-[-0.035em] text-forest">
+          <Link href={href} className="transition hover:text-forest-dark">{room.name}</Link>
+        </h3>
+        <p className="mt-4 line-clamp-2 text-[0.95rem] leading-[1.7] text-forest/65">{room.blurb}</p>
 
-  if (preview) return <section id="rooms" className="section bg-cream"><div className="wrap grid gap-7 md:grid-cols-2">{previewRooms.map((room) => <SpaceCard key={room.id} room={room} />)}</div></section>
+        <ul className="mt-6 space-y-2.5">
+          <Spec icon="users">{room.capacity}</Spec>
+          <Spec icon="bed">{room.bed}</Spec>
+          {room.viewText && <Spec icon="mountain">{room.viewText}</Spec>}
+        </ul>
 
-  return (
-    <section id="rooms" className="bg-sand pb-24 pt-8 md:pt-10">
-      <BookingBar />
-      <div className="wrap max-w-[1760px] pt-16 md:pt-20">
-        <Reveal className="mb-12 grid gap-6 md:grid-cols-[1fr_auto] md:items-end"><div><p className="label">Stay collection</p><h2 className="max-w-2xl font-display text-5xl font-semibold leading-[0.94] tracking-[-0.05em] text-forest sm:text-6xl">Find the G’Host space that fits your stay.</h2></div><p className="max-w-sm leading-relaxed text-forest/70">For two people, a family weekend, or a full estate celebration—filter by the way you want to stay.</p></Reveal>
-        <div className="grid gap-10 xl:grid-cols-[minmax(0,1fr)_280px] xl:items-start xl:gap-12">
-          <div id="stay-results"><div className="mb-8"><p className="text-sm font-semibold text-forest/65">Showing {visibleRooms.length} {visibleRooms.length === 1 ? 'space' : 'spaces'}</p></div><div className="grid gap-x-8 gap-y-10 xl:grid-cols-2">{visibleRooms.map((room) => <SpaceCard key={room.id} room={room} />)}{visibleRooms.length === 0 && <p className="col-span-full border border-forest/15 p-8 text-forest/70">No spaces match those filters. Try widening your choices or ask us for a custom stay.</p>}</div></div>
-          <aside aria-label="Filter rooms" className="border border-forest/15 bg-sand p-6 xl:sticky xl:top-28"><div className="mb-4 flex justify-end"><button type="button" onClick={() => { setActiveMode('all'); setPriceLimit(8000); setCapacity('any'); setView('any'); setBreakfastOnly(false) }} className="text-xs font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">Clear filters</button></div><h2 className="font-display text-3xl text-forest">Filter by</h2><div className="mt-6 border-t border-forest/15 pt-6"><label className="text-sm font-bold text-forest">Price per stay</label><input aria-label="Maximum price per stay" type="range" min="1550" max="8000" step="250" value={priceLimit} onChange={(event) => setPriceLimit(Number(event.target.value))} className="mt-4 w-full accent-forest" /><div className="mt-2 flex justify-between text-sm font-semibold text-forest/70"><span>{npr(1550)}</span><span>Up to {npr(priceLimit)}</span></div></div><fieldset className="mt-7 border-t border-forest/15 pt-6"><legend className="text-sm font-bold text-forest">Space type</legend><div className="mt-3 space-y-3">{bookingModes.map((item) => <label key={item.id} className="flex cursor-pointer items-center gap-3 text-sm text-forest/75"><input type="radio" name="space-type" checked={activeMode === item.id} onChange={() => setActiveMode(item.id)} className="accent-forest" />{item.label}</label>)}</div></fieldset><fieldset className="mt-7 border-t border-forest/15 pt-6"><legend className="text-sm font-bold text-forest">Capacity</legend><div className="mt-3 space-y-3">{[['any', 'Any size'], ['two', '1–2 guests'], ['group', '4+ guests']].map(([id, label]) => <label key={id} className="flex cursor-pointer items-center gap-3 text-sm text-forest/75"><input type="radio" name="capacity" checked={capacity === id} onChange={() => setCapacity(id)} className="accent-forest" />{label}</label>)}</div></fieldset><fieldset className="mt-7 border-t border-forest/15 pt-6"><legend className="text-sm font-bold text-forest">View</legend><div className="mt-3 space-y-3">{[['any', 'Any view'], ['annapurna', 'Mountain / Annapurna'], ['garden', 'Garden / hillside'], ['valley', 'Valley panorama']].map(([id, label]) => <label key={id} className="flex cursor-pointer items-center gap-3 text-sm text-forest/75"><input type="radio" name="view" checked={view === id} onChange={() => setView(id)} className="accent-forest" />{label}</label>)}</div></fieldset><label className="mt-7 flex cursor-pointer items-center gap-3 border-t border-forest/15 pt-6 text-sm font-semibold text-forest"><input type="checkbox" checked={breakfastOnly} onChange={(event) => setBreakfastOnly(event.target.checked)} className="h-4 w-4 accent-forest" />Breakfast included</label></aside>
+        <div className="mt-auto pt-10">
+          <div className="flex items-end justify-between gap-5 border-t border-forest/10 pt-7">
+            <div className="min-w-0">
+              {price.label && <span className="block text-[0.65rem] font-bold uppercase tracking-[0.16em] text-forest/50">{price.label}</span>}
+              <span className={`mt-1.5 block font-display leading-none tracking-[-0.03em] text-forest ${price.label ? 'text-[1.6rem]' : 'text-xl'}`}>{price.main}</span>
+              <span className="mt-2 block text-[0.8125rem] text-forest/55">{quote ? `${nights} ${nights === 1 ? 'night' : 'nights'} · ${quote.kind === 'range' ? `from NPR ${quote.min.toLocaleString('en-US')}` : `NPR ${quote.total.toLocaleString('en-US')} total`}` : price.note}</span>
+            </div>
+            <Link href={href} className="inline-flex min-h-[48px] shrink-0 items-center justify-center bg-forest px-6 text-sm font-semibold text-cream transition hover:bg-forest-dark">{room.whatsappOnly ? 'View stay' : 'View & book'}</Link>
+          </div>
+          <a href={waLink(stayMessage(room, { guests, plan, checkIn, checkOut }))} target="_blank" rel="noopener noreferrer" className="mt-6 inline-block text-[0.8125rem] font-semibold text-forest underline decoration-sun decoration-2 underline-offset-[5px]">
+            {room.whatsappOnly ? 'Ask the team on WhatsApp' : 'Or ask on WhatsApp'}
+          </a>
         </div>
-        <Reveal className="mt-16 grid gap-7 bg-forest p-8 text-cream md:grid-cols-[1fr_auto] md:items-center md:p-10"><div><p className="text-xs font-bold uppercase tracking-[0.15em] text-sun">Need a tailored plan?</p><h3 className="mt-3 font-display text-4xl leading-none tracking-[-0.04em]">Tell us who’s coming. We’ll shape the stay around you.</h3></div><Button href={waLink('Hello G\'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.')} variant="light">Plan a custom stay</Button></Reveal>
+      </div>
+    </article>
+  )
+}
+
+function FilterGroup({ title, children }) {
+  return (
+    <fieldset className="border-t border-forest/15 pt-6 first:border-t-0 first:pt-0">
+      <legend className="mb-3 text-sm font-bold text-forest">{title}</legend>
+      {children}
+    </fieldset>
+  )
+}
+
+function Radio({ name, checked, onChange, children, hint }) {
+  return (
+    <label className="flex cursor-pointer items-start gap-3 py-1.5 text-sm text-forest/80">
+      <input type="radio" name={name} checked={checked} onChange={onChange} className="mt-1 accent-forest" />
+      <span>{children}{hint && <small className="block text-xs text-forest/55">{hint}</small>}</span>
+    </label>
+  )
+}
+
+export default function Rooms() {
+  const [building, setBuilding] = useState('all')
+  const [guests, setGuests] = useState(null) // null = any group size
+  const [plan, setPlan] = useState('BB')
+  const [view, setView] = useState('any')
+  const [budget, setBudget] = useState(BUDGET_MAX)
+  const [checkIn, setCheckIn] = useState('')
+  const [checkOut, setCheckOut] = useState('')
+  const [filtersOpen, setFiltersOpen] = useState(false)
+
+  const visible = useMemo(() => {
+    const pool = guests == null ? rooms.filter((room) => room.catalog) : recommendedFor(guests)
+    return pool.filter((room) => {
+      if (building !== 'all' && room.building !== 'both' && room.building !== building) return false
+      if (view !== 'any' && !room.views.includes(view)) return false
+      if (budget < BUDGET_MAX) {
+        const result = priceFor(room, guests, plan)
+        const cost = result.kind === 'exact' ? result.total : result.kind === 'range' ? result.min : null
+        if (cost != null && cost > budget) return false
+      }
+      return true
+    })
+  }, [building, guests, plan, view, budget])
+
+  const clearFilters = () => { setBuilding('all'); setGuests(null); setPlan('BB'); setView('any'); setBudget(BUDGET_MAX); setCheckIn(''); setCheckOut('') }
+  const activeCount = [building !== 'all', guests != null, plan !== 'BB', view !== 'any', budget < BUDGET_MAX, checkIn || checkOut].filter(Boolean).length
+  const directBooking = guests != null && guests >= WHATSAPP_FROM
+
+  return (
+    <section id="rooms" className="bg-sand pb-28 pt-20 md:pb-40 md:pt-28">
+      <div className="wrap max-w-[1360px]">
+        <Reveal className="grid gap-6 md:grid-cols-[1fr_auto] md:items-end">
+          <div>
+            <p className="label">Stay collection</p>
+            <h2 className="max-w-2xl font-display text-5xl font-semibold leading-[0.96] tracking-[-0.05em] text-forest sm:text-6xl">Find the G’Host space that fits your stay.</h2>
+          </div>
+          <p className="max-w-sm leading-relaxed text-forest/70">Two buildings, one hilltop. Tell us how many of you are coming and we’ll show the stays that fit.</p>
+        </Reveal>
+
+        {/* The two buildings: also act as quick filters */}
+        <div className="mt-14 grid gap-6 md:mt-16 md:grid-cols-2">
+          {buildings.map((item) => {
+            const active = building === item.id
+            return (
+              <button key={item.id} type="button" onClick={() => setBuilding(active ? 'all' : item.id)} aria-pressed={active}
+                className={`group relative flex min-h-[15rem] items-end overflow-hidden border text-left transition ${active ? 'border-sun ring-2 ring-sun' : 'border-forest/15 hover:border-forest/40'}`}>
+                <img src={item.image} alt="" aria-hidden="true" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]" style={{ objectPosition: item.position }} />
+                <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-forest-dark/45 to-forest-dark/10" />
+                <div className="relative p-6 text-cream sm:p-8">
+                  <p className="text-[0.65rem] font-bold uppercase tracking-[0.16em] text-sun">{item.tagline}</p>
+                  <h3 className="mt-2 font-display text-3xl font-semibold leading-none tracking-[-0.035em] sm:text-4xl">{item.name}</h3>
+                  <p className="mt-3 max-w-md text-sm leading-relaxed text-cream/85">{item.blurb}</p>
+                  <span className="mt-4 inline-block text-xs font-bold uppercase tracking-[0.14em] underline decoration-sun decoration-2 underline-offset-4">{active ? 'Showing this building · tap to clear' : 'Show only this building'}</span>
+                </div>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="mt-16 grid gap-10 lg:grid-cols-[300px_minmax(0,1fr)] lg:items-start lg:gap-12 xl:grid-cols-[320px_minmax(0,1fr)] xl:gap-16">
+          <div className="lg:sticky lg:top-28">
+            <button type="button" onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}
+              className="flex w-full items-center justify-between border border-forest/25 bg-cream px-5 py-4 text-sm font-bold text-forest lg:hidden">
+              <span>Filters{activeCount > 0 ? ` · ${activeCount} active` : ''}</span><span aria-hidden="true">{filtersOpen ? '−' : '+'}</span>
+            </button>
+            <aside aria-label="Filter stays" className={`${filtersOpen ? 'block' : 'hidden'} mt-4 border border-forest/15 bg-cream p-6 sm:p-7 lg:mt-0 lg:block lg:max-h-[calc(100vh-8rem)] lg:overflow-y-auto`}>
+              <div className="mb-6 flex items-center justify-between">
+                <h2 className="font-display text-3xl text-forest">Filter by</h2>
+                <button type="button" onClick={clearFilters} className="text-xs font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">Clear filters</button>
+              </div>
+              <div className="space-y-6">
+                <FilterGroup title="Guests">
+                  <div className="flex items-center justify-between border border-forest/20 px-4 py-3">
+                    <button type="button" aria-label="Remove guest" onClick={() => setGuests((value) => (value == null || value <= 1 ? null : value - 1))} className="grid h-8 w-8 place-items-center rounded-full bg-forest text-cream">−</button>
+                    <span className="font-semibold text-forest">{guests == null ? 'Any group size' : `${guests} ${guests === 1 ? 'guest' : 'guests'}`}</span>
+                    <button type="button" aria-label="Add guest" onClick={() => setGuests((value) => (value == null ? 2 : Math.min(MAX_GUESTS, value + 1)))} className="grid h-8 w-8 place-items-center rounded-full bg-forest text-cream">+</button>
+                  </div>
+                  <p className="mt-3 text-xs leading-relaxed text-forest/60">
+                    {guests == null ? 'Add your guests to see the stays that suit your group, with the total price.' : directBooking ? 'Groups of 8 or more are booked directly on WhatsApp, and the team confirms the price.' : 'Showing the stays that suit this group, best match first.'}
+                  </p>
+                </FilterGroup>
+
+                <FilterGroup title="Building">
+                  <Radio name="building" checked={building === 'all'} onChange={() => setBuilding('all')}>Both buildings</Radio>
+                  {buildings.map((item) => <Radio key={item.id} name="building" checked={building === item.id} onChange={() => setBuilding(item.id)} hint={item.tagline}>{item.name}</Radio>)}
+                </FilterGroup>
+
+                <FilterGroup title="Meal plan">
+                  {plans.map((item) => <Radio key={item.id} name="plan" checked={plan === item.id} onChange={() => setPlan(item.id)} hint={item.note}>{item.label} ({item.short})</Radio>)}
+                </FilterGroup>
+
+                <FilterGroup title="View">
+                  {viewOptions.map((item) => <Radio key={item.id} name="view" checked={view === item.id} onChange={() => setView(item.id)}>{item.label}</Radio>)}
+                </FilterGroup>
+
+                <FilterGroup title="Budget per night">
+                  <input aria-label="Maximum budget per night" type="range" min="4000" max={BUDGET_MAX} step="500" value={budget} onChange={(event) => setBudget(Number(event.target.value))} className="w-full accent-forest" />
+                  <p className="mt-2 text-sm font-semibold text-forest/70">{budget >= BUDGET_MAX ? 'Any budget' : `Up to NPR ${budget.toLocaleString('en-US')}`}</p>
+                </FilterGroup>
+
+                <FilterGroup title="Dates (optional)">
+                  <div className="grid gap-3">
+                    <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Check in<input type="date" min={todayISO()} value={checkIn} onChange={(event) => setCheckIn(event.target.value)} className="mt-1.5 w-full border border-forest/20 bg-cream px-3 py-2.5 text-sm font-semibold normal-case tracking-normal text-forest outline-none focus:border-forest" /></label>
+                    <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Check out<input type="date" value={checkOut} min={checkIn || todayISO()} onChange={(event) => setCheckOut(event.target.value)} className="mt-1.5 w-full border border-forest/20 bg-cream px-3 py-2.5 text-sm font-semibold normal-case tracking-normal text-forest outline-none focus:border-forest" /></label>
+                  </div>
+                  <p className="mt-3 text-xs leading-relaxed text-forest/60">Dates are added to your WhatsApp booking message.</p>
+                </FilterGroup>
+              </div>
+            </aside>
+          </div>
+
+          <div id="stay-results">
+            <p className="text-sm font-semibold text-forest/65">Showing {visible.length} {visible.length === 1 ? 'stay' : 'stays'}{guests != null ? ` for ${guests} ${guests === 1 ? 'guest' : 'guests'}` : ''}</p>
+            <div className="mt-8 grid gap-10 md:grid-cols-2 xl:gap-12">
+              {visible.map((room) => <StayCard key={room.id} room={room} guests={guests} plan={plan} checkIn={checkIn} checkOut={checkOut} />)}
+              {visible.length === 0 && (
+                <div className="col-span-full border border-forest/15 bg-cream p-10 text-forest/70">
+                  <p>No stays match those filters. Try widening them, or ask the team for a custom stay.</p>
+                  <button type="button" onClick={clearFilters} className="mt-4 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">Clear filters</button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <Reveal className="mt-28 grid gap-8 bg-forest p-10 text-cream md:mt-40 md:grid-cols-[1fr_auto] md:items-center md:p-14">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-[0.15em] text-sun">Need a tailored plan?</p>
+            <h3 className="mt-4 max-w-2xl font-display text-4xl leading-[1.02] tracking-[-0.04em]">Tell us who’s coming. We’ll shape the stay around you.</h3>
+          </div>
+          <Button href={waLink("Hello G'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.")} variant="light">Plan a custom stay</Button>
+        </Reveal>
       </div>
     </section>
   )
