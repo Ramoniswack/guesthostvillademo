@@ -150,9 +150,11 @@ export default function RoomDetailPage({ room }) {
   const [panelVisible, setPanelVisible] = useState(true)
   const [ready, setReady] = useState(false)
   const [tab, setTab] = useState('booking') // booking | enquiry (sidebar card)
+  const [calendarOpen, setCalendarOpen] = useState(false)
   const [saved, setSaved] = useState(false)
   const [copied, setCopied] = useState(false)
   const [photo, setPhoto] = useState(null) // lightbox index
+  const [expandedPlan, setExpandedPlan] = useState(null)
   const [enquiry, setEnquiry] = useState({ name: '', phone: '', message: '' })
   const panelRef = useRef(null)
   const setDates = (inDate, outDate) => { setCheckIn(inDate); setCheckOut(outDate) }
@@ -197,7 +199,11 @@ export default function RoomDetailPage({ room }) {
       else { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 2000) }
     } catch { /* cancelled */ }
   }
-  const goToBooking = () => { setTab('booking'); requestAnimationFrame(() => panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })) }
+  const goToBooking = () => {
+    setTab('booking')
+    setCalendarOpen(true)
+    requestAnimationFrame(() => panelRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+  }
 
   // Room photos first, topped up with villa photos so the mosaic always has five tiles
   const photos = useMemo(() => {
@@ -302,47 +308,45 @@ export default function RoomDetailPage({ room }) {
       </section>
 
       <div className="wrap grid grid-cols-[minmax(0,1fr)] gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-14">
-        {/* Sidebar: first on phones, sticky beside the details on desktop */}
-        <aside className="space-y-5 lg:order-2 lg:self-start">
-          <div className="border border-forest/15 bg-cream shadow-[0_18px_45px_rgba(35,70,53,0.08)]">
-            <div className="px-5 pt-5">
-              <p className="inline-flex items-center gap-1.5 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-forest/55"><Wallet className="h-3.5 w-3.5" aria-hidden="true" />Price</p>
-              <p className="mt-1.5 font-display text-2xl font-semibold leading-none tracking-[-0.02em] text-forest"><span className="mr-1.5 text-sm font-normal text-forest/55">{fromPrice.label}</span>{fromPrice.main}</p>
-              <p className="mt-1.5 text-xs text-forest/55">{fromPrice.note}</p>
-            </div>
-            <div role="tablist" aria-label="Booking or enquiry" className="mt-4 grid grid-cols-2 border-b border-forest/15 px-5">
-              {[['booking', 'Booking form', CalendarCheck], ['enquiry', 'Enquiry form', Mail]].map(([id, label, Ico]) => (
-                <button key={id} type="button" role="tab" aria-selected={tab === id} onClick={() => setTab(id)}
-                  className={`inline-flex items-center justify-center gap-2 border-b-2 py-3 text-sm font-semibold transition ${tab === id ? 'border-sun text-forest' : 'border-transparent text-forest/50 hover:text-forest'}`}>
-                  <Ico className="h-4 w-4" aria-hidden="true" />{label}
-                </button>
-              ))}
-            </div>
+        {/* Sidebar: first on phones, floating sticky beside the details on desktop */}
+        <aside className="no-scrollbar space-y-4 lg:sticky lg:top-24 lg:order-2 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto">
+          <div className="rounded-2xl border border-forest/15 bg-cream p-5 shadow-[0_18px_45px_rgba(35,70,53,0.08)]">
             {tab === 'booking' ? (
-              <BookingPanel embedded room={room} guests={guests} setGuests={setGuests} plan={plan} setPlan={setPlan} checkIn={checkIn} checkOut={checkOut} setDates={setDates} panelRef={panelRef} />
+              <BookingPanel
+                room={room}
+                guests={guests}
+                setGuests={setGuests}
+                plan={plan}
+                setPlan={setPlan}
+                checkIn={checkIn}
+                checkOut={checkOut}
+                setDates={setDates}
+                panelRef={panelRef}
+                calendarOpen={calendarOpen}
+                setCalendarOpen={setCalendarOpen}
+                onEnquire={() => setTab('enquiry')}
+              />
             ) : (
-              <form onSubmit={sendEnquiry} className="space-y-4 p-5">
+              <form onSubmit={sendEnquiry} className="space-y-3.5">
+                <div className="flex items-center justify-between border-b border-forest/10 pb-3">
+                  <p className="font-display text-lg font-semibold text-forest">Enquire about {room.name}</p>
+                  <button
+                    type="button"
+                    onClick={() => setTab('booking')}
+                    className="text-xs font-semibold text-forest/70 underline underline-offset-4 hover:text-forest"
+                  >
+                    Back
+                  </button>
+                </div>
                 <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Your name
-                  <input value={enquiry.name} onChange={(e) => setEnquiry({ ...enquiry, name: e.target.value })} autoComplete="name" className={`${field} normal-case tracking-normal`} placeholder="Full name" /></label>
+                  <input value={enquiry.name} onChange={(e) => setEnquiry({ ...enquiry, name: e.target.value })} autoComplete="name" className={`${field} rounded-lg normal-case tracking-normal`} placeholder="Full name" /></label>
                 <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Phone or WhatsApp
-                  <input value={enquiry.phone} onChange={(e) => setEnquiry({ ...enquiry, phone: e.target.value })} autoComplete="tel" inputMode="tel" className={`${field} normal-case tracking-normal`} placeholder="+977…" /></label>
+                  <input value={enquiry.phone} onChange={(e) => setEnquiry({ ...enquiry, phone: e.target.value })} autoComplete="tel" inputMode="tel" className={`${field} rounded-lg normal-case tracking-normal`} placeholder="+977…" /></label>
                 <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Message
-                  <textarea rows={4} value={enquiry.message} onChange={(e) => setEnquiry({ ...enquiry, message: e.target.value })} className={`${field} normal-case tracking-normal`} placeholder="Dates, group size, questions…" /></label>
-                <button type="submit" className="inline-flex min-h-[54px] w-full items-center justify-center gap-3 bg-sun px-6 text-base font-semibold text-forest-dark transition hover:bg-sun-dark"><Send className="h-5 w-5" aria-hidden="true" />Send on WhatsApp</button>
+                  <textarea rows={3} value={enquiry.message} onChange={(e) => setEnquiry({ ...enquiry, message: e.target.value })} className={`${field} rounded-lg normal-case tracking-normal`} placeholder="Dates, group size, questions…" /></label>
+                <button type="submit" className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"><Send className="h-4 w-4" aria-hidden="true" />Send on WhatsApp</button>
               </form>
             )}
-            <ul className="space-y-2 border-t border-forest/10 px-5 py-4 text-sm text-forest/70">
-              <li className="flex gap-2.5"><ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />Free cancellation within 48 hours of booking</li>
-              <li className="flex gap-2.5"><MessageCircle className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />Confirmed directly by the villa team</li>
-            </ul>
-          </div>
-
-          <div className="flex items-center gap-4 border border-forest/15 bg-sand p-5">
-            <div className="min-w-0 flex-1">
-              <p className="font-display text-lg font-semibold text-forest">Have questions?</p>
-              <p className="mt-1 text-sm leading-relaxed text-forest/70">We’ll shape the stay around you.</p>
-            </div>
-            <Button href={waLink(`Hello G'Host Villa! I have a question about ${room.name}.`)} icon="chat" arrow={false} className="!min-h-[44px] shrink-0 !px-4 text-sm">Ask us</Button>
           </div>
         </aside>
 
@@ -364,30 +368,155 @@ export default function RoomDetailPage({ room }) {
 
           {/* 4 · Plan options (pick one, syncs with the booking form) */}
           <section aria-labelledby="options">
-            <SectionTitle id="options" sub={room.whatsappOnly ? undefined : `Prices shown for ${guests} ${guests === 1 ? 'guest' : 'guests'} per night. Change the group size in the booking form.`}>Choose your plan</SectionTitle>
+            <SectionTitle id="options" sub={room.whatsappOnly ? undefined : `Prices shown for ${guests} ${guests === 1 ? 'guest' : 'guests'} per night. Change the group size in the booking form.`}>
+              Choose from {plans.length} available options
+            </SectionTitle>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {plans.map((p) => {
                 const price = describePrice(room, guests, p.id)
+                const planQuote = nights > 0 && !room.whatsappOnly ? stayQuote(room, guests, p.id, nights) : null
                 const selected = plan === p.id
+                const isExpanded = expandedPlan === p.id
+                const optionBullets = [
+                  `${room.name} · ${buildingLabel(room)}`,
+                  p.id === 'MAP' ? 'Breakfast + lunch or dinner daily' : 'Breakfast included every morning',
+                  'Attached bathroom with hot water',
+                  'Free high-speed Wi-Fi & restro access',
+                ]
+                const dateLabel = checkIn && checkOut
+                  ? `${fmtDate(checkIn, { day: 'numeric', month: 'short' })} – ${fmtDate(checkOut, { day: 'numeric', month: 'short' })}`
+                  : null
+
                 return (
-                  <div key={p.id} className={`flex flex-col border-2 p-5 transition ${selected ? 'border-sun bg-sun/[0.06]' : 'border-forest/15 bg-cream'}`}>
+                  <div
+                    key={p.id}
+                    className={`flex flex-col rounded-xl border-2 bg-cream p-5 transition ${
+                      selected
+                        ? 'border-sun shadow-[0_10px_28px_rgba(47,74,58,0.1)]'
+                        : 'border-forest/15 hover:border-forest/35'
+                    }`}
+                  >
+                    {/* Header + radio circle */}
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="font-semibold text-forest">{p.label}</p>
-                        <p className="mt-0.5 text-xs text-forest/60">{p.note}</p>
+                        <h3 className="font-display text-lg font-semibold leading-snug text-forest">{p.label}</h3>
+                        <p className="mt-0.5 text-xs text-forest/60">
+                          {p.id === 'MAP' ? `Breakfast & main meal (${p.note})` : 'Breakfast included daily'}
+                        </p>
                       </div>
-                      {selected && <span className="inline-flex items-center gap-1 bg-sun px-2 py-0.5 text-[0.62rem] font-bold uppercase tracking-[0.12em] text-forest-dark"><Check className="h-3 w-3" aria-hidden="true" />Selected</span>}
+                      <button
+                        type="button"
+                        onClick={() => setPlan(p.id)}
+                        aria-label={`Select ${p.label}`}
+                        aria-pressed={selected}
+                        className={`grid h-6 w-6 shrink-0 place-items-center rounded-full transition ${
+                          selected
+                            ? 'bg-sun text-forest-dark'
+                            : 'border-2 border-forest/25 bg-transparent hover:border-forest/50'
+                        }`}
+                      >
+                        {selected && <Check className="h-3.5 w-3.5 stroke-[2.75]" aria-hidden="true" />}
+                      </button>
                     </div>
-                    <ul className="mt-4 space-y-1.5 text-sm text-forest/70">
-                      <li className="flex gap-2"><Check className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />Breakfast every morning</li>
-                      <li className="flex gap-2">{p.id === 'MAP' ? <Check className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" /> : <X className="mt-0.5 h-4 w-4 shrink-0 text-forest/35" aria-hidden="true" />}Lunch or dinner at the restro</li>
+
+                    {/* Checkmark inclusions */}
+                    <ul className="mt-4 space-y-2 text-sm text-forest/80">
+                      {optionBullets.map((item) => (
+                        <li key={item} className="flex items-start gap-2.5 leading-snug">
+                          <Check className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />
+                          <span>{item}</span>
+                        </li>
+                      ))}
                     </ul>
-                    <p className="mt-5 font-display text-xl font-semibold text-forest">{price.main}</p>
-                    <p className="text-xs text-forest/55">{price.note}</p>
-                    <button type="button" onClick={() => { setPlan(p.id); goToBooking() }}
-                      className={`mt-4 inline-flex min-h-[46px] items-center justify-center gap-2 px-5 text-sm font-semibold transition ${selected ? 'bg-sun text-forest-dark hover:bg-sun-dark' : 'border border-forest/25 text-forest hover:border-forest'}`}>
-                      {selected ? 'Choose dates' : 'Select'}<ArrowRight className="h-4 w-4" aria-hidden="true" />
+
+                    {/* Read more */}
+                    <button
+                      type="button"
+                      onClick={() => setExpandedPlan(isExpanded ? null : p.id)}
+                      aria-expanded={isExpanded}
+                      className="mt-3 self-start text-xs font-semibold text-forest underline decoration-forest/40 underline-offset-4 transition hover:decoration-sun"
+                    >
+                      {isExpanded ? 'Show less' : 'Read more'}
                     </button>
+                    {isExpanded && (
+                      <div className="mt-2.5 rounded-lg bg-sand/70 p-3 text-xs leading-relaxed text-forest/75">
+                        {p.id === 'MAP'
+                          ? `Includes daily breakfast plus your choice of lunch or dinner at the pyramid restro (+NPR ${MAP_ADD}/person/night). Check-in from 2 PM, check-out by 10 AM.`
+                          : 'Includes daily breakfast for all guests in your booking. Lunch, dinner and bar orders can be added anytime at the pyramid restro. Check-in from 2 PM, check-out by 10 AM.'}
+                      </div>
+                    )}
+
+                    {/* Bottom summary + CTA */}
+                    <div className="mt-auto pt-5">
+                      <div className="border-t border-forest/10 pt-4">
+                      <p className="text-xs font-semibold text-forest/55">Selected date</p>
+                      {dateLabel ? (
+                        <button
+                          type="button"
+                          onClick={goToBooking}
+                          className="mt-0.5 text-sm font-semibold text-forest underline decoration-sun/70 underline-offset-4 hover:decoration-sun"
+                        >
+                          {dateLabel} · {nights} {nights === 1 ? 'night' : 'nights'}
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={goToBooking}
+                          className="mt-0.5 text-sm font-medium text-forest/75 hover:text-forest hover:underline"
+                        >
+                          Choose a date
+                        </button>
+                      )}
+
+                      <div className="mt-3.5">
+                        <p className="font-display text-2xl font-bold leading-none tracking-tight text-forest">
+                          {planQuote
+                            ? (planQuote.kind === 'range'
+                              ? `${formatNpr(planQuote.min)} – ${planQuote.max.toLocaleString('en-US')}`
+                              : formatNpr(planQuote.total))
+                            : price.main}
+                        </p>
+                        <p className="mt-1.5 text-xs text-forest/60">
+                          {planQuote
+                            ? `${guests} ${guests === 1 ? 'Guest' : 'Guests'} × ${nights} ${nights === 1 ? 'night' : 'nights'}`
+                            : `${guests} ${guests === 1 ? 'Guest' : 'Guests'} · ${price.note}`}
+                        </p>
+                        <p className="mt-0.5 text-[0.7rem] text-forest/50">
+                          {room.whatsappOnly ? 'Confirmed directly on WhatsApp' : 'No payment now · confirmed on WhatsApp'}
+                        </p>
+                      </div>
+
+                      {selected ? (
+                        room.whatsappOnly || nights > 0 ? (
+                          <a
+                            href={waLink(stayMessage(room, { guests, plan: p.id, checkIn, checkOut }))}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
+                          >
+                            {room.whatsappOnly ? 'Ask on WhatsApp' : 'Request on WhatsApp'}
+                            <ArrowRight className="h-4 w-4" aria-hidden="true" />
+                          </a>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={goToBooking}
+                            className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
+                          >
+                            Pick a date to continue
+                          </button>
+                        )
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setPlan(p.id)}
+                          className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center rounded-lg bg-forest px-4 text-sm font-semibold text-cream transition hover:bg-forest-dark"
+                        >
+                          Select
+                        </button>
+                      )}
+                      </div>
+                    </div>
                   </div>
                 )
               })}
