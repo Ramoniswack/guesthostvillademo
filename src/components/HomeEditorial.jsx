@@ -8,6 +8,7 @@ import { rooms } from '../data/rooms.js'
 import { reviews } from '../data/reviews.js'
 import { stats, waLink } from '../data/site.js'
 import { gallery } from '../data/gallery.js'
+import KineticNumber from './KineticNumber.jsx'
 import { ArrowCircle, Button, Reveal } from './ui.jsx'
 
 const spaces = [
@@ -104,7 +105,7 @@ export default function HomeEditorial() {
               <img src="/images/day-aerial.webp" alt="G'Host Villa in the Pokhara hills" className="col-span-3 h-[330px] w-full object-cover sm:h-[440px]" />
               <div className="col-span-2 flex flex-col justify-end gap-3 sm:gap-5">
                 <img src="/images/garden.webp" alt="Garden setting at G'Host Villa" className="h-[155px] w-full object-cover sm:h-[205px]" />
-                <div className="bg-sun px-5 py-6 text-forest sm:px-7 sm:py-8"><p className="font-display text-3xl leading-none sm:text-4xl">20 min</p><p className="mt-2 text-xs font-bold uppercase tracking-[0.1em]">from Lakeside</p></div>
+                <div className="bg-sun px-5 py-6 text-forest sm:px-7 sm:py-8"><p className="font-display text-3xl leading-none sm:text-4xl"><KineticNumber value={20} suffix=" min" /></p><p className="mt-2 text-xs font-bold uppercase tracking-[0.1em]">from Lakeside</p></div>
               </div>
             </div>
             <img src="/images/pyramid.webp" alt="Pyramid restaurant at G'Host Villa" loading="lazy" className="absolute -bottom-8 left-[12%] h-28 w-44 border-[7px] border-cream object-cover sm:h-36 sm:w-56" />
@@ -114,7 +115,7 @@ export default function HomeEditorial() {
 
       <section className="border-y border-forest/15 bg-sand py-9 md:py-12">
         <div className="wrap grid grid-cols-2 md:grid-cols-4">
-          {stats.map((stat, index) => <motion.div key={stat.label} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: index * 0.08, duration: 0.5 }} className={`px-4 py-5 text-center first:pl-0 last:pr-0 md:px-7 ${index % 2 === 1 ? 'border-l border-forest/15' : ''} ${index >= 2 ? 'border-t border-forest/15 md:border-t-0' : ''} ${index > 0 ? 'md:border-l md:border-forest/15' : ''}`}><p className="font-display text-3xl leading-none tracking-[-0.04em] text-forest sm:text-4xl">{stat.value}{stat.suffix}</p><p className="mx-auto mt-3 max-w-32 text-xs font-semibold leading-snug text-forest/65">{stat.label}</p></motion.div>)}
+          {stats.map((stat, index) => <motion.div key={stat.label} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-80px' }} transition={{ delay: index * 0.08, duration: 0.5 }} className={`px-4 py-5 text-center first:pl-0 last:pr-0 md:px-7 ${index % 2 === 1 ? 'border-l border-forest/15' : ''} ${index >= 2 ? 'border-t border-forest/15 md:border-t-0' : ''} ${index > 0 ? 'md:border-l md:border-forest/15' : ''}`}><p className="font-display text-3xl leading-none tracking-[-0.04em] text-forest sm:text-4xl"><KineticNumber value={stat.value} suffix={stat.suffix} /></p><p className="mx-auto mt-3 max-w-32 text-xs font-semibold leading-snug text-forest/65">{stat.label}</p></motion.div>)}
         </div>
       </section>
 

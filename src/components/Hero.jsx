@@ -13,8 +13,11 @@ const heroMedia = [
   { type: 'image', src: '/images/pyramid.webp', position: '50% 48%' },
 ]
 
+const CURTAIN_COLS = 6
+
 export default function Hero() {
   const [heroIndex, setHeroIndex] = useState(0)
+  const [introDone, setIntroDone] = useState(false)
   const { scrollY } = useScroll()
   const shouldReduceMotion = useReducedMotion()
   const dragStart = useRef(null)
@@ -122,6 +125,29 @@ export default function Hero() {
           maskPosition: 'center bottom',
         }}
       />
+
+      {!shouldReduceMotion && !introDone && (
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 z-[5] grid grid-cols-6 overflow-hidden"
+        >
+          {Array.from({ length: CURTAIN_COLS }, (_, i) => (
+            <motion.div
+              key={i}
+              initial={{ y: '0%' }}
+              animate={{ y: '100%' }}
+              transition={{
+                duration: 0.85,
+                delay: 0.08 + i * 0.07,
+                ease: [0.76, 0, 0.24, 1],
+              }}
+              onAnimationComplete={i === CURTAIN_COLS - 1 ? () => setIntroDone(true) : undefined}
+              className="h-full w-full bg-white"
+              style={{ willChange: 'transform' }}
+            />
+          ))}
+        </div>
+      )}
     </section>
   )
 }
