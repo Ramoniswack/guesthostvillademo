@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
-import { ArrowRight, ArrowUpDown, Bath, BedDouble, ChevronDown, Coffee, Minus, Mountain, Plus, RotateCcw, SlidersHorizontal, Users, Wifi } from 'lucide-react'
+import { ArrowRight, ArrowUpDown, Bath, BedDouble, ChevronDown, Coffee, Minus, Mountain, Plus, RotateCcw, Search, SlidersHorizontal, Users, Wifi, X } from 'lucide-react'
 import RangeSlider from './RangeSlider.jsx'
 import { Button, Reveal } from './ui.jsx'
 import {
@@ -108,6 +108,7 @@ function Option({ name, checked, onChange, children, hint }) {
 
 function BookingBar({ building, setBuilding, checkIn, setCheckIn, checkOut, setCheckOut, guests, setGuests }) {
   const [isCompact, setIsCompact] = useState(false)
+  const [mobileOpen, setMobileOpen] = useState(false)
   const bookingBarRef = useRef(null)
 
   useEffect(() => {
@@ -121,12 +122,84 @@ function BookingBar({ building, setBuilding, checkIn, setCheckIn, checkOut, setC
 
   const submit = (event) => {
     event.preventDefault()
+    setMobileOpen(false)
     document.getElementById('stay-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
+  const buildingName = building === 'all' ? 'Any space' : (buildings.find((b) => b.id === building)?.name ?? 'Any space')
+  const dateText = checkIn && checkOut ? `${checkIn.slice(5)} → ${checkOut.slice(5)}` : checkIn ? checkIn.slice(5) : 'Add dates'
+  const guestText = guests == null ? 'Any guests' : `${guests} ${guests === 1 ? 'guest' : 'guests'}`
+
   return (
-    <div ref={bookingBarRef} className={`relative z-30 border-b border-forest/10 bg-white/95 px-5 backdrop-blur-md transition-all duration-300 sm:px-8 lg:px-12 md:sticky md:top-0 ${isCompact ? 'py-1.5 shadow-md shadow-forest/5' : 'py-2'}`}>
-      <form onSubmit={submit} className={`relative mx-auto grid ${isCompact ? 'max-w-[1120px]' : 'max-w-[1440px]'} gap-px overflow-hidden rounded-2xl bg-forest/15 p-px shadow-lg shadow-forest/10 transition-all duration-300 md:grid-cols-[1.25fr_1fr_1fr_0.75fr_auto]`} aria-label="Search G’Host stays">
+    <div ref={bookingBarRef} className={`sticky top-0 z-30 border-b border-forest/10 bg-white/95 px-5 backdrop-blur-md transition-all duration-300 sm:px-8 lg:px-12 ${isCompact ? 'py-1.5 shadow-md shadow-forest/5' : 'py-2'}`}>
+      {/* Mobile compact search pill */}
+      <div className="md:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileOpen((o) => !o)}
+          aria-expanded={mobileOpen}
+          className="flex w-full items-center justify-between gap-3 rounded-full border border-forest/15 bg-white px-4 py-2.5 text-left shadow-soft"
+        >
+          <span className="flex min-w-0 items-center gap-3">
+            <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-sun text-forest-dark">
+              <Search className="h-4 w-4" aria-hidden="true" />
+            </span>
+            <span className="min-w-0">
+              <span className="block truncate text-xs font-bold text-forest">{buildingName}</span>
+              <span className="block truncate text-[0.7rem] text-forest/60">{dateText} · {guestText}</span>
+            </span>
+          </span>
+          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-forest/15 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-forest">
+            {mobileOpen ? <><X className="h-3 w-3" aria-hidden="true" />Close</> : 'Search'}
+          </span>
+        </button>
+
+        <AnimatePresence initial={false}>
+          {mobileOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.22, ease: [0.22, 0.61, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <form onSubmit={submit} className="mt-2.5 grid gap-px overflow-hidden rounded-2xl bg-forest/15 p-px shadow-soft" aria-label="Search G’Host stays mobile">
+                <label className="bg-white px-4 py-3">
+                  <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">Stay type</span>
+                  <select value={building} onChange={(e) => setBuilding(e.target.value)} className="mt-1 w-full bg-transparent text-sm font-semibold text-forest outline-none">
+                    <option value="all">Any G’Host space</option>
+                    {buildings.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                  </select>
+                </label>
+                <div className="grid grid-cols-2 gap-px bg-forest/15">
+                  <label className="bg-white px-4 py-3">
+                    <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">Check in</span>
+                    <input aria-label="Check in" type="date" min={todayISO()} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="mt-1 w-full bg-transparent text-xs font-semibold text-forest outline-none" />
+                  </label>
+                  <label className="bg-white px-4 py-3">
+                    <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">Check out</span>
+                    <input aria-label="Check out" type="date" min={checkIn || todayISO()} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="mt-1 w-full bg-transparent text-xs font-semibold text-forest outline-none" />
+                  </label>
+                </div>
+                <div className="flex items-center justify-between bg-white px-4 py-3">
+                  <span className="text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">Guests</span>
+                  <div className="flex items-center gap-3 font-semibold text-forest">
+                    <button type="button" aria-label="Remove guest" onClick={() => setGuests((c) => (c == null || c <= 1 ? null : c - 1))} className="grid h-7 w-7 place-items-center rounded-full border border-forest/20">−</button>
+                    <span className="min-w-8 text-center text-sm">{guests ?? 'Any'}</span>
+                    <button type="button" aria-label="Add guest" onClick={() => setGuests((c) => Math.min(MAX_GUESTS, (c ?? 0) + 1))} className="grid h-7 w-7 place-items-center rounded-full border border-forest/20">+</button>
+                  </div>
+                </div>
+                <div className="bg-white p-2.5">
+                  <button type="submit" className="min-h-11 w-full rounded-full bg-sun px-6 text-xs font-bold uppercase tracking-[0.12em] text-forest-dark transition hover:bg-sun-dark">Find a stay</button>
+                </div>
+              </form>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Desktop horizontal bar */}
+      <form onSubmit={submit} className={`relative mx-auto hidden ${isCompact ? 'max-w-[1120px]' : 'max-w-[1440px]'} gap-px overflow-hidden rounded-2xl bg-forest/15 p-px shadow-lg shadow-forest/10 transition-all duration-300 md:grid md:grid-cols-[1.25fr_1fr_1fr_0.75fr_auto]`} aria-label="Search G’Host stays">
         <label className={`bg-white px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}>
           <span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Stay type</span>
           <select value={building} onChange={(e) => setBuilding(e.target.value)} className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`}>
