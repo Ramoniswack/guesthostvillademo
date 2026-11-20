@@ -70,7 +70,7 @@ export default function Hero() {
 
   return (
     <section id="home" data-hero onPointerDown={(event) => { dragStart.current = event.clientX }} onPointerUp={handlePointerUp}
-      className="relative isolate flex min-h-[100svh] cursor-grab items-end overflow-hidden bg-forest-dark active:cursor-grabbing">
+      className="relative isolate flex min-h-[calc(100svh-3.5rem)] cursor-grab items-end overflow-hidden bg-forest-dark active:cursor-grabbing md:min-h-[100svh]">
       <AnimatePresence initial={false}>
         {currentMedia.type === 'video' ? (
           <motion.video ref={videoRef} key={currentMedia.src} src={currentMedia.src} poster={currentMedia.poster} autoPlay={!shouldReduceMotion} muted playsInline preload="auto" onEnded={nextSlide} initial={{ opacity: 0, scale: 1.03 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeInOut' }} className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: currentMedia.position }} />
@@ -84,27 +84,27 @@ export default function Hero() {
       <div className="absolute inset-0 -z-10 bg-sun/[0.06]" />
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-forest-dark/45 via-transparent to-transparent" />
 
-      <div className="absolute inset-x-3 top-1/2 z-20 flex -translate-y-1/2 justify-between sm:inset-x-5">
-        <button type="button" aria-label="Previous hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={previousSlide} className="grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronL" className="h-5 w-5" /></button>
-        <button type="button" aria-label="Next hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={nextSlide} className="grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronR" className="h-5 w-5" /></button>
+      <div className="absolute inset-x-2 top-1/2 z-20 flex -translate-y-1/2 justify-between sm:inset-x-5">
+        <button type="button" aria-label="Previous hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={previousSlide} className="grid h-9 w-9 place-items-center rounded-full border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronL" className="h-4 w-4 sm:h-5 sm:w-5" /></button>
+        <button type="button" aria-label="Next hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={nextSlide} className="grid h-9 w-9 place-items-center rounded-full border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronR" className="h-4 w-4 sm:h-5 sm:w-5" /></button>
       </div>
 
-      <div className="wrap relative flex min-h-[100svh] select-none items-center justify-center pb-[clamp(6rem,22vw,22rem)] pt-24 text-center">
-          <div className="max-w-5xl">
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sun">Sarangkot, Pokhara · Nepal</p>
+      <div className="wrap relative flex min-h-[calc(100svh-3.5rem)] select-none items-center justify-center px-12 pb-28 pt-20 text-center sm:px-10 md:min-h-[100svh] md:pb-[clamp(8rem,20vw,20rem)] md:pt-24">
+          <div className="w-full max-w-5xl">
+            <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-sun sm:text-[0.68rem]">Sarangkot, Pokhara · Nepal</p>
             <motion.h1
-              className="mt-6 font-display text-5xl font-semibold leading-[0.92] text-white sm:text-7xl lg:text-[7rem]"
+              className="mt-4 font-display text-[clamp(2.25rem,8.5vw,3.5rem)] font-semibold leading-[0.94] text-white sm:mt-6 sm:text-7xl lg:text-[7rem]"
               style={{ letterSpacing: '-0.04em', y: headlineY, opacity: headlineOpacity }}
             >
               Your private space.<br />Hosted your way.
             </motion.h1>
             <motion.p
-              className="mx-auto mt-6 max-w-xl text-lg leading-[1.4] text-white/85 md:text-xl"
+              className="mx-auto mt-4 max-w-xl text-base leading-[1.45] text-white/85 sm:mt-6 sm:text-lg md:text-xl"
               style={{ y: descY, opacity: descOpacity }}
             >
               A hilltop villa, restro and bar made for quiet stays, big gatherings and slow Pokhara days.
             </motion.p>
-            <div className="mt-3" onPointerDown={(event) => event.stopPropagation()}><Button href="/rooms">Find your stay</Button></div>
+            <div className="mt-6 sm:mt-7" onPointerDown={(event) => event.stopPropagation()}><Button href="/rooms">Find your stay</Button></div>
           </div>
       </div>
 
@@ -112,7 +112,7 @@ export default function Hero() {
       <div
         aria-hidden="true"
         data-mountain-ridge
-        className="pointer-events-none absolute inset-x-0 -bottom-px z-10 aspect-[1024/217] w-full translate-y-4 md:translate-y-7"
+        className="pointer-events-none absolute inset-x-0 -bottom-px z-10 h-24 w-full sm:h-28 md:h-auto md:aspect-[1024/217] md:translate-y-12 lg:translate-y-16"
         style={{
           backgroundColor: '#FFFFFF',
           WebkitMaskImage: 'url(/images/mountain-edge.svg)',

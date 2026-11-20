@@ -67,9 +67,9 @@ export default function Footer() {
           <div>
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Get in touch</p>
             <ul className="mt-4 space-y-3 text-base text-white/80">
-              <li className="flex flex-wrap gap-3 pb-1">
-                <a href={waLink()} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 rounded-full bg-sun px-5 text-sm font-bold text-forest-dark transition-colors hover:bg-sun-dark"><MessageCircle className="h-4 w-4" aria-hidden="true" />WhatsApp</a>
-                <a href={telLink} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/40 px-5 text-sm font-bold text-white transition-colors hover:border-sun hover:text-sun"><Phone className="h-4 w-4" aria-hidden="true" />Call now</a>
+              <li className="flex flex-wrap gap-2.5 pb-1">
+                <a href={waLink()} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full bg-sun px-5 text-sm font-bold text-forest-dark transition-colors hover:bg-sun-dark"><MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />WhatsApp</a>
+                <a href={telLink} className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-white/40 px-5 text-sm font-bold text-white transition-colors hover:border-sun hover:text-sun"><Phone className="h-4 w-4 shrink-0" aria-hidden="true" />Call now</a>
               </li>
               <li><a href={telLink} className="transition-colors hover:text-sun">{site.phoneDisplay}</a></li>
               <li><a href={altTelLink} className="transition-colors hover:text-sun">{site.altPhoneDisplay}</a></li>

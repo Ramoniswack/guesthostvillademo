@@ -27,7 +27,7 @@ export default function CtaBanner() {
 
         <div className="relative z-10 mx-4 -mt-16 flex flex-col items-center justify-between gap-5 rounded-2xl border border-forest/15 bg-white p-6 text-center shadow-warm md:mx-14 md:-mt-12 md:flex-row md:p-8 md:text-left">
           <p className="font-display text-2xl font-semibold text-forest md:text-3xl">Planning a stay or a meal with a view?</p>
-          <div className="flex flex-wrap justify-center gap-3">
+          <div className="flex shrink-0 flex-wrap justify-center gap-3">
             <Button href={waLink()} icon="chat" arrow={false}>Book on WhatsApp</Button>
             <Button href={telLink} variant="outline" icon="phone" arrow={false}>Call Us</Button>
           </div>

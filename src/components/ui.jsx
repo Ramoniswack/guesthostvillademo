@@ -75,7 +75,7 @@ const variants = {
 
 /** Pill button. Internal paths ("/rooms") render a router <Link>, other hrefs an <a>, no href a <button>. */
 export function Button({ variant = 'primary', href, children, arrow = true, icon, className = '', ...rest }) {
-  const cls = `inline-flex min-h-[52px] items-center justify-center gap-3 rounded-full px-7 py-3 text-[1.0625rem] font-semibold transition-all duration-300 ${variants[variant]} ${className}`
+  const cls = `inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2.5 whitespace-nowrap rounded-full px-6 py-2.5 text-[0.95rem] font-semibold tracking-[-0.01em] transition-all duration-300 ${variants[variant]} ${className}`
   const inner = (
     <motion.span
       className="inline-flex items-center justify-center gap-3"

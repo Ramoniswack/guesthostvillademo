@@ -543,10 +543,6 @@ export default function RoomDetailPage({ room }) {
                 return <li key={feature} className="flex items-start gap-3 text-[0.95rem] leading-snug text-forest/80"><Ico className="mt-0.5 h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />{feature}</li>
               })}
             </ul>
-            <div className="mt-6 rounded-2xl border-l-4 border-sun bg-white px-5 py-4">
-              <p className="text-sm font-semibold text-forest">Is this room right for you?</p>
-              <p className="mt-1 text-sm leading-relaxed text-forest/70">{room.bestFor}</p>
-            </div>
           </section>
 
           {/* 6 · Your stay (the itinerary) */}
