@@ -45,6 +45,7 @@ export const navLinks = [
   { to: '/rooms', label: 'Rooms' },
   { to: '/packages', label: 'Packages' },
   { to: '/menu', label: 'Menu' },
+  { to: '/about', label: 'About' },
   { to: '/faq', label: 'FAQ' },
 ]
 
