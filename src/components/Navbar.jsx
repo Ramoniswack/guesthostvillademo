@@ -56,7 +56,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [hideOnRoomsScroll, setHideOnRoomsScroll] = useState(false)
   const pathname = usePathname()
-  const solid = usePastHero() || pathname.startsWith('/rooms') || pathname.startsWith('/about')
+  const solid = usePastHero() || ['/rooms', '/about', '/packages', '/menu'].some((p) => pathname.startsWith(p))
   const text = solid ? 'text-forest' : 'text-white'
 
   useEffect(() => setOpen(false), [pathname])
