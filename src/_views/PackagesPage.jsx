@@ -64,12 +64,6 @@ const extras = [
   { title: 'Hilltop celebration setup', text: 'Flowers, custom dinner tables and flexible spaces for birthdays or retreats.', image: '/images/day-aerial.webp' },
 ]
 
-const comparisonRows = [
-  ['Couple escape', '1–2 guests', 'From NPR 6,800 per night', 'NPR 1,500 per night', 'On request'],
-  ['Group weekend', '4–12 guests', 'From NPR 1,550 per person', 'NPR 1,550 per person', 'NPR 950 per person'],
-  ['Full villa buyout', '12–24 guests', 'From NPR 1,550 per person', 'On request', 'On request'],
-]
-
 const packageFaqs = [
   {
     q: 'Do you require a deposit to confirm a package?',
@@ -270,14 +264,14 @@ export default function PackagesPage() {
         </div>
       </section>
 
-      {/* 3 · Unified Comparison Matrix & Add-On Experiences */}
+      {/* 3 · Add-On Experiences */}
       <section className="bg-forest-dark py-16 text-white md:py-24">
         <div className="wrap">
           <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="label !text-sun">Add a little more</p>
               <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-white sm:text-5xl">
-                Experiences &amp; rate comparison.
+                Add a little more to the stay.
               </h2>
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-white/75">
@@ -305,39 +299,6 @@ export default function PackagesPage() {
               </StaggerItem>
             ))}
           </StaggerGrid>
-
-          <Reveal className="mt-10 overflow-hidden rounded-2xl border border-white/15 bg-white text-forest shadow-warm">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-forest/10 px-6 py-4">
-              <h3 className="font-display text-xl font-semibold text-forest">Package rate comparison</h3>
-              <span className="rounded-full bg-sun px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-forest-dark">
-                Direct villa rates
-              </span>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="min-w-[640px] w-full border-collapse text-left text-sm">
-                <thead className="border-b border-forest/15 bg-white text-xs font-bold uppercase tracking-[0.12em] text-forest/60">
-                  <tr>
-                    <th className="px-6 py-3.5">Package</th>
-                    <th className="px-6 py-3.5">Group size</th>
-                    <th className="px-6 py-3.5">Starting rate</th>
-                    <th className="px-6 py-3.5">Extra adult</th>
-                    <th className="px-6 py-3.5">Child</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-forest/10">
-                  {comparisonRows.map((row) => (
-                    <tr key={row[0]}>
-                      {row.map((cell, ci) => (
-                        <td key={`${row[0]}-${ci}`} className={`px-6 py-4 ${ci === 0 ? 'font-semibold text-forest' : 'text-forest/80'}`}>
-                          {cell}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </Reveal>
         </div>
       </section>
 
