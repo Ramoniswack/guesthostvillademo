@@ -21,7 +21,7 @@ const benefits = [
 function BenefitCard({ b, i }) {
   return (
     <motion.div
-      className="group relative h-full cursor-default overflow-hidden rounded-[28px] bg-sand p-8 text-center"
+      className="group relative h-full cursor-default overflow-hidden rounded-[28px] bg-white p-8 text-center"
       whileHover={{ y: -6, scale: 1.02 }}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
@@ -34,7 +34,7 @@ function BenefitCard({ b, i }) {
 
       {/* Icon circle with interactive pulse */}
       <motion.span
-        className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-cream text-forest shadow-sm"
+        className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-white text-forest shadow-sm"
         whileHover={{ scale: 1.15, rotate: 6 }}
         transition={{ type: 'spring', stiffness: 400, damping: 15 }}
       >

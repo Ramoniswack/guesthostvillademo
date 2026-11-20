@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react'
 import Link from 'next/link'
+import { AnimatePresence, motion } from 'framer-motion'
 import {
   BedDouble, Building2, CalendarCheck, CalendarDays, Check, ChevronDown, ChevronLeft, ChevronRight, Clock, Coffee, DoorOpen,
   Eye, Heart, Images, KeyRound, Mail, MapPin, MessageCircle, Mountain, Send, Share2, ShieldCheck, Sparkles, Star, Sun, User,
@@ -74,7 +75,7 @@ function Timeline({ items }) {
         return (
           <li key={item.title} className="relative flex gap-4 pb-2">
             {!last && <span aria-hidden="true" className="absolute left-[1.0625rem] top-10 bottom-0 w-px bg-forest/15" />}
-            <span className={`relative z-10 grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold transition ${isOpen ? 'bg-sun text-forest-dark' : 'bg-sand text-forest'}`}>{index + 1}</span>
+            <span className={`relative z-10 grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold transition ${isOpen ? 'bg-sun text-forest-dark' : 'bg-white text-forest'}`}>{index + 1}</span>
             <div className="min-w-0 flex-1 pb-4">
               <h3>
                 <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? -1 : index)} className="flex w-full items-center gap-3 pt-1.5 text-left">
@@ -119,7 +120,7 @@ function Lightbox({ photos, index, setIndex, alt }) {
     return () => { document.body.style.overflow = prev; document.removeEventListener('keydown', onKey) }
   }, [open, photos.length, setIndex])
   if (!open) return null
-  const btn = 'grid h-11 w-11 place-items-center border border-white/40 bg-forest-dark/60 text-white backdrop-blur transition hover:bg-sun hover:text-forest-dark'
+  const btn = 'grid h-11 w-11 place-items-center rounded-full border border-white/40 bg-forest-dark/60 text-white backdrop-blur transition hover:bg-sun hover:text-forest-dark'
   return (
     <div role="dialog" aria-modal="true" aria-label="Room photos" className="fixed inset-0 z-[60] flex flex-col bg-forest-dark/95 p-4 sm:p-8" onClick={() => setIndex(null)}>
       <div className="flex items-center justify-between text-sm text-white/80" onClick={(e) => e.stopPropagation()}>
@@ -260,10 +261,10 @@ export default function RoomDetailPage({ room }) {
     if (enquiry.phone.trim()) lines.push(`Phone: ${enquiry.phone.trim()}`)
     window.open(waLink(lines.join('\n')), '_blank', 'noopener,noreferrer')
   }
-  const field = 'mt-1.5 w-full border border-forest/20 bg-cream px-3 py-2.5 text-sm text-forest outline-none placeholder:text-forest/40 focus:border-forest'
+  const field = 'mt-1.5 w-full border border-forest/20 bg-white px-3 py-2.5 text-sm text-forest outline-none placeholder:text-forest/40 focus:border-forest'
 
   return (
-    <div className="bg-cream pb-40 md:pb-28 lg:pb-16">
+    <div className="bg-white pb-40 md:pb-28 lg:pb-16">
       {/* 1 · Title row */}
       <header className="wrap pt-28 md:pt-32">
         <nav aria-label="Breadcrumb" className="text-xs text-forest/55">
@@ -284,24 +285,24 @@ export default function RoomDetailPage({ room }) {
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm font-semibold text-forest">
-            <button type="button" onClick={share} className="inline-flex items-center gap-2 px-3 py-2 transition hover:bg-sand"><Share2 className="h-4 w-4" aria-hidden="true" />{copied ? 'Link copied' : 'Share'}</button>
-            <button type="button" onClick={toggleSaved} aria-pressed={saved} className="inline-flex items-center gap-2 px-3 py-2 transition hover:bg-sand"><Heart className={`h-4 w-4 ${saved ? 'fill-sun text-sun-text' : ''}`} aria-hidden="true" />{saved ? 'Saved' : 'Save'}</button>
+            <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 transition hover:bg-white"><Share2 className="h-4 w-4" aria-hidden="true" />{copied ? 'Link copied' : 'Share'}</button>
+            <button type="button" onClick={toggleSaved} aria-pressed={saved} className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 transition hover:bg-white"><Heart className={`h-4 w-4 ${saved ? 'fill-sun text-sun-text' : ''}`} aria-hidden="true" />{saved ? 'Saved' : 'Save'}</button>
           </div>
         </div>
       </header>
 
       {/* 2 · Photo mosaic: one large photo + four small */}
       <section aria-label="Room photos" className="wrap mt-5">
-        <div className="relative grid h-[17rem] grid-cols-4 grid-rows-2 gap-2 overflow-hidden sm:h-[22rem] lg:h-[26rem]">
+        <div className="relative grid h-[17rem] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-2xl sm:h-[22rem] lg:h-[26rem]">
           {photos.slice(0, 5).map((src, i) => (
             <button key={src} type="button" onClick={() => setPhoto(i)} aria-label={`Open photo ${i + 1} of ${photos.length}`}
-              className={`group relative overflow-hidden bg-sand ${i === 0 ? 'col-span-4 row-span-2 md:col-span-2' : 'hidden md:block'}`}>
+              className={`group relative overflow-hidden bg-white ${i === 0 ? 'col-span-4 row-span-2 md:col-span-2' : 'hidden md:block'}`}>
               <img src={src} alt={i === 0 ? room.alt : ''} fetchPriority={i === 0 ? 'high' : undefined} loading={i === 0 ? undefined : 'lazy'} className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
               <span className="absolute inset-0 bg-forest-dark/0 transition group-hover:bg-forest-dark/15" />
             </button>
           ))}
-          {room.badge && <span className="pointer-events-none absolute left-3 top-3 bg-cream px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest">{room.badge}</span>}
-          <button type="button" onClick={() => setPhoto(0)} className="absolute bottom-3 right-3 inline-flex items-center gap-2 border border-forest/15 bg-cream px-4 py-2 text-sm font-semibold text-forest shadow-soft transition hover:bg-sand">
+          {room.badge && <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-white px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest">{room.badge}</span>}
+          <button type="button" onClick={() => setPhoto(0)} className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-2 text-sm font-semibold text-forest shadow-soft transition hover:bg-white">
             <Images className="h-4 w-4" aria-hidden="true" />Show all {photos.length} photos
           </button>
         </div>
@@ -310,7 +311,7 @@ export default function RoomDetailPage({ room }) {
       <div className="wrap grid grid-cols-[minmax(0,1fr)] gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-14">
         {/* Sidebar: first on phones, floating sticky beside the details on desktop */}
         <aside className="no-scrollbar space-y-4 lg:sticky lg:top-24 lg:order-2 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto">
-          <div className="rounded-2xl border border-forest/15 bg-cream p-5 shadow-[0_18px_45px_rgba(35,70,53,0.08)]">
+          <div className="rounded-2xl border border-forest/15 bg-white p-5 shadow-[0_18px_45px_rgba(35,70,53,0.08)]">
             {tab === 'booking' ? (
               <BookingPanel
                 room={room}
@@ -344,7 +345,7 @@ export default function RoomDetailPage({ room }) {
                   <input value={enquiry.phone} onChange={(e) => setEnquiry({ ...enquiry, phone: e.target.value })} autoComplete="tel" inputMode="tel" className={`${field} rounded-lg normal-case tracking-normal`} placeholder="+977…" /></label>
                 <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Message
                   <textarea rows={3} value={enquiry.message} onChange={(e) => setEnquiry({ ...enquiry, message: e.target.value })} className={`${field} rounded-lg normal-case tracking-normal`} placeholder="Dates, group size, questions…" /></label>
-                <button type="submit" className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"><Send className="h-4 w-4" aria-hidden="true" />Send on WhatsApp</button>
+                <button type="submit" className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"><Send className="h-4 w-4" aria-hidden="true" />Send on WhatsApp</button>
               </form>
             )}
           </div>
@@ -390,7 +391,7 @@ export default function RoomDetailPage({ room }) {
                 return (
                   <div
                     key={p.id}
-                    className={`flex flex-col rounded-xl border-2 bg-cream p-5 transition ${
+                    className={`flex flex-col rounded-xl border-2 bg-white p-5 transition ${
                       selected
                         ? 'border-sun shadow-[0_10px_28px_rgba(47,74,58,0.1)]'
                         : 'border-forest/15 hover:border-forest/35'
@@ -438,13 +439,23 @@ export default function RoomDetailPage({ room }) {
                     >
                       {isExpanded ? 'Show less' : 'Read more'}
                     </button>
-                    {isExpanded && (
-                      <div className="mt-2.5 rounded-lg bg-sand/70 p-3 text-xs leading-relaxed text-forest/75">
-                        {p.id === 'MAP'
-                          ? `Includes daily breakfast plus your choice of lunch or dinner at the pyramid restro (+NPR ${MAP_ADD}/person/night). Check-in from 2 PM, check-out by 10 AM.`
-                          : 'Includes daily breakfast for all guests in your booking. Lunch, dinner and bar orders can be added anytime at the pyramid restro. Check-in from 2 PM, check-out by 10 AM.'}
-                      </div>
-                    )}
+                    <AnimatePresence initial={false}>
+                      {isExpanded && (
+                        <motion.div
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: 'auto', opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.22, ease: [0.22, 0.61, 0.36, 1] }}
+                          className="overflow-hidden"
+                        >
+                          <div className="mt-2.5 rounded-xl bg-white/70 p-3 text-xs leading-relaxed text-forest/75">
+                            {p.id === 'MAP'
+                              ? `Includes daily breakfast plus your choice of lunch or dinner at the pyramid restro (+NPR ${MAP_ADD}/person/night). Check-in from 2 PM, check-out by 10 AM.`
+                              : 'Includes daily breakfast for all guests in your booking. Lunch, dinner and bar orders can be added anytime at the pyramid restro. Check-in from 2 PM, check-out by 10 AM.'}
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
 
                     {/* Bottom summary + CTA */}
                     <div className="mt-auto pt-5">
@@ -492,7 +503,7 @@ export default function RoomDetailPage({ room }) {
                             href={waLink(stayMessage(room, { guests, plan: p.id, checkIn, checkOut }))}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
+                            className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
                           >
                             {room.whatsappOnly ? 'Ask on WhatsApp' : 'Request on WhatsApp'}
                             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -501,7 +512,7 @@ export default function RoomDetailPage({ room }) {
                           <button
                             type="button"
                             onClick={goToBooking}
-                            className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-lg bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
+                            className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
                           >
                             Pick a date to continue
                           </button>
@@ -510,7 +521,7 @@ export default function RoomDetailPage({ room }) {
                         <button
                           type="button"
                           onClick={() => setPlan(p.id)}
-                          className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center rounded-lg bg-forest px-4 text-sm font-semibold text-cream transition hover:bg-forest-dark"
+                          className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center rounded-full bg-forest px-4 text-sm font-semibold text-cream transition hover:bg-forest-dark"
                         >
                           Select
                         </button>
@@ -532,7 +543,7 @@ export default function RoomDetailPage({ room }) {
                 return <li key={feature} className="flex items-start gap-3 text-[0.95rem] leading-snug text-forest/80"><Ico className="mt-0.5 h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />{feature}</li>
               })}
             </ul>
-            <div className="mt-6 border-l-4 border-sun bg-sand px-5 py-4">
+            <div className="mt-6 rounded-2xl border-l-4 border-sun bg-white px-5 py-4">
               <p className="text-sm font-semibold text-forest">Is this room right for you?</p>
               <p className="mt-1 text-sm leading-relaxed text-forest/70">{room.bestFor}</p>
             </div>
@@ -550,9 +561,9 @@ export default function RoomDetailPage({ room }) {
             {askOnly ? (
               <p className="mt-5 max-w-2xl leading-relaxed text-forest/70">Bigger groups are booked directly. Send us your dates and group size on WhatsApp and the team will confirm the price.</p>
             ) : (
-              <div className="mt-5 overflow-x-auto border border-forest/15">
+              <div className="mt-5 overflow-x-auto rounded-2xl border border-forest/15">
                 <table className="w-full min-w-[30rem] text-left text-sm">
-                  <thead className="bg-sand text-xs font-bold uppercase tracking-[0.12em] text-forest/60">
+                  <thead className="bg-white text-xs font-bold uppercase tracking-[0.12em] text-forest/60">
                     <tr><th className="px-5 py-3.5">Guests</th><th className="px-5 py-3.5">Bed &amp; Breakfast</th><th className="px-5 py-3.5">With meal plan</th></tr>
                   </thead>
                   <tbody>
@@ -591,8 +602,8 @@ export default function RoomDetailPage({ room }) {
                 <h3 className="mt-8 text-sm font-bold text-forest">This stay combines</h3>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   {includes.map((item) => (
-                    <Link key={item.id} href={`/rooms/${item.id}`} className="group flex gap-4 border border-forest/15 bg-cream p-3 transition hover:border-forest/40">
-                      <img src={item.image} alt={item.alt} loading="lazy" className="h-20 w-24 shrink-0 object-cover" />
+                    <Link key={item.id} href={`/rooms/${item.id}`} className="group flex gap-4 rounded-2xl border border-forest/15 bg-white p-3 transition hover:border-forest/40">
+                      <img src={item.image} alt={item.alt} loading="lazy" className="h-20 w-24 shrink-0 rounded-xl object-cover" />
                       <span className="min-w-0 self-center"><span className="block font-display text-lg leading-tight text-forest">{item.name}</span><span className="mt-1 block text-xs text-forest/60">{buildingLabel(item)}</span></span>
                     </Link>
                   ))}
@@ -604,10 +615,10 @@ export default function RoomDetailPage({ room }) {
           {/* 9 · Good to know */}
           <section aria-labelledby="good-to-know">
             <SectionTitle id="good-to-know">Good to know</SectionTitle>
-            <div className="mt-5 grid gap-px border border-forest/15 bg-forest/15 md:grid-cols-3">
-              <div className="bg-cream p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><ShieldCheck className="h-5 w-5 text-sun-text" aria-hidden="true" />Stay rules</h3><ul className="mt-2 space-y-1 text-sm leading-relaxed text-forest/70"><li>No smoking, parties or events.</li><li>Check-in from 2 PM, check-out by 10 AM.</li></ul></div>
-              <div className="bg-cream p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><CalendarDays className="h-5 w-5 text-sun-text" aria-hidden="true" />Cancellation</h3><p className="mt-2 text-sm leading-relaxed text-forest/70">Full refund if you cancel within 48 hours of booking and at least 24 hours before check-in.</p></div>
-              <div className="bg-cream p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><Sun className="h-5 w-5 text-sun-text" aria-hidden="true" />When to visit</h3><p className="mt-2 text-sm leading-relaxed text-forest/70">Sept–Nov and Mar–May bring the clearest mountain views from the hilltop.</p></div>
+            <div className="mt-5 grid gap-px overflow-hidden rounded-2xl border border-forest/15 bg-forest/15 md:grid-cols-3">
+              <div className="bg-white p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><ShieldCheck className="h-5 w-5 text-sun-text" aria-hidden="true" />Stay rules</h3><ul className="mt-2 space-y-1 text-sm leading-relaxed text-forest/70"><li>No smoking, parties or events.</li><li>Check-in from 2 PM, check-out by 10 AM.</li></ul></div>
+              <div className="bg-white p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><CalendarDays className="h-5 w-5 text-sun-text" aria-hidden="true" />Cancellation</h3><p className="mt-2 text-sm leading-relaxed text-forest/70">Full refund if you cancel within 48 hours of booking and at least 24 hours before check-in.</p></div>
+              <div className="bg-white p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><Sun className="h-5 w-5 text-sun-text" aria-hidden="true" />When to visit</h3><p className="mt-2 text-sm leading-relaxed text-forest/70">Sept–Nov and Mar–May bring the clearest mountain views from the hilltop.</p></div>
             </div>
           </section>
 
@@ -633,7 +644,7 @@ export default function RoomDetailPage({ room }) {
             {reviews.map((r) => (
               <li key={r.name} className="py-5 first:pt-0">
                 <div className="flex items-center gap-3">
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-sand text-forest/60"><User className="h-5 w-5" aria-hidden="true" /></span>
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-forest/60"><User className="h-5 w-5" aria-hidden="true" /></span>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold leading-tight text-forest">{r.name}</p>
                     <p className="text-xs text-forest/55">{r.country} · {r.source}</p>
@@ -648,7 +659,7 @@ export default function RoomDetailPage({ room }) {
       </section>
 
       {/* 12 · Related stays */}
-      <section aria-labelledby="similar" className="bg-sand py-14">
+      <section aria-labelledby="similar" className="bg-white py-14">
         <div className="wrap">
           <div className="flex items-end justify-between gap-4">
             <Reveal><h2 id="similar" className="font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">Related stays</h2></Reveal>
@@ -658,7 +669,7 @@ export default function RoomDetailPage({ room }) {
             {similar.map((item) => {
               const p = describePrice(item, null, 'BB')
               return (
-                <Link key={item.id} href={`/rooms/${item.id}`} className="group flex flex-col border border-forest/15 bg-cream transition hover:-translate-y-1 hover:shadow-warm">
+                <Link key={item.id} href={`/rooms/${item.id}`} className="group flex flex-col overflow-hidden rounded-2xl border border-forest/15 bg-white transition hover:-translate-y-1 hover:shadow-warm">
                   <div className="overflow-hidden"><img src={item.image} alt={item.alt} loading="lazy" className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105" /></div>
                   <div className="flex flex-1 flex-col p-5">
                     <p className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-sun-text">{buildingLabel(item)}</p>
@@ -678,7 +689,7 @@ export default function RoomDetailPage({ room }) {
       <Lightbox photos={photos} index={photo} setIndex={setPhoto} alt={room.alt} />
 
       {/* Phone booking bar: appears when the full panel has scrolled away */}
-      <div className={`fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-40 border-t border-forest/15 bg-cream/95 py-3 pl-5 pr-20 shadow-[0_-10px_30px_rgba(35,70,53,0.12)] backdrop-blur transition duration-300 md:bottom-0 md:pr-5 lg:hidden ${panelVisible ? 'pointer-events-none translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`} aria-hidden={panelVisible}>
+      <div className={`fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-40 border-t border-forest/15 bg-white/95 py-3 pl-5 pr-20 shadow-[0_-10px_30px_rgba(35,70,53,0.12)] backdrop-blur transition duration-300 md:bottom-0 md:pr-5 lg:hidden ${panelVisible ? 'pointer-events-none translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`} aria-hidden={panelVisible}>
         <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
           <div className="min-w-0">
             {quote ? (
@@ -694,9 +705,9 @@ export default function RoomDetailPage({ room }) {
             )}
           </div>
           {barReady ? (
-            <a tabIndex={panelVisible ? -1 : 0} href={waLink(stayMessage(room, { guests, plan, checkIn, checkOut }))} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 bg-sun px-5 text-sm font-semibold text-forest-dark"><MessageCircle className="h-4 w-4" aria-hidden="true" />{room.whatsappOnly ? 'Ask us' : 'Request stay'}</a>
+            <a tabIndex={panelVisible ? -1 : 0} href={waLink(stayMessage(room, { guests, plan, checkIn, checkOut }))} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-5 text-sm font-semibold text-forest-dark"><MessageCircle className="h-4 w-4" aria-hidden="true" />{room.whatsappOnly ? 'Ask us' : 'Request stay'}</a>
           ) : (
-            <button type="button" tabIndex={panelVisible ? -1 : 0} onClick={goToBooking} className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 bg-sun px-5 text-sm font-semibold text-forest-dark"><CalendarDays className="h-4 w-4" aria-hidden="true" />Choose dates</button>
+            <button type="button" tabIndex={panelVisible ? -1 : 0} onClick={goToBooking} className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-5 text-sm font-semibold text-forest-dark"><CalendarDays className="h-4 w-4" aria-hidden="true" />Choose dates</button>
           )}
         </div>
       </div>

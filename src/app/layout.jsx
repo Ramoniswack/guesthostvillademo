@@ -23,7 +23,7 @@ export const metadata = {
   twitter: { card: 'summary_large_image' },
 }
 
-export const viewport = { themeColor: '#FBF7EF' }
+export const viewport = { themeColor: '#FFFFFF' }
 
 const jsonLd = {
   '@context': 'https://schema.org',

@@ -85,8 +85,8 @@ export default function Hero() {
       <div className="absolute inset-0 -z-10 bg-gradient-to-r from-forest-dark/45 via-transparent to-transparent" />
 
       <div className="absolute inset-x-3 top-1/2 z-20 flex -translate-y-1/2 justify-between sm:inset-x-5">
-        <button type="button" aria-label="Previous hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={previousSlide} className="grid h-10 w-10 place-items-center border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronL" className="h-5 w-5" /></button>
-        <button type="button" aria-label="Next hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={nextSlide} className="grid h-10 w-10 place-items-center border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronR" className="h-5 w-5" /></button>
+        <button type="button" aria-label="Previous hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={previousSlide} className="grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronL" className="h-5 w-5" /></button>
+        <button type="button" aria-label="Next hero slide" onPointerDown={(event) => event.stopPropagation()} onClick={nextSlide} className="grid h-10 w-10 place-items-center rounded-full border border-white/50 bg-forest-dark/35 text-white backdrop-blur transition hover:bg-sun hover:text-forest sm:h-12 sm:w-12"><Icon name="chevronR" className="h-5 w-5" /></button>
       </div>
 
       <div className="wrap relative flex min-h-[100svh] select-none items-center justify-center pb-[clamp(6rem,22vw,22rem)] pt-24 text-center">
@@ -104,7 +104,7 @@ export default function Hero() {
             >
               A hilltop villa, restro and bar made for quiet stays, big gatherings and slow Pokhara days.
             </motion.p>
-            <div className="mt-3" onPointerDown={(event) => event.stopPropagation()}><Button href="/rooms" className="!rounded-none">Find your stay</Button></div>
+            <div className="mt-3" onPointerDown={(event) => event.stopPropagation()}><Button href="/rooms">Find your stay</Button></div>
           </div>
       </div>
 
@@ -112,9 +112,9 @@ export default function Hero() {
       <div
         aria-hidden="true"
         data-mountain-ridge
-        className="pointer-events-none absolute inset-x-0 -bottom-px z-10 aspect-[1024/217] w-full"
+        className="pointer-events-none absolute inset-x-0 -bottom-px z-10 aspect-[1024/217] w-full translate-y-4 md:translate-y-7"
         style={{
-          backgroundColor: '#FBF7EF',
+          backgroundColor: '#FFFFFF',
           WebkitMaskImage: 'url(/images/mountain-edge.svg)',
           maskImage: 'url(/images/mountain-edge.svg)',
           WebkitMaskRepeat: 'no-repeat',

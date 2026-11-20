@@ -7,7 +7,7 @@ export default function CtaBanner() {
   return (
     <section id="book" className="px-6 pb-24 pt-4 sm:px-10 md:pb-40">
       <Reveal className="mx-auto max-w-7xl">
-        <div className="relative overflow-hidden bg-forest-dark">
+        <div className="relative overflow-hidden rounded-2xl bg-forest-dark">
           <img
             src="/images/night-aerial.webp"
             alt="G'Host Villa lit up at night among the dark forested hills"
@@ -16,7 +16,7 @@ export default function CtaBanner() {
             loading="lazy"
             className="h-[26rem] w-full object-cover object-[50%_60%] md:h-[30rem]"
           />
-          <div className="absolute inset-0 bg-forest/70" />
+          <div className="absolute inset-0 bg-gradient-to-b from-forest-dark/65 via-forest-dark/25 to-transparent" />
           <div className="absolute inset-x-0 top-0 p-8 text-center md:p-12">
             <p className="text-[1.0625rem] font-semibold text-cream/90">Sarangkot, Pokhara</p>
             <p className="mx-auto mt-3 max-w-2xl font-display text-3xl font-semibold leading-tight text-white md:text-5xl">
@@ -25,7 +25,7 @@ export default function CtaBanner() {
           </div>
         </div>
 
-        <div className="relative z-10 mx-4 -mt-16 flex flex-col items-center justify-between gap-5 border border-forest/15 bg-cream p-6 text-center shadow-warm md:mx-14 md:-mt-12 md:flex-row md:p-8 md:text-left">
+        <div className="relative z-10 mx-4 -mt-16 flex flex-col items-center justify-between gap-5 rounded-2xl border border-forest/15 bg-white p-6 text-center shadow-warm md:mx-14 md:-mt-12 md:flex-row md:p-8 md:text-left">
           <p className="font-display text-2xl font-semibold text-forest md:text-3xl">Planning a stay or a meal with a view?</p>
           <div className="flex flex-wrap justify-center gap-3">
             <Button href={waLink()} icon="chat" arrow={false}>Book on WhatsApp</Button>

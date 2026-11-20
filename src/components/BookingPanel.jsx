@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { CalendarDays, ChevronDown, Heart, Minus, Plus, Star } from 'lucide-react'
 import DateRangePicker from './DateRangePicker.jsx'
 import { plans, describePrice, formatNpr, stayMessage } from '../data/rooms.js'
@@ -90,37 +91,47 @@ export default function BookingPanel({
           <span>Group pricing</span>
           <ChevronDown className={`h-4 w-4 text-forest/60 transition ${groupOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
         </button>
-        {groupOpen && (
-          <div className="space-y-3 pb-4">
-            <div className="grid grid-cols-2 gap-2">
-              {plans.map((item) => {
-                const on = plan === item.id
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => setPlan(item.id)}
-                    aria-pressed={on}
-                    className={`rounded-lg border px-3 py-2 text-left transition ${
-                      on ? 'border-forest bg-forest text-cream' : 'border-forest/20 text-forest hover:border-forest'
-                    }`}
-                  >
-                    <span className="block text-xs font-semibold">{item.label}</span>
-                    <span className={`mt-0.5 block text-[0.7rem] ${on ? 'text-cream/75' : 'text-forest/55'}`}>{item.note}</span>
-                  </button>
-                )
-              })}
-            </div>
-            <p className="text-xs leading-relaxed text-forest/60">
-              Fits {room.minGuests === room.maxGuests ? room.maxGuests : `${room.minGuests}–${room.maxGuests}`} guests.{' '}
-              {price.perPerson ? `(${price.perPerson})` : price.note}
-            </p>
-          </div>
-        )}
+        <AnimatePresence initial={false}>
+          {groupOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.24, ease: [0.22, 0.61, 0.36, 1] }}
+              className="overflow-hidden"
+            >
+              <div className="space-y-3 pb-4">
+                <div className="grid grid-cols-2 gap-2">
+                  {plans.map((item) => {
+                    const on = plan === item.id
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => setPlan(item.id)}
+                        aria-pressed={on}
+                        className={`rounded-lg border px-3 py-2 text-left transition ${
+                          on ? 'border-forest bg-forest text-cream' : 'border-forest/20 text-forest hover:border-forest'
+                        }`}
+                      >
+                        <span className="block text-xs font-semibold">{item.label}</span>
+                        <span className={`mt-0.5 block text-[0.7rem] ${on ? 'text-cream/75' : 'text-forest/55'}`}>{item.note}</span>
+                      </button>
+                    )
+                  })}
+                </div>
+                <p className="text-xs leading-relaxed text-forest/60">
+                  Fits {room.minGuests === room.maxGuests ? room.maxGuests : `${room.minGuests}–${room.maxGuests}`} guests.{' '}
+                  {price.perPerson ? `(${price.perPerson})` : price.note}
+                </p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Grouped rounded input box: Guests + Select date */}
-      <div className="mt-4 divide-y divide-forest/15 rounded-xl border border-forest/20 bg-cream">
+      <div className="mt-4 divide-y divide-forest/15 rounded-xl border border-forest/20 bg-white">
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <div className="min-w-0">
             <p className="text-sm font-bold text-forest">Guests</p>
@@ -149,11 +160,21 @@ export default function BookingPanel({
       </div>
 
       {/* Inline calendar dropdown */}
-      {calendarOpen && (
-        <div className="mt-3 rounded-xl border border-forest/15 bg-cream p-3 shadow-soft">
-          <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={onDates} blocked={blocked} />
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {calendarOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.25, ease: [0.22, 0.61, 0.36, 1] }}
+            className="overflow-hidden"
+          >
+            <div className="mt-3 rounded-xl border border-forest/15 bg-white p-3 shadow-soft">
+              <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={onDates} blocked={blocked} />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Total row */}
       {!ask && (
@@ -177,7 +198,7 @@ export default function BookingPanel({
             href={waLink(stayMessage(room, { guests, plan, checkIn, checkOut }))}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-[46px] w-full items-center justify-center rounded-lg bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
+            className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
           >
             {ask ? 'Ask on WhatsApp' : 'Request on WhatsApp'}
           </a>
@@ -185,7 +206,7 @@ export default function BookingPanel({
           <button
             type="button"
             onClick={() => setCalendarOpen(true)}
-            className="inline-flex min-h-[46px] w-full items-center justify-center rounded-lg bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
+            className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
           >
             Check availability
           </button>
@@ -195,7 +216,7 @@ export default function BookingPanel({
           <button
             type="button"
             onClick={onEnquire}
-            className="inline-flex min-h-[46px] w-full items-center justify-center rounded-lg border border-forest/20 bg-cream px-4 text-sm font-semibold text-forest transition hover:border-forest hover:bg-sand/50"
+            className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full border border-forest/20 bg-white px-4 text-sm font-semibold text-forest transition hover:border-forest hover:bg-white/50"
           >
             Enquire Now
           </button>

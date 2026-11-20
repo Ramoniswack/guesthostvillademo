@@ -84,40 +84,42 @@ export default function Navbar() {
 
   return (
     <>
-      <header className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${hideOnRoomsScroll ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} ${solid ? 'border-b border-forest/10 bg-cream/95 shadow-[0_10px_30px_rgba(29,45,35,0.08)] backdrop-blur-xl' : 'bg-gradient-to-b from-black/35 to-transparent'}`}>
-        <div className="mx-auto flex h-[4.5rem] max-w-[1440px] items-center justify-between gap-5 px-5 sm:px-8 lg:px-12">
+      <header className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${hideOnRoomsScroll ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} ${solid ? 'border-b border-forest/10 bg-white/95 shadow-[0_10px_30px_rgba(29,45,35,0.08)] backdrop-blur-xl' : 'bg-gradient-to-b from-black/35 to-transparent'}`}>
+        <div className="mx-auto flex h-[4.5rem] max-w-[1440px] items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
           <Brand solid={solid} />
 
-          <nav aria-label="Main" className="hidden items-center gap-7 lg:flex">
-            {navLinks.map((link) => (
-              <NavLink
-                key={link.to}
-                to={link.to}
-                className={({ isActive }) => `text-[0.68rem] font-bold uppercase tracking-[0.16em] transition-opacity ${text} ${isActive ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}
-              >
-                {link.label}
-              </NavLink>
-            ))}
-          </nav>
+          <div className="flex items-center gap-7">
+            <nav aria-label="Main" className="hidden items-center gap-6 lg:flex">
+              {navLinks.map((link) => (
+                <NavLink
+                  key={link.to}
+                  to={link.to}
+                  className={({ isActive }) => `text-[0.68rem] font-bold uppercase tracking-[0.16em] transition-opacity ${text} ${isActive ? 'opacity-100' : 'opacity-70 hover:opacity-100'}`}
+                >
+                  {link.label}
+                </NavLink>
+              ))}
+            </nav>
 
-          <div className="flex items-center gap-3">
-            <a
-              href={waLink('Hello G\'Host Villa! I\'d like to book a stay.')}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={`hidden min-h-10 items-center px-5 text-[0.68rem] font-bold uppercase tracking-[0.15em] transition-colors sm:inline-flex ${solid ? 'bg-forest text-cream hover:bg-forest-dark' : 'bg-white text-forest hover:bg-cream'}`}
-            >
-              Book a stay
-            </a>
-            <button
-              type="button"
-              onClick={() => setOpen(true)}
-              aria-label="Open menu"
-              aria-expanded={open}
-              className={`grid h-10 w-10 place-items-center border transition-colors lg:hidden ${solid ? 'border-forest/25 text-forest' : 'border-white/45 text-white'}`}
-            >
-              <Icon name="menu" className="h-5 w-5" />
-            </button>
+            <div className="flex items-center gap-2.5">
+              <a
+                href={waLink('Hello G\'Host Villa! I\'d like to book a stay.')}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`hidden min-h-10 items-center rounded-full px-6 text-[0.68rem] font-bold uppercase tracking-[0.15em] transition-colors sm:inline-flex ${solid ? 'bg-forest text-cream hover:bg-forest-dark' : 'bg-white text-forest hover:bg-white'}`}
+              >
+                Book a stay
+              </a>
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                aria-label="Open menu"
+                aria-expanded={open}
+                className={`grid h-10 w-10 place-items-center rounded-full border transition-colors lg:hidden ${solid ? 'border-forest/25 text-forest' : 'border-white/45 text-white'}`}
+              >
+                <Icon name="menu" className="h-5 w-5" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -126,7 +128,7 @@ export default function Navbar() {
         <div role="dialog" aria-modal="true" aria-label="Menu" data-lenis-prevent className="on-dark fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[#07120f] text-white">
           <div className="flex h-[4.5rem] shrink-0 items-center justify-between px-5 sm:px-8">
             <Brand light />
-            <button type="button" onClick={() => setOpen(false)} aria-label="Close menu" className="grid h-10 w-10 place-items-center border border-white/30">
+            <button type="button" onClick={() => setOpen(false)} aria-label="Close menu" className="grid h-10 w-10 place-items-center rounded-full border border-white/30">
               <Icon name="close" className="h-5 w-5" />
             </button>
           </div>
@@ -143,7 +145,7 @@ export default function Navbar() {
             ))}
           </nav>
           <div className="grid gap-3 px-6 pb-9">
-            <a href={waLink('Hello G\'Host Villa! I\'d like to book a stay.')} target="_blank" rel="noopener noreferrer" className="flex min-h-14 items-center justify-center bg-sun px-5 text-sm font-bold uppercase tracking-[0.14em] text-forest-dark">
+            <a href={waLink('Hello G\'Host Villa! I\'d like to book a stay.')} target="_blank" rel="noopener noreferrer" className="flex min-h-14 items-center justify-center rounded-full bg-sun px-5 text-sm font-bold uppercase tracking-[0.14em] text-forest-dark">
               Book a stay
             </a>
             <Button href={telLink} variant="light" arrow={false} icon="phone">Call {site.phoneDisplay}</Button>
@@ -158,7 +160,7 @@ export default function Navbar() {
 export function MobileBar() {
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-px bg-forest/20 pb-[env(safe-area-inset-bottom)] md:hidden" aria-label="Quick contact">
-      <a href={telLink} className="flex min-h-14 items-center justify-center gap-2 bg-cream text-xs font-bold uppercase tracking-[0.12em] text-forest">
+      <a href={telLink} className="flex min-h-14 items-center justify-center gap-2 bg-white text-xs font-bold uppercase tracking-[0.12em] text-forest">
         <Icon name="phone" className="h-4 w-4" /> Call
       </a>
       <a href={waLink()} target="_blank" rel="noopener noreferrer" className="flex min-h-14 items-center justify-center gap-2 bg-forest text-xs font-bold uppercase tracking-[0.12em] text-cream">

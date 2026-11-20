@@ -23,7 +23,7 @@ export default function FilterDropdown({ icon: IconCmp, label, value, active = f
     <div ref={root}>
       <button
         type="button" aria-expanded={open} aria-controls={panelId} onClick={() => setOpen((v) => !v)}
-        className={`flex min-h-[3.25rem] w-full items-center gap-3 border px-4 py-2 text-left transition ${active ? 'border-forest bg-forest/5' : 'border-forest/20 bg-cream hover:border-forest/50'} ${open ? 'ring-1 ring-forest' : ''}`}
+        className={`flex min-h-[3.25rem] w-full items-center gap-3 border px-4 py-2 text-left transition ${active ? 'border-forest bg-forest/5' : 'border-forest/20 bg-white hover:border-forest/50'} ${open ? 'ring-1 ring-forest' : ''}`}
       >
         {IconCmp && <IconCmp className="h-5 w-5 shrink-0 text-sun-text" strokeWidth={1.8} aria-hidden="true" />}
         <span className="min-w-0 flex-1">
@@ -35,7 +35,7 @@ export default function FilterDropdown({ icon: IconCmp, label, value, active = f
       {open && (
         <div
           id={panelId} role="group" aria-label={label}
-          className="border border-t-0 border-forest/20 bg-cream p-5"
+          className="border border-t-0 border-forest/20 bg-white p-5"
         >
           {children}
         </div>

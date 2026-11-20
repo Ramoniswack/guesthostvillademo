@@ -16,7 +16,7 @@ const highlights = [
 
 export default function Story() {
   return (
-    <section id="about" className="contour bg-sand py-10 md:py-16">
+    <section id="about" className="contour bg-white py-10 md:py-16">
       <div className="wrap grid items-center gap-8 lg:grid-cols-2 lg:gap-12">
         <Reveal>
           <div className="relative">
@@ -28,7 +28,7 @@ export default function Story() {
               loading="lazy"
               className="h-[360px] w-full rounded-[28px] object-cover object-center shadow-warm sm:h-[420px] md:h-[460px]"
             />
-            <span className="absolute -bottom-5 right-5 inline-flex items-center gap-2 rounded-full bg-cream px-5 py-2.5 text-sm font-semibold text-forest shadow-soft">
+            <span className="absolute -bottom-5 right-5 inline-flex items-center gap-2 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-forest shadow-soft">
               <Icon name="mountain" className="h-5 w-5 text-sun-text" /> Sarangkot hilltop &amp; valley views
             </span>
           </div>

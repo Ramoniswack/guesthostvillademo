@@ -46,13 +46,12 @@ export const navLinks = [
   { to: '/packages', label: 'Packages' },
   { to: '/menu', label: 'Menu' },
   { to: '/faq', label: 'FAQ' },
-  { to: '/jobs', label: 'Jobs' },
 ]
 
 // Stats row.
 export const stats = [
   { value: 4.5, suffix: '★', label: 'Google rating (379+ reviews)' },
-  { value: 24, suffix: ' guests', label: 'max capacity for group stays' },
-  { value: 1550, suffix: '/-', label: 'NPR package rate starting pp' },
-  { value: 20, suffix: ' mins', label: 'scenic drive from main area' },
+  { value: 24, suffix: ' max', label: 'guests for whole-villa stays' },
+  { value: 1550, suffix: ' pp', label: 'NPR group packages from' },
+  { value: 20, suffix: ' mins', label: 'scenic drive from Lakeside' },
 ]

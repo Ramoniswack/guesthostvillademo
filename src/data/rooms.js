@@ -60,7 +60,7 @@ export const rooms = [
     bed: 'Double bed',
     capacity: '2 guests · up to 4',
     minGuests: 1, maxGuests: 4, defaultGuests: 2,
-    pricing: { type: 'base+extra', base: 7200, included: 2, extra: 1500 },
+    pricing: { type: 'base+extra', base: 7200, included: 2, extra: 1500, mapBase: 1000 },
     price: 7200, rateType: 'per night',
     badge: 'Mountain view',
     image: '/images/room-couple.webp',
@@ -83,7 +83,7 @@ export const rooms = [
     bed: 'Double bed',
     capacity: '2 guests · up to 4',
     minGuests: 1, maxGuests: 4, defaultGuests: 2,
-    pricing: { type: 'base+extra', base: 5800, included: 2, extra: 1500 },
+    pricing: { type: 'base+extra', base: 5800, included: 2, extra: 1500, mapBase: 1000 },
     price: 5800, rateType: 'per night',
     badge: 'Best value',
     image: '/images/room-deluxe.webp',
@@ -159,9 +159,9 @@ export const rooms = [
     image: '/images/day-aerial.webp',
     gallery: ['/images/day-aerial.webp', '/images/garden.webp', '/images/hero.webp', '/images/night-aerial.webp'],
     alt: 'Aerial view of the Main Villa and pyramid building among the trees',
-    blurb: 'A private section of the Main Villa for friends and family. Pay per person, and take any two bedrooms for four or all three for six.',
+    blurb: 'A private section of the Main Villa for friends and family. Pay per person: take any 2 bedrooms for 4 guests (NPR 6,200) or all 3 bedrooms for 5–8 guests (NPR 1,550 pp).',
     bestFor: 'Friends and families of 4 to 8 who want to split the cost.',
-    features: [...COMMON_FEATURES, 'Three bedrooms, any two for a group of 4', 'NPR 1,550 per person (NPR 3,100 per bedroom of two)', 'Comfortable for 6 to 7, up to 8 guests'],
+    features: [...COMMON_FEATURES, '4 guests: any 2 bedrooms (NPR 6,200)', '5–8 guests: all 3 bedrooms (NPR 1,550 pp / NPR 3,100 per room)', 'Comfortable for 6 to 7, up to 8 guests max'],
   },
   {
     id: 'villa-top-floor',
@@ -173,7 +173,7 @@ export const rooms = [
     views: [],
     viewText: '',
     bhk: '2BHK top floor · Main Villa',
-    bed: '2 interlocking bedrooms',
+    bed: '4 beds · 2 interlocking bedrooms',
     capacity: '2 guests · up to 6',
     minGuests: 2, maxGuests: 6, defaultGuests: 2,
     pricing: { type: 'tiers', tiers: [{ upTo: 2, min: 8500, max: 10000 }, { upTo: 4, min: 12000, max: 12500 }] },
@@ -182,9 +182,9 @@ export const rooms = [
     image: '/images/hero.webp',
     gallery: ['/images/hero.webp', '/images/day-aerial.webp', '/images/garden.webp', '/images/night-aerial.webp'],
     alt: 'The Main Villa and pyramid building seen from above',
-    blurb: 'The whole top floor of the Main Villa: two interlocking bedrooms, a hall with dining, a kitchen and a balcony, all to yourselves.',
+    blurb: 'The whole top floor of the Main Villa: 2 interlocking bedrooms, 4 beds including a living-area bed and sun bed, hall-cum-dining, kitchen and a private balcony.',
     bestFor: 'Families and friends of 2 to 6 who want a private floor with its own kitchen.',
-    features: ['2 interlocking bedrooms', 'Living-area bed and sun bed', 'Hall-cum-dining and a kitchen', 'Private balcony', ...COMMON_FEATURES, 'Standard capacity 4, up to 6 with extra mattresses'],
+    features: ['2 interlocking bedrooms (4 beds total)', 'Living-area bed and sun bed', 'Hall-cum-dining and a kitchen', 'Private balcony', ...COMMON_FEATURES, 'Standard capacity 4, up to 6 with extra mattresses'],
   },
   {
     id: 'ground-floor',
@@ -339,11 +339,20 @@ export function recommendedFor(guests) {
 // Groups of 8+ are booked directly on WhatsApp
 export const WHATSAPP_FROM = 8
 
+/** Extra nightly charge for the MAP meal plan, matching the owner's handwritten rate card. */
+export function mapAddFor(room, guests) {
+  const rule = room.pricing
+  if (rule?.mapBase != null && guests >= rule.included) {
+    return rule.mapBase + Math.max(0, guests - rule.included) * MAP_ADD
+  }
+  return MAP_ADD * guests
+}
+
 // ── Price for one stay ──
 // returns { kind: 'ask' } | { kind: 'exact', total, perPerson } | { kind: 'range', min, max }
 export function priceFor(room, guests, plan = 'BB') {
   const g = Math.min(Math.max(guests ?? room.defaultGuests, room.minGuests), room.maxGuests)
-  const map = plan === 'MAP' ? MAP_ADD * g : 0
+  const map = plan === 'MAP' ? mapAddFor(room, g) : 0
   const rule = room.pricing
   if (room.whatsappOnly || rule.type === 'ask') return { kind: 'ask', guests: g }
   if (rule.type === 'tiers') {

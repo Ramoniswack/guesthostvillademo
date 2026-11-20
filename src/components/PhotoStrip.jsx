@@ -25,7 +25,7 @@ function Lightbox({ index, onClose, onMove }) {
 
   const item = gallery[index]
   const btn =
-    'absolute flex h-12 w-12 items-center justify-center rounded-full bg-cream text-forest shadow-soft hover:bg-sand'
+    'absolute flex h-12 w-12 items-center justify-center rounded-full bg-white text-forest shadow-soft hover:bg-white'
   return (
     <div
       role="dialog"

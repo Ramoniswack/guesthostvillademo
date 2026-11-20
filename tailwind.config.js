@@ -4,16 +4,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream: '#FBF7EF',
-        sand: '#F3ECDD',
-        forest: { DEFAULT: '#2F4A3A', dark: '#1F3328' },
-        sage: { DEFAULT: '#8FA68A', dark: '#566F52', light: '#C7D5C3' }, // sage-dark = readable label text on cream
-        sun: { DEFAULT: '#F7941D', dark: '#E0820E', text: '#A85500' },
-        navy: '#0B3C5D',
-        ink: '#26302A',
-        muted: '#5C6859', // slightly darker than brief (#6B7568) to pass AA on sand,
-        leaf: '#3F7A4A',
-        meat: '#A5422B',
+        cream: '#FFFFFF',
+        sand: '#FFFFFF',
+        forest: { DEFAULT: '#1F3D2B', dark: '#14291D' },
+        sage: { DEFAULT: '#8FA68A', dark: '#4A634C', light: '#D2DDD3' },
+        sun: { DEFAULT: '#E5A924', dark: '#C98F12', text: '#8A5D00' },
+        navy: '#1F3D2B',
+        ink: '#18291E',
+        muted: '#4D6153',
+        leaf: '#2E6F40',
+        meat: '#8A5D00',
       },
       fontFamily: {
         // Apple system fonts (SF Pro) on Apple devices; Inter is the closest match everywhere else

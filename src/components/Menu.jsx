@@ -49,7 +49,7 @@ function Item({ item }) {
       {hasOptions && (
         <ul className="mt-2 flex flex-wrap gap-2 pl-6">
           {item.options.map((o) => (
-            <li key={o.label} className="inline-flex items-center gap-1.5 rounded-full bg-sand px-3 py-1 text-[0.9rem] text-ink">
+            <li key={o.label} className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-[0.9rem] text-ink">
               {o.label}
               <span className="font-bold tabular-nums text-forest">{npr(o.price)}</span>
             </li>
@@ -62,7 +62,7 @@ function Item({ item }) {
 
 function Group({ group, tag }) {
   return (
-    <section className="min-w-0 rounded-3xl bg-cream p-6 shadow-soft md:p-8">
+    <section className="min-w-0 rounded-3xl bg-white p-6 shadow-soft md:p-8">
       {tag && <p className="label !mb-1">{tag}</p>}
       <h3 className="font-display text-2xl font-semibold text-forest">{group.title}</h3>
       {group.note && <p className="mt-1 text-base text-muted">{group.note}</p>}
@@ -136,14 +136,14 @@ export default function Menu() {
   const groups = searching ? results : tabGroups
 
   return (
-    <section id="menu" className="contour bg-sand pb-24 pt-20 md:pb-40 md:pt-28">
+    <section id="menu" className="contour bg-white pb-24 pt-20 md:pb-40 md:pt-28">
       <div className="wrap">
         <Reveal className="max-w-2xl">
           <p className="label">Restro &amp; Bar</p>
           <h2 className="h2">Fresh food, mountain air</h2>
         </Reveal>
 
-        <p className="mt-8 inline-flex items-start gap-3 rounded-2xl bg-cream px-5 py-3 text-base font-semibold text-forest shadow-soft">
+        <p className="mt-8 inline-flex items-start gap-3 rounded-2xl bg-white px-5 py-3 text-base font-semibold text-forest shadow-soft">
           <Icon name="leaf" className="mt-0.5 h-5 w-5 shrink-0 text-sage-dark" />
           {menuNote}
         </p>
@@ -158,7 +158,7 @@ export default function Menu() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search the menu: momo, pizza, tea…"
-              className="min-h-[52px] w-full rounded-full border-2 border-sage/50 bg-cream pl-12 pr-4 text-base text-ink placeholder:text-muted focus:border-forest focus:outline-none"
+              className="min-h-[52px] w-full rounded-full border-2 border-sage/50 bg-white pl-12 pr-4 text-base text-ink placeholder:text-muted focus:border-forest focus:outline-none"
             />
           </label>
           <button
@@ -166,10 +166,10 @@ export default function Menu() {
             role="switch"
             aria-checked={vegOnly}
             onClick={() => setVegOnly((v) => !v)}
-            className="inline-flex min-h-[52px] items-center gap-3 self-start rounded-full bg-cream px-5 text-base font-bold text-forest shadow-soft"
+            className="inline-flex min-h-[52px] items-center gap-3 self-start rounded-full bg-white px-5 text-base font-bold text-forest shadow-soft"
           >
             <span className={`relative h-7 w-12 rounded-full transition-colors ${vegOnly ? 'bg-leaf' : 'bg-sage/60'}`}>
-              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-cream shadow transition-all ${vegOnly ? 'left-[22px]' : 'left-0.5'}`} />
+              <span className={`absolute top-0.5 h-6 w-6 rounded-full bg-white shadow transition-all ${vegOnly ? 'left-[22px]' : 'left-0.5'}`} />
             </span>
             Veg only
           </button>
@@ -181,7 +181,7 @@ export default function Menu() {
       </div>
 
       {/* sticky category tabs */}
-      <div className="sticky top-[5.25rem] z-30 mt-10 border-y border-sage/30 bg-sand">
+      <div className="sticky top-[5.25rem] z-30 mt-10 border-y border-sage/30 bg-white">
         <div className="wrap">
           <div role="tablist" aria-label="Menu categories" className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 py-3">
             {categories.map((c) => {
@@ -195,7 +195,7 @@ export default function Menu() {
                   aria-selected={on}
                   onClick={() => { setQuery(''); setTab(c.id) }}
                   className={`min-h-[48px] shrink-0 rounded-full px-5 text-base font-bold transition-colors ${
-                    on ? 'bg-forest text-cream' : 'border-2 border-forest/25 bg-cream text-forest hover:border-forest'
+                    on ? 'bg-forest text-cream' : 'border-2 border-forest/25 bg-white text-forest hover:border-forest'
                   }`}
                 >
                   {c.label}
@@ -213,7 +213,7 @@ export default function Menu() {
           </p>
         )}
         {groups.length === 0 ? (
-          <p className="rounded-3xl bg-cream p-8 text-center text-lg text-forest shadow-soft">
+          <p className="rounded-3xl bg-white p-8 text-center text-lg text-forest shadow-soft">
             Nothing found{vegOnly ? ' in the veg menu' : ''}. Try another word, or ask our staff, since we can often cook
             more than what's listed.
           </p>

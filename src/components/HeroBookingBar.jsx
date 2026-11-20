@@ -24,18 +24,18 @@ export default function HeroBookingBar() {
 
   return (
     <form onSubmit={submit} aria-label="Check availability"
-      className="mx-auto grid w-full max-w-5xl gap-px border border-forest/15 bg-forest/15 shadow-[0_24px_60px_-20px_rgba(15,30,22,0.55)] md:grid-cols-[1fr_1fr_1fr_auto]">
-      <label className="flex items-center gap-3 bg-cream px-5 py-4">
+      className="mx-auto grid w-full max-w-4xl gap-px overflow-hidden rounded-2xl border border-white/25 bg-forest/15 text-left shadow-[0_24px_60px_-20px_rgba(15,30,22,0.55)] md:grid-cols-[1fr_1fr_1fr_auto]">
+      <label className="flex items-center gap-3 bg-white px-5 py-4">
         <CalendarDays className="h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />
         <span className="min-w-0 flex-1"><span className={label}>Check-in</span>
           <input type="date" min={today} value={checkIn} onChange={(e) => { setCheckIn(e.target.value); if (checkOut && e.target.value >= checkOut) setCheckOut('') }} className={input} /></span>
       </label>
-      <label className="flex items-center gap-3 bg-cream px-5 py-4">
+      <label className="flex items-center gap-3 bg-white px-5 py-4">
         <CalendarDays className="h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />
         <span className="min-w-0 flex-1"><span className={label}>Check-out</span>
           <input type="date" min={checkIn ? addDays(checkIn, 1) : today} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className={input} /></span>
       </label>
-      <div className="flex items-center gap-3 bg-cream px-5 py-4">
+      <div className="flex items-center gap-3 bg-white px-5 py-4">
         <Users className="h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />
         <div className="min-w-0 flex-1"><span className={label}>Guests</span><span className="mt-1 block text-[0.95rem] font-semibold text-forest" aria-live="polite">{guests} {guests === 1 ? 'guest' : 'guests'}</span></div>
         <div className="flex items-center gap-2">

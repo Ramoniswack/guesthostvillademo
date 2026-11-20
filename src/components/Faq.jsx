@@ -22,7 +22,7 @@ export default function Faq() {
             {faqs.map((f, i) => {
               const isOpen = open === i
               return (
-                <li key={f.q} className="overflow-hidden rounded-3xl bg-sand">
+                <li key={f.q} className="overflow-hidden rounded-3xl bg-white">
                   <h3>
                     <button
                       type="button"
@@ -33,7 +33,7 @@ export default function Faq() {
                       className="flex min-h-[64px] w-full items-center justify-between gap-4 px-6 py-4 text-left font-display text-xl font-semibold text-forest"
                     >
                       {f.q}
-                      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cream transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
+                      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}>
                         <Icon name="chevron" className="h-5 w-5" strokeWidth={2.2} />
                       </span>
                     </button>

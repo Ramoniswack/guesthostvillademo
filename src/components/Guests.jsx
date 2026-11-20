@@ -60,7 +60,7 @@ export default function Guests() {
     'flex h-12 w-12 items-center justify-center rounded-full border-2 border-forest text-forest hover:bg-forest hover:text-cream transition-colors duration-200'
 
   return (
-    <section id="guests" className="section contour bg-sand">
+    <section id="guests" className="section contour bg-white">
       <div className="wrap">
         <Reveal className="flex flex-wrap items-end justify-between gap-6">
           <div className="max-w-2xl">
@@ -98,7 +98,7 @@ export default function Guests() {
         >
           {reviews.map((r, i) => (
             <li key={i} className="w-[85%] shrink-0 snap-start sm:w-[22rem]">
-              <figure className="flex h-full flex-col rounded-3xl bg-cream p-7 shadow-soft">
+              <figure className="flex h-full flex-col rounded-3xl bg-white p-7 shadow-soft">
                 <Stars />
                 <blockquote className="mt-4 flex-1 font-display text-xl leading-snug text-forest">
                   “{r.text}”
@@ -109,7 +109,7 @@ export default function Guests() {
                     <span className="text-muted">{r.country}</span>
                   </span>
                   {r.source && (
-                    <span className="rounded-full bg-sand px-2.5 py-1 text-xs font-semibold text-forest-dark">
+                    <span className="rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-forest-dark">
                       {r.source}
                     </span>
                   )}

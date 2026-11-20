@@ -19,6 +19,38 @@ export function Reveal({ children, delay = 0, className = '' }) {
   )
 }
 
+const staggerContainer = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.06 } },
+}
+
+const staggerChild = {
+  hidden: { opacity: 0, y: 18 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: [0.22, 0.61, 0.36, 1] } },
+}
+
+export function StaggerGrid({ children, className = '' }) {
+  return (
+    <motion.div
+      className={className}
+      variants={staggerContainer}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: '-40px' }}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
+export function StaggerItem({ children, className = '' }) {
+  return (
+    <motion.div className={className} variants={staggerChild}>
+      {children}
+    </motion.div>
+  )
+}
+
 /** Small circular arrow used on every button. */
 export function ArrowCircle({ className = '' }) {
   return (
@@ -35,7 +67,7 @@ const variants = {
   primary: 'bg-sun text-forest-dark hover:bg-sun-dark',
   outline: 'border-2 border-forest text-forest hover:bg-forest hover:text-cream',
   solid: 'bg-forest text-cream hover:bg-forest-dark',
-  light: 'border-2 border-cream/80 text-cream hover:bg-cream hover:text-forest',
+  light: 'border-2 border-cream/80 text-cream hover:bg-white hover:text-forest',
   // frosted glass over photos (hero)
   glass: 'glass hover:bg-white/25',
   glassSun: 'glass !border-sun/70 !bg-sun/40 hover:!bg-sun/55',
@@ -43,13 +75,18 @@ const variants = {
 
 /** Pill button. Internal paths ("/rooms") render a router <Link>, other hrefs an <a>, no href a <button>. */
 export function Button({ variant = 'primary', href, children, arrow = true, icon, className = '', ...rest }) {
-  const cls = `inline-flex min-h-[52px] items-center justify-center gap-3 rounded-none px-7 py-3 text-[1.0625rem] font-semibold transition-all duration-300 ${variants[variant]} ${className}`
+  const cls = `inline-flex min-h-[52px] items-center justify-center gap-3 rounded-full px-7 py-3 text-[1.0625rem] font-semibold transition-all duration-300 ${variants[variant]} ${className}`
   const inner = (
-    <>
+    <motion.span
+      className="inline-flex items-center justify-center gap-3"
+      whileHover={{ y: -1 }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ duration: 0.18, ease: 'easeOut' }}
+    >
       {icon && <Icon name={icon} className="h-5 w-5" />}
       <span>{children}</span>
       {arrow && <ArrowCircle />}
-    </>
+    </motion.span>
   )
   if (!href) return <button type="button" className={cls} {...rest}>{inner}</button>
   if (href.startsWith('/')) return <Link href={href} className={cls} {...rest}>{inner}</Link>
@@ -100,7 +137,7 @@ const BACK = ridgePath({ base: 46, waves: [[14, 120, 0.4], [8, 47, 2.1], [4, 23,
 const FRONT = ridgePath({ base: 58, waves: [[12, 150, 2.4], [7, 61, 0.7], [3, 29, 3]] })
 
 /** Rolling-hills divider. `prev` = colour of the section above, `next` = section below. */
-const C = { cream: '#FBF7EF', sand: '#F3ECDD', forest: '#2F4A3A', transparent: 'transparent' }
+const C = { cream: '#FFFFFF', sand: '#FFFFFF', forest: '#1F3D2B', transparent: 'transparent' }
 export function Divider({ prev = 'cream', next = 'sand' }) {
   return (
     <div aria-hidden="true" style={{ background: C[prev], color: C[next], lineHeight: 0, marginBottom: -1, position: 'relative' }}>

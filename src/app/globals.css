@@ -5,10 +5,10 @@
 @layer base {
   /* 1rem = 17px (Apple's body size) so copy is never smaller than 17px */
   html { font-size: 106.25%; scroll-padding-top: 6rem; -webkit-text-size-adjust: 100%; }
-  body { @apply bg-cream font-body text-ink antialiased; line-height: 1.47; letter-spacing: -0.011em; font-feature-settings: 'ss01', 'cv11'; }
+  body { @apply bg-white font-body text-ink antialiased; line-height: 1.47; letter-spacing: -0.011em; font-feature-settings: 'ss01', 'cv11'; }
   h1, h2, h3, h4 { @apply font-display; letter-spacing: -0.025em; }
-  :focus-visible { outline: 3px solid #0B3C5D; outline-offset: 3px; border-radius: 6px; }
-  .on-dark :focus-visible { outline-color: #FBF7EF; }
+  :focus-visible { outline: 3px solid #1F3D2B; outline-offset: 3px; border-radius: 6px; }
+  .on-dark :focus-visible { outline-color: #FFFFFF; }
 }
 
 @layer components {

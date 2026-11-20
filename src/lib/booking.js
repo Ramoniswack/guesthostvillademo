@@ -1,6 +1,6 @@
 // Small date + quote helpers for the booking calendar. All dates are local 'YYYY-MM-DD' strings.
 import { blockedNights } from '../data/availability.js'
-import { findStay, priceFor, MAP_ADD } from '../data/rooms.js'
+import { findStay, mapAddFor, priceFor, MAP_ADD } from '../data/rooms.js'
 
 const pad = (n) => String(n).padStart(2, '0')
 export const toISO = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
@@ -57,20 +57,25 @@ export function stayQuote(room, guests, plan, nights) {
   const bb = priceFor(room, guests, 'BB')
   const g = bb.guests
   if (bb.kind === 'ask') return { kind: 'ask', nights: n, guests: g }
-  const mealPerNight = plan === 'MAP' ? MAP_ADD * g : 0
+  const mealPerNight = plan === 'MAP' ? mapAddFor(room, g) : 0
+  const mealText = mealPerNight
+    ? (room.pricing?.mapBase != null && g >= room.pricing.included
+      ? `MAP meal plan × ${n} ${n === 1 ? 'night' : 'nights'}`
+      : `NPR ${MAP_ADD} × ${g} guests × ${n} ${n === 1 ? 'night' : 'nights'}`)
+    : null
   if (bb.kind === 'range') {
     return {
       kind: 'range', nights: n, guests: g,
       stayLabel: `NPR ${bb.min.toLocaleString('en-US')} – ${bb.max.toLocaleString('en-US')} × ${n} ${n === 1 ? 'night' : 'nights'}`,
       stayMin: bb.min * n, stayMax: bb.max * n,
-      meal: mealPerNight * n, mealLabel: mealPerNight ? `NPR ${MAP_ADD} × ${g} guests × ${n} ${n === 1 ? 'night' : 'nights'}` : null,
+      meal: mealPerNight * n, mealLabel: mealText,
       min: (bb.min + mealPerNight) * n, max: (bb.max + mealPerNight) * n,
     }
   }
   return {
     kind: 'exact', nights: n, guests: g,
     stay: bb.total * n, stayLabel: `NPR ${bb.total.toLocaleString('en-US')} × ${n} ${n === 1 ? 'night' : 'nights'}`,
-    meal: mealPerNight * n, mealLabel: mealPerNight ? `NPR ${MAP_ADD} × ${g} guests × ${n} ${n === 1 ? 'night' : 'nights'}` : null,
+    meal: mealPerNight * n, mealLabel: mealText,
     total: (bb.total + mealPerNight) * n,
   }
 }

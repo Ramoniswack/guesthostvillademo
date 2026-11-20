@@ -16,7 +16,7 @@ export default function Jobs() {
         </Reveal>
 
         {jobs.length === 0 ? (
-          <div className="mt-14 rounded-[28px] bg-sand p-10 text-center text-lg text-forest">
+          <div className="mt-14 rounded-[28px] bg-white p-10 text-center text-lg text-forest">
             <p className="font-display text-3xl font-semibold">No confirmed openings right now.</p>
             <p className="mx-auto mt-3 max-w-xl text-base leading-relaxed text-forest/70">Send a short introduction and your experience. When the right role opens, the villa team can reach out directly.</p>
           </div>
@@ -25,10 +25,10 @@ export default function Jobs() {
             {jobs.map((j, i) => (
               <li key={j.id}>
                 <Reveal delay={(i % 2) * 0.08} className="h-full">
-                  <article className="flex h-full flex-col rounded-[28px] bg-sand p-8 md:p-10">
+                  <article className="flex h-full flex-col rounded-[28px] bg-white p-8 md:p-10">
                     <div className="flex flex-wrap items-center gap-2 text-sm font-semibold">
-                      <span className="rounded-full bg-cream px-3 py-1 text-forest">{j.type}</span>
-                      <span className="rounded-full bg-cream px-3 py-1 text-forest">{j.team}</span>
+                      <span className="rounded-full bg-white px-3 py-1 text-forest">{j.type}</span>
+                      <span className="rounded-full bg-white px-3 py-1 text-forest">{j.team}</span>
                     </div>
                     <h3 className="mt-6 font-display text-2xl font-semibold text-forest md:text-[1.75rem]">{j.title}</h3>
                     <p className="mt-3 flex-1 text-lg text-ink/80">{j.blurb}</p>

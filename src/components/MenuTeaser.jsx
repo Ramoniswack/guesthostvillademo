@@ -6,7 +6,7 @@ import { menuItemCount } from '../data/menu.js'
 /** Home-page teaser for the full Menu page. */
 export default function MenuTeaser() {
   return (
-    <section id="restaurant" className="section contour bg-sand">
+    <section id="restaurant" className="section contour bg-white">
       <div className="wrap grid items-center gap-16 lg:grid-cols-2 lg:gap-24">
         <Reveal delay={0.1} className="order-2 lg:order-1">
           <p className="label">Restro &amp; Bar</p>
