@@ -208,9 +208,9 @@ export default function HomeEditorial() {
               ))}
             </ul>
 
-            <div className="mt-7 flex flex-wrap gap-3">
-              <Button href="/rooms">Explore rooms</Button>
-              <Button href="/about" variant="outline" arrow={false}>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+              <Button href="/rooms" className="w-full sm:w-auto">Explore rooms</Button>
+              <Button href="/about" variant="outline" arrow={false} className="w-full sm:w-auto">
                 Our story
               </Button>
             </div>
@@ -318,35 +318,41 @@ export default function HomeEditorial() {
                       </span>
                     )}
                   </div>
-                  <div className="flex flex-1 flex-col p-5">
+                  <div className="flex flex-1 flex-col p-6">
                     <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-sun-text">
                       {buildingLabel(room)}
                     </p>
-                    <h3 className="mt-1.5 font-display text-2xl font-semibold leading-tight text-forest">
+                    <h3 className="mt-2 font-display text-xl font-semibold leading-snug text-forest sm:text-2xl">
                       {room.name}
                     </h3>
-                    <p className="mt-2 line-clamp-2 text-xs leading-relaxed text-forest/70">
+                    <p className="mt-2.5 line-clamp-2 text-sm leading-relaxed text-forest/70">
                       {room.blurb}
                     </p>
-                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium text-forest/65">
+                    <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium text-forest/65">
                       <span className="inline-flex items-center gap-1.5">
-                        <Users className="h-3.5 w-3.5 text-forest/50" aria-hidden="true" />
+                        <Users className="h-3.5 w-3.5 shrink-0 text-forest/50" aria-hidden="true" />
                         <span>{room.capacity}</span>
                       </span>
                       {room.bed && (
                         <span className="inline-flex items-center gap-1.5">
-                          <BedDouble className="h-3.5 w-3.5 text-forest/50" aria-hidden="true" />
+                          <BedDouble className="h-3.5 w-3.5 shrink-0 text-forest/50" aria-hidden="true" />
                           <span>{room.bed}</span>
                         </span>
                       )}
                     </div>
-                    <div className="mt-auto pt-5">
+                    <div className="mt-auto pt-6">
                       <div className="flex items-center justify-between gap-3 border-t border-forest/10 pt-4">
-                        <p className="font-display text-lg font-bold leading-none text-forest">
-                          {price.label ? `${price.label} ` : ''}
-                          {price.main}
-                        </p>
-                        <span className="inline-flex items-center gap-1.5 rounded-full border border-forest/15 bg-white px-3.5 py-1.5 text-xs font-semibold text-forest transition group-hover:border-sun group-hover:bg-sun group-hover:text-forest-dark">
+                        <div className="min-w-0">
+                          {price.label && (
+                            <span className="block text-[0.65rem] font-semibold uppercase tracking-[0.1em] text-forest/55">
+                              {price.label}
+                            </span>
+                          )}
+                          <p className="font-display text-lg font-bold leading-snug text-forest">
+                            {price.main}
+                          </p>
+                        </div>
+                        <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-forest/15 bg-white px-3.5 py-2 text-xs font-semibold text-forest transition group-hover:border-sun group-hover:bg-sun group-hover:text-forest-dark">
                           <span>View &amp; book</span>
                           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
                         </span>

@@ -138,14 +138,14 @@ export default function PackagesPage() {
               </p>
             </Reveal>
 
-            <Reveal delay={0.08} className="flex flex-wrap gap-2.5 lg:max-w-md lg:justify-end">
+            <Reveal delay={0.08} className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:w-[24rem] lg:shrink-0">
               {includedEverywhere.map(({ icon: Ico, label }) => (
                 <span
                   key={label}
-                  className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-3.5 py-2 text-xs font-semibold text-forest shadow-sm"
+                  className="inline-flex items-center justify-center gap-1.5 rounded-full border border-forest/15 bg-white px-2.5 py-2 text-[0.72rem] font-semibold text-forest shadow-sm sm:gap-2 sm:px-3.5 sm:text-xs"
                 >
                   <Ico className="h-3.5 w-3.5 shrink-0 text-leaf" aria-hidden="true" />
-                  <span>{label}</span>
+                  <span className="truncate">{label}</span>
                 </span>
               ))}
             </Reveal>
