@@ -3,7 +3,7 @@
 import { useMemo, useState } from 'react'
 import { Search, X } from 'lucide-react'
 import { Reveal } from './ui.jsx'
-import { featuredBlocks, listBlocks, menuTabs } from '../data/signature.js'
+import { featuredBlocks as staticFeatured, listBlocks as staticLists, menuTabs as staticTabs } from '../data/signature.js'
 import { site, telLink } from '../data/site.js'
 import { useBackendData } from '../lib/backend.jsx'
 
@@ -125,6 +125,22 @@ function PrintedListTile({ block }) {
 export default function SignatureMenu() {
   const backend = useBackendData()
   const currentSite = backend?.site || site
+  const menuSettings = backend?.menu?.settings ?? {}
+  const backendCats = backend?.menu?.categories
+  const hasBackendMenu = backendCats?.some((c) => c.groups?.some((g) => g.displaySection))
+  const { menuTabs, featuredBlocks, listBlocks } = useMemo(() => {
+    if (!hasBackendMenu) return { menuTabs: staticTabs, featuredBlocks: staticFeatured, listBlocks: staticLists }
+    const blocks = backendCats.flatMap((c) => c.groups.map((g) => ({
+      ...g,
+      tab: c.id,
+      items: g.items.map((it) => ({ ...it, price: it.priceText || it.price || '' })),
+    })))
+    return {
+      menuTabs: [{ id: 'all', label: 'All' }, ...backendCats.map((c) => ({ id: c.id, label: c.label }))],
+      featuredBlocks: blocks.filter((b) => b.displaySection !== 'list'),
+      listBlocks: blocks.filter((b) => b.displaySection === 'list'),
+    }
+  }, [backendCats, hasBackendMenu])
   const currentTel = currentSite.phoneTel ? `tel:${currentSite.phoneTel}` : telLink
   const instagramUrl = currentSite.social?.instagram || site.social.instagram
   const facebookUrl = currentSite.social?.facebook || site.social.facebook
@@ -154,7 +170,7 @@ export default function SignatureMenu() {
     }
     return counts
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, dietFilter])
+  }, [q, dietFilter, menuTabs, featuredBlocks, listBlocks])
 
   const visibleFeatured = useMemo(() => {
     return featuredBlocks
@@ -162,7 +178,7 @@ export default function SignatureMenu() {
       .map((b) => ({ ...b, items: b.items.filter(matchesItem) }))
       .filter((b) => b.items.length > 0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, q, dietFilter])
+  }, [activeTab, q, dietFilter, featuredBlocks])
 
   const visibleLists = useMemo(() => {
     return listBlocks
@@ -170,7 +186,7 @@ export default function SignatureMenu() {
       .map((b) => ({ ...b, items: b.items.filter(matchesItem) }))
       .filter((b) => b.items.length > 0)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, q, dietFilter])
+  }, [activeTab, q, dietFilter, listBlocks])
 
   const nothingFound = visibleFeatured.length === 0 && visibleLists.length === 0
 
@@ -195,10 +211,10 @@ export default function SignatureMenu() {
                 id="signature-menu-heading"
                 className="font-display text-2xl font-extrabold uppercase tracking-[-0.03em] text-ink sm:text-3xl"
               >
-                G&apos;Host Villa
+                {menuSettings.kitchenTitle || "G'Host Villa"}
               </h1>
               <p className="font-display text-base font-medium italic text-ink/70 sm:text-lg">
-                Mountain-view kitchen
+                {menuSettings.kitchenSubtitle || 'Mountain-view kitchen'}
               </p>
             </div>
           </div>

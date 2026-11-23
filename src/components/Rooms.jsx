@@ -15,6 +15,7 @@ import { nightsBetween, stayQuery, stayQuote, todayISO } from '../lib/booking.js
 import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 function cardTag(room) {
+  if (room.catalogBadge) return room.catalogBadge
   if (room.id === 'mountain-view-room') return 'Most popular'
   if (room.id === 'whole-villa' || room.id === 'group-section') return 'Best for groups'
   return room.badge
@@ -251,6 +252,7 @@ export default function Rooms() {
     return ids.map((id) => currentRooms.find((room) => room.id === id)).filter((room) => room && guestCount <= room.maxGuests)
   }
   const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
+  const groupBanner = staysData?.roomDetailSettings?.groupBanner ?? {}
   const [building, setBuilding] = useState('all')
   const [guests, setGuests] = useState(null) // null = any group size
   const [plan, setPlan] = useState('BB')
@@ -313,8 +315,8 @@ export default function Rooms() {
       <div className="mx-auto w-full max-w-[1440px] px-5 pt-4 sm:px-8 lg:px-12">
         <Reveal className="flex flex-wrap items-end justify-between gap-4 border-b border-forest/10 pb-4">
           <div>
-            <p className="label !mb-0.5">Sarangkot, Pokhara</p>
-            <h1 className="font-display text-3xl font-semibold leading-none tracking-[-0.04em] text-forest sm:text-4xl">Rooms &amp; Stays</h1>
+            <p className="label !mb-0.5">{staysData?.roomDetailSettings?.catalogEyebrow || 'Sarangkot, Pokhara'}</p>
+            <h1 className="font-display text-3xl font-semibold leading-none tracking-[-0.04em] text-forest sm:text-4xl">{staysData?.roomDetailSettings?.catalogTitle || 'Rooms & Stays'}</h1>
           </div>
           <div className="flex items-center gap-3">
             <p className="text-sm font-semibold text-forest/65">{visible.length} {visible.length === 1 ? 'stay' : 'stays'}{guests != null ? ` for ${guests} ${guests === 1 ? 'guest' : 'guests'}` : ''}{hiddenAsk ? ' · includes WhatsApp rates' : ''}</p>
@@ -443,10 +445,10 @@ export default function Rooms() {
 
         <Reveal className="mt-10 grid gap-6 rounded-2xl bg-forest p-7 text-cream md:grid-cols-[1fr_auto] md:items-center md:p-8">
           <div>
-            <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun">Group or custom stay?</p>
-            <h2 className="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] md:text-3xl">Tell us your group size and we’ll suggest the best fit.</h2>
+            <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun">{groupBanner.eyebrow || 'Group or custom stay?'}</p>
+            <h2 className="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] md:text-3xl">{groupBanner.title || 'Tell us your group size and we’ll suggest the best fit.'}</h2>
           </div>
-          <Button href={currentWhatsApp("Hello G'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.")} variant="light">Ask on WhatsApp</Button>
+          <Button href={currentWhatsApp(groupBanner.whatsappText || "Hello G'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.")} variant="light">{groupBanner.ctaLabel || 'Ask on WhatsApp'}</Button>
         </Reveal>
       </div>
     </section>

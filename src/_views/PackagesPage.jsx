@@ -183,80 +183,58 @@ export default function PackagesPage() {
       {/* 2 · 3-Column Side-by-Side Package Tier Cards + Booking Terms */}
       <section className="bg-white pb-16 md:pb-24">
         <div className="wrap">
-          <StaggerGrid className="grid gap-6 lg:grid-cols-3">
+          <StaggerGrid className="grid gap-5 lg:grid-cols-3">
             {currentPackages.map((pkg) => (
               <StaggerItem key={pkg.id} className="h-full">
                 <article
-                  className={`flex h-full flex-col overflow-hidden rounded-2xl border-2 bg-white transition hover:-translate-y-1 ${
-                    pkg.popular ? 'border-sun shadow-warm' : 'border-forest/15 shadow-soft hover:border-forest/35'
+                  className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition hover:-translate-y-0.5 ${
+                    pkg.popular ? 'border-2 border-sun shadow-warm' : 'border-forest/15 shadow-soft hover:border-forest/35'
                   }`}
                 >
-                  <div className="relative aspect-[16/10] overflow-hidden bg-forest-dark">
+                  <div className="relative h-36 overflow-hidden bg-forest-dark">
                     <img src={pkg.image} alt={pkg.title} loading="lazy" className="h-full w-full object-cover" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                     <span
-                      className={`absolute left-4 top-4 rounded-full px-3.5 py-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] ${
-                        pkg.popular ? 'bg-sun text-forest-dark' : 'bg-white text-forest'
+                      className={`absolute left-3.5 top-3 rounded-full px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.12em] ${
+                        pkg.popular ? 'bg-sun text-forest-dark' : 'bg-white/95 text-forest'
                       }`}
                     >
                       {pkg.badge}
                     </span>
+                    <div className="absolute bottom-2.5 left-3.5 right-3.5 flex items-baseline justify-between gap-2 text-white">
+                      <span className="font-display text-lg font-bold leading-none sm:text-xl">{pkg.price}</span>
+                      <span className="text-[0.68rem] font-medium text-white/85">{pkg.note}</span>
+                    </div>
                   </div>
 
-                  <div className="flex flex-1 flex-col p-6">
-                    <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-sun-text">{pkg.label}</p>
-                    <h2 className="mt-1.5 font-display text-2xl font-semibold leading-tight tracking-[-0.025em] text-forest">
+                  <div className="flex flex-1 flex-col p-4">
+                    <h2 className="font-display text-lg font-semibold leading-snug tracking-[-0.02em] text-forest">
                       {pkg.title}
                     </h2>
-                    <p className="mt-2 text-sm leading-relaxed text-forest/70">{pkg.intro}</p>
+                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-forest/65">{pkg.intro}</p>
 
-                    <div className="mt-5 border-y border-forest/10 py-4">
-                      <p className="font-display text-3xl font-bold leading-none text-forest">{pkg.price}</p>
-                      <p className="mt-1.5 text-xs font-medium text-forest/60">{pkg.note}</p>
-                    </div>
-
-                    <div className="mt-5 space-y-4">
-                      <div>
-                        <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-leaf">What’s included</p>
-                        <ul className="mt-2 space-y-1.5">
-                          {pkg.included.map((item) => (
-                            <li key={item} className="flex items-start gap-2 text-xs font-medium leading-snug text-forest/80">
-                              <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-leaf" aria-hidden="true" />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div>
-                        <p className="text-[0.68rem] font-bold uppercase tracking-[0.12em] text-sun-text">Optional add-ons</p>
-                        <ul className="mt-2 space-y-1.5">
-                          {pkg.extra.map((item) => (
-                            <li key={item} className="flex items-start gap-2 text-xs leading-snug text-forest/70">
-                              <Plus className="mt-0.5 h-3.5 w-3.5 shrink-0 text-sun-text" aria-hidden="true" />
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-
-                    <div className="mt-auto space-y-2 pt-6">
-                      <Button
-                        href={currentWhatsApp(`Hello G'Host Villa! I am interested in the ${pkg.title} package.`)}
-                        arrow={false}
-                        className="w-full"
-                      >
-                        <span className="inline-flex items-center gap-2">
-                          <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
-                          <span>Plan on WhatsApp</span>
+                    <div className="mt-3 flex flex-wrap gap-1.5">
+                      {pkg.included.slice(0, 2).map((item) => (
+                        <span
+                          key={item}
+                          className="inline-flex items-center gap-1 rounded-full bg-forest/5 px-2.5 py-1 text-[0.68rem] font-medium text-forest/80"
+                        >
+                          <Check className="h-3 w-3 shrink-0 text-leaf" aria-hidden="true" />
+                          <span>{item}</span>
                         </span>
-                      </Button>
-                      <button
-                        type="button"
-                        onClick={() => customizePackage(pkg.title)}
-                        className="inline-flex min-h-[42px] w-full items-center justify-center rounded-full border border-forest/20 bg-white px-4 text-xs font-semibold text-forest transition hover:border-forest hover:text-forest-dark"
+                      ))}
+                    </div>
+
+                    <div className="mt-auto pt-4">
+                      <a
+                        href={currentWhatsApp(`Hello G'Host Villa! I am interested in the ${pkg.title} package.`)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-full bg-sun px-4 text-xs font-bold text-forest-dark transition hover:bg-sun-dark"
                       >
-                        Customize below ↓
-                      </button>
+                        <MessageCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                        <span>Book on WhatsApp</span>
+                      </a>
                     </div>
                   </div>
                 </article>
@@ -316,11 +294,11 @@ export default function PackagesPage() {
             </p>
           </Reveal>
 
-          <StaggerGrid className="grid gap-6 md:grid-cols-3">
+          <StaggerGrid className="grid gap-5 md:grid-cols-3">
             {currentExtras.map((item) => (
               <StaggerItem key={item.title}>
                 <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/15 bg-forest">
-                  <div className="aspect-[4/3] overflow-hidden">
+                  <div className="h-36 overflow-hidden sm:h-40">
                     <img
                       src={item.image}
                       alt={item.title}
@@ -328,9 +306,9 @@ export default function PackagesPage() {
                       className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
                     />
                   </div>
-                  <div className="p-6">
-                    <h3 className="font-display text-2xl font-semibold leading-tight text-white">{item.title}</h3>
-                    <p className="mt-2 text-sm leading-relaxed text-white/75">{item.text}</p>
+                  <div className="p-4 sm:p-5">
+                    <h3 className="font-display text-xl font-semibold leading-tight text-white">{item.title}</h3>
+                    <p className="mt-1.5 text-xs leading-relaxed text-white/75">{item.text}</p>
                   </div>
                 </article>
               </StaggerItem>

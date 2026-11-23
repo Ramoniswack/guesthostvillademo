@@ -105,7 +105,6 @@ export default function Footer() {
             </span>
           ))}
         </p>
-        <p className="mx-auto mt-6 max-w-xl text-sm text-white/70"><span className="font-semibold text-sun">G’Host</span> = your gracious host. A warm welcome in the hills above Pokhara.</p>
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-2 py-7 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-sage-light sm:flex-row sm:items-center sm:justify-between">
           <span>Restro &amp; Bar · Sarangkot, Pokhara</span>
           <span>© {new Date().getFullYear()} G&apos;Host Villa</span>

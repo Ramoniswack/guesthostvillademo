@@ -48,6 +48,9 @@ export default function BookingPanel({
   const mapAdd = backend?.stays?.MAP_ADD ?? MAP_ADD
   const maxNights = backend?.stays?.MAX_NIGHTS
   const currentSite = backend?.site
+  const cfg = backend?.stays?.roomDetailSettings ?? {}
+  const vars = { review_count: currentSite?.reviewCountLabel || '379+', rating: currentSite?.reviewRating ?? 4.5 }
+  const fill = (text, v) => String(text).replace(/\{(\w+)\}/g, (m, k) => (v[k] ?? m))
   const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
   const [localOpen, setLocalOpen] = useState(false)
   const [groupOpen, setGroupOpen] = useState(false)
@@ -239,13 +242,13 @@ export default function BookingPanel({
         <p className="flex items-start gap-2.5 pb-3">
           <Star className="mt-0.5 h-4 w-4 shrink-0 fill-leaf text-leaf" aria-hidden="true" />
           <span>
-            <strong className="font-semibold text-forest">379+ reviews on Google</strong> — travellers rate us 4.5 out of 5
+            <strong className="font-semibold text-forest">{fill(cfg.bookingTrust?.one?.strong || '{review_count} reviews on Google', vars)}</strong> — {fill(cfg.bookingTrust?.one?.text || 'travellers rate us {rating} out of 5', vars)}
           </span>
         </p>
         <p className="flex items-start gap-2.5 pt-3">
           <Heart className="mt-0.5 h-4 w-4 shrink-0 text-leaf" aria-hidden="true" />
           <span>
-            <strong className="font-semibold text-forest">Confirmed directly by the villa team</strong> — No payment now. Free cancellation within 48 hours of booking.
+            <strong className="font-semibold text-forest">{cfg.bookingTrust?.two?.strong || 'Confirmed directly by the villa team'}</strong> — {cfg.bookingTrust?.two?.text || 'No payment now. Free cancellation within 48 hours of booking.'}
           </span>
         </p>
       </div>

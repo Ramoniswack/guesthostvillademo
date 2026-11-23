@@ -144,6 +144,15 @@ function Lightbox({ photos, index, setIndex, alt }) {
   )
 }
 
+/** Renders a mosaic slot as video or image depending on its type / file extension. */
+const isVideoSlot = (slot) => !!slot?.src && (slot.type === 'video' || (slot.type !== 'image' && /\.(mp4|webm|mov)(\?|$)/i.test(slot.src)))
+function SlotMedia({ slot, poster, alt = '', className }) {
+  if (isVideoSlot(slot)) {
+    return <video src={slot.src} poster={slot.poster || poster} autoPlay loop muted playsInline className={className} />
+  }
+  return <img src={slot.src} alt={slot.alt || alt} loading="lazy" className={className} />
+}
+
 export default function RoomDetailPage({ room: initialRoom }) {
   const backend = useBackendData()
   const allRooms = backend?.stays?.rooms?.length ? backend.stays.rooms : rooms
@@ -154,6 +163,9 @@ export default function RoomDetailPage({ room: initialRoom }) {
   const currentGallery = backend?.home?.gallery?.length ? backend.home.gallery : siteGallery
   const currentPlans = backend?.stays?.plans?.length ? backend.stays.plans : plans
   const mapAdd = backend?.stays?.MAP_ADD ?? MAP_ADD
+  const cfg = backend?.stays?.roomDetailSettings ?? {}
+  const fill = (text, vars = {}) => String(text ?? '').replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m))
+  const iconMap = { KeyRound, BedDouble, Utensils, Mountain, DoorOpen, Users, Building2, Eye, Clock, Sparkles, Wifi, Bath, Coffee, Wine, MapPin, ShieldCheck, CalendarDays, Sun, Star, Heart }
   const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
   const getBuildingLabel = (stay) =>
     stay.building === 'both'
@@ -225,13 +237,25 @@ export default function RoomDetailPage({ room: initialRoom }) {
 
   // Room photos first, topped up with villa photos so the mosaic always has five tiles
   const photos = useMemo(() => {
-    const list = [...new Set([room.image, ...(room.gallery ?? []), ...currentGallery.map((g) => g.src)])]
-    return list.slice(0, Math.max(5, new Set([room.image, ...(room.gallery ?? [])]).size))
+    const notVideo = (s) => s && !/\.(mp4|webm|mov)(\?|$)/i.test(s)
+    const own = [...new Set([room.image, ...(room.gallery ?? [])].filter(notVideo))]
+    const list = [...new Set([...own, ...currentGallery.map((g) => g.src).filter(notVideo)])]
+    return list.slice(0, Math.max(5, own.length))
   }, [room, currentGallery])
+
+  // 4-slot mosaic: admin-set slots win, otherwise fall back to room photos
+  const slots = {
+    left: room.grid?.left ?? { type: 'auto', src: room.video || cfg.defaultGridVideo || '/videos/hero-pool.mp4' },
+    top: room.grid?.top ?? { type: 'image', src: photos[0] },
+    bottom: room.grid?.bottom ?? { type: 'image', src: photos[1] || photos[0] },
+    right: room.grid?.right ?? { type: 'auto', src: room.sideVideo || photos[2] || photos[0] },
+  }
 
   const includes = (room.includes ?? []).map((id) => allRooms.find((item) => item.id === id)).filter(Boolean)
   const table = useMemo(() => rateTable(room, 'BB', mapAdd), [room, mapAdd])
   const similar = useMemo(() => {
+    const picked = (room.relatedStays ?? []).map((id) => allRooms.find((item) => item.id === id)).filter(Boolean)
+    if (picked.length) return picked.slice(0, 3)
     const others = allRooms.filter((item) => item.id !== room.id && item.catalog)
     return [...others.filter((item) => item.building === room.building), ...others.filter((item) => item.building !== room.building)].slice(0, 3)
   }, [room, allRooms])
@@ -242,31 +266,45 @@ export default function RoomDetailPage({ room: initialRoom }) {
   const fromPrice = describePrice(room, null, 'BB', mapAdd)
   const barReady = room.whatsappOnly || nights > 0
 
-  const facts = [
-    { icon: Users, title: 'Capacity', text: room.capacity },
-    { icon: BedDouble, title: 'Bed', text: room.bed },
-    { icon: Building2, title: 'Building', text: getBuildingLabel(room) },
-    { icon: Eye, title: 'View', text: room.viewText || 'Hilltop and garden' },
-    { icon: Clock, title: 'Check-in / out', text: '2 PM / 10 AM' },
-    { icon: Utensils, title: 'Meals', text: 'Breakfast included' },
-  ]
+  const vars = {
+    room_name: room.name, bhk: room.bhk, bed: room.bed, best_for: room.bestFor ?? '', map_add: mapAdd,
+    view_clause: room.viewText ? `, with ${room.viewText.toLowerCase()}` : '',
+    location_note: currentSite.locationNote, road_name: currentSite.address.split(',')[0],
+  }
+  const facts = room.customFacts?.length
+    ? room.customFacts.map((f) => ({ icon: iconMap[f.icon] ?? Sparkles, title: f.title, text: f.text }))
+    : [
+      { icon: Users, title: 'Capacity', text: room.capacity },
+      { icon: BedDouble, title: 'Bed', text: room.bed },
+      { icon: Building2, title: 'Building', text: getBuildingLabel(room) },
+      { icon: Eye, title: 'View', text: room.viewText || cfg.defaultViewText || 'Hilltop and garden' },
+      { icon: Clock, title: 'Check-in / out', text: room.checkInOutText || cfg.checkInOutText || '2 PM / 10 AM' },
+      { icon: Utensils, title: 'Meals', text: room.mealsText || cfg.mealsText || 'Breakfast included' },
+    ]
 
-  const steps = [
-    { icon: KeyRound, title: 'Arrive and check in', body: `Check-in is from 2 PM. ${currentSite.locationNote} on ${currentSite.address.split(',')[0]}, an easy taxi, car or scooter ride. The team meets you at the pyramid and shows you to ${room.name}.` },
-    { icon: BedDouble, title: 'Settle into your room', body: `${room.bhk}. ${room.bed}${room.viewText ? `, with ${room.viewText.toLowerCase()}` : ''}. ${room.bestFor}` },
-    { icon: Utensils, title: 'Eat and drink', body: `Breakfast is included on the BB plan. Lunch and dinner are at the pyramid restro and bottle bar, or add the meal plan for NPR ${mapAdd} per person per night.` },
-    { icon: Mountain, title: 'Enjoy the hilltop', body: 'You are up in the hills above Pokhara, so mornings start quiet and clear. Take the views in, then head down to Lakeside whenever you like.' },
-    { icon: DoorOpen, title: 'Check out', body: 'Check-out is by 10 AM. Need a later departure? Ask on WhatsApp and the team will help where they can.' },
+  const defaultSteps = [
+    { icon: 'KeyRound', title: 'Arrive and check in', body: 'Check-in is from 2 PM. {location_note} on {road_name}, an easy taxi, car or scooter ride. The team meets you at the pyramid and shows you to {room_name}.' },
+    { icon: 'BedDouble', title: 'Settle into your room', body: '{bhk}. {bed}{view_clause}. {best_for}' },
+    { icon: 'Utensils', title: 'Eat and drink', body: 'Breakfast is included on the BB plan. Lunch and dinner are at the pyramid restro and bottle bar, or add the meal plan for NPR {map_add} per person per night.' },
+    { icon: 'Mountain', title: 'Enjoy the hilltop', body: 'You are up in the hills above Pokhara, so mornings start quiet and clear. Take the views in, then head down to Lakeside whenever you like.' },
+    { icon: 'DoorOpen', title: 'Check out', body: 'Check-out is by 10 AM. Need a later departure? Ask on WhatsApp and the team will help where they can.' },
   ]
+  const stepSource = room.itinerarySteps?.length ? room.itinerarySteps : (cfg.itinerarySteps?.length ? cfg.itinerarySteps : defaultSteps)
+  const steps = stepSource.map((s) => ({ icon: iconMap[s.icon] ?? Sparkles, title: fill(s.title, vars), body: fill(s.body, vars) }))
 
-  const included = [...room.features, 'Check-in from 2 PM, check-out by 10 AM', 'Free cancellation within 48 hours of booking (at least 24 hours before check-in)']
-  const excluded = [
+  const included = room.includedItems?.length
+    ? room.includedItems
+    : [...room.features, ...(cfg.includedExtras?.length ? cfg.includedExtras : ['Check-in from 2 PM, check-out by 10 AM', 'Free cancellation within 48 hours of booking (at least 24 hours before check-in)'])]
+  const excluded = room.excludedItems?.length ? room.excludedItems : (cfg.excludedItems?.length ? cfg.excludedItems : [
     'Lunch and dinner on the Bed & Breakfast plan',
     'Drinks and orders at the restro and bottle bar',
     'Transport to and from Lakeside or the airport',
     'Extra guests beyond the number in the rate',
     'Personal expenses and tips',
-  ]
+  ])
+  const stayRules = room.stayRules?.length ? room.stayRules : (cfg.stayRules?.length ? cfg.stayRules : ['No smoking, parties or events.', 'Check-in from 2 PM, check-out by 10 AM.'])
+  const cancellationText = room.cancellationPolicy || cfg.cancellationPolicy || 'Full refund if you cancel within 48 hours of booking and at least 24 hours before check-in.'
+  const whenToVisitText = room.whenToVisit || cfg.whenToVisit || 'Sept–Nov and Mar–May bring the clearest mountain views from the hilltop.'
   const roomFaqs = currentFaqs.slice(0, 6).map((item) => ({ title: item.q, body: item.a }))
   const reviewCount = currentSite.reviewCountLabel || '379+'
 
@@ -298,7 +336,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
             <h1 className="font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-forest sm:text-4xl">{room.name}</h1>
             <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-forest/70">
               <span className="inline-flex items-center gap-1.5"><Stars n={5} className="h-4 w-4" /><strong className="font-semibold text-forest">4.5</strong> · <a href="#reviews" className="underline decoration-forest/30 underline-offset-4 hover:decoration-sun">{reviewCount} reviews</a></span>
-              <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4 text-sun-text" aria-hidden="true" />Sarangkot, Pokhara</span>
+              <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4 text-sun-text" aria-hidden="true" />{room.locationLabel || cfg.locationLabel || 'Sarangkot, Pokhara'}</span>
             </div>
           </div>
           <div className="flex items-center gap-2 text-sm font-semibold text-forest">
@@ -308,19 +346,72 @@ export default function RoomDetailPage({ room: initialRoom }) {
         </div>
       </header>
 
-      {/* 2 · Photo mosaic: one large photo + four small */}
-      <section aria-label="Room photos" className="wrap mt-5">
+      {/* 2 · Media mosaic: 1 large video on left + 2 stacked images in middle + 1 tall vertical video/image on right */}
+      <section aria-label="Room photos and video" className="wrap mt-5">
         <div className="relative grid h-[17rem] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-2xl sm:h-[22rem] lg:h-[26rem]">
-          {photos.slice(0, 5).map((src, i) => (
-            <button key={src} type="button" onClick={() => setPhoto(i)} aria-label={`Open photo ${i + 1} of ${photos.length}`}
-              className={`group relative overflow-hidden bg-white ${i === 0 ? 'col-span-4 row-span-2 md:col-span-2' : 'hidden md:block'}`}>
-              <img src={src} alt={i === 0 ? room.alt : ''} fetchPriority={i === 0 ? 'high' : undefined} loading={i === 0 ? undefined : 'lazy'} className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
-              <span className="absolute inset-0 bg-forest-dark/0 transition group-hover:bg-forest-dark/15" />
-            </button>
-          ))}
+          {/* Left: Wide primary video slot (col-span-2 row-span-2) */}
+          <button
+            type="button"
+            onClick={() => setPhoto(0)}
+            aria-label={`Open ${room.name} gallery`}
+            className="group relative col-span-4 row-span-2 overflow-hidden bg-forest-dark md:col-span-2"
+          >
+            <SlotMedia
+              slot={slots.left}
+              poster={photos[0]}
+              alt={room.alt || room.name}
+              className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.03]"
+            />
+            <span className="absolute inset-0 bg-forest-dark/0 transition group-hover:bg-forest-dark/15" />
+          </button>
+
+          {/* Middle Top: Image 1 */}
+          <button
+            type="button"
+            onClick={() => setPhoto(0)}
+            aria-label={`Open photo 1 of ${photos.length}`}
+            className="group relative hidden overflow-hidden bg-white md:col-start-3 md:row-start-1 md:block"
+          >
+            <SlotMedia
+              slot={slots.top}
+              alt={room.alt || room.name}
+              className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+            />
+            <span className="absolute inset-0 bg-forest-dark/0 transition group-hover:bg-forest-dark/15" />
+          </button>
+
+          {/* Middle Bottom: Image 2 */}
+          <button
+            type="button"
+            onClick={() => setPhoto(1 % photos.length)}
+            aria-label={`Open photo 2 of ${photos.length}`}
+            className="group relative hidden overflow-hidden bg-white md:col-start-3 md:row-start-2 md:block"
+          >
+            <SlotMedia
+              slot={slots.bottom}
+              className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+            />
+            <span className="absolute inset-0 bg-forest-dark/0 transition group-hover:bg-forest-dark/15" />
+          </button>
+
+          {/* Right: Tall vertical video / image slot (col-start-4 row-span-2) */}
+          <button
+            type="button"
+            onClick={() => setPhoto(2 % photos.length)}
+            aria-label={`Open photo 3 of ${photos.length}`}
+            className="group relative hidden overflow-hidden bg-forest-dark md:col-start-4 md:row-span-2 md:row-start-1 md:block"
+          >
+            <SlotMedia
+              slot={slots.right}
+              poster={photos[0]}
+              className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]"
+            />
+            <span className="absolute inset-0 bg-forest-dark/0 transition group-hover:bg-forest-dark/15" />
+          </button>
+
           {room.badge && <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-white px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest">{room.badge}</span>}
           <button type="button" onClick={() => setPhoto(0)} className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-2 text-sm font-semibold text-forest shadow-soft transition hover:bg-white">
-            <Images className="h-4 w-4" aria-hidden="true" />Show all {photos.length} photos
+            <Images className="h-4 w-4" aria-hidden="true" />{fill(cfg.showAllPhotosLabel || 'Show all {count} photos', { count: photos.length })}
           </button>
         </div>
       </section>
@@ -386,8 +477,8 @@ export default function RoomDetailPage({ room: initialRoom }) {
 
           {/* 4 · Plan options (pick one, syncs with the booking form) */}
           <section aria-labelledby="options">
-            <SectionTitle id="options" sub={room.whatsappOnly ? undefined : `Prices shown for ${guests} ${guests === 1 ? 'guest' : 'guests'} per night. Change the group size in the booking form.`}>
-              Choose from {plans.length} available options
+            <SectionTitle id="options" sub={room.whatsappOnly ? undefined : fill(cfg.optionsSubtitle || 'Prices shown for {guests} per night. Change the group size in the booking form.', { guests: `${guests} ${guests === 1 ? 'guest' : 'guests'}` })}>
+              {fill(cfg.optionsTitle || 'Choose from {count} available options', { count: currentPlans.length })}
             </SectionTitle>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
               {currentPlans.map((p) => {
@@ -395,12 +486,14 @@ export default function RoomDetailPage({ room: initialRoom }) {
                 const planQuote = nights > 0 && !room.whatsappOnly ? stayQuote(room, guests, p.id, nights, mapAdd) : null
                 const selected = plan === p.id
                 const isExpanded = expandedPlan === p.id
-                const optionBullets = [
-                  `${room.name} · ${getBuildingLabel(room)}`,
-                  p.id === 'MAP' ? 'Breakfast + lunch or dinner daily' : 'Breakfast included every morning',
-                  'Attached bathroom with hot water',
-                  'Free high-speed Wi-Fi & restro access',
-                ]
+                const optionBullets = p.bullets?.length
+                  ? [`${room.name} · ${getBuildingLabel(room)}`, ...p.bullets]
+                  : [
+                    `${room.name} · ${getBuildingLabel(room)}`,
+                    p.id === 'MAP' ? 'Breakfast + lunch or dinner daily' : 'Breakfast included every morning',
+                    'Attached bathroom with hot water',
+                    'Free high-speed Wi-Fi & restro access',
+                  ]
                 const dateLabel = checkIn && checkOut
                   ? `${fmtDate(checkIn, { day: 'numeric', month: 'short' })} – ${fmtDate(checkOut, { day: 'numeric', month: 'short' })}`
                   : null
@@ -419,7 +512,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
                       <div>
                         <h3 className="font-display text-lg font-semibold leading-snug text-forest">{p.label}</h3>
                         <p className="mt-0.5 text-xs text-forest/60">
-                          {p.id === 'MAP' ? `Breakfast & main meal (${p.note})` : 'Breakfast included daily'}
+                          {p.subtitle || (p.id === 'MAP' ? `Breakfast & main meal (${p.note})` : 'Breakfast included daily')}
                         </p>
                       </div>
                       <button
@@ -466,9 +559,9 @@ export default function RoomDetailPage({ room: initialRoom }) {
                           className="overflow-hidden"
                         >
                           <div className="mt-2.5 rounded-xl bg-white/70 p-3 text-xs leading-relaxed text-forest/75">
-                            {p.id === 'MAP'
+                            {p.readMore || (p.id === 'MAP'
                               ? `Includes daily breakfast plus your choice of lunch or dinner at the pyramid restro (+NPR ${mapAdd}/person/night). Check-in from 2 PM, check-out by 10 AM.`
-                              : 'Includes daily breakfast for all guests in your booking. Lunch, dinner and bar orders can be added anytime at the pyramid restro. Check-in from 2 PM, check-out by 10 AM.'}
+                              : 'Includes daily breakfast for all guests in your booking. Lunch, dinner and bar orders can be added anytime at the pyramid restro. Check-in from 2 PM, check-out by 10 AM.')}
                           </div>
                         </motion.div>
                       )}
@@ -553,7 +646,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
 
           {/* 5 · Highlights */}
           <section aria-labelledby="highlights">
-            <SectionTitle id="highlights">Highlights</SectionTitle>
+            <SectionTitle id="highlights">{cfg.highlightsTitle || 'Highlights'}</SectionTitle>
             <ul className="mt-5 grid gap-x-8 gap-y-3 sm:grid-cols-2">
               {room.features.map((feature) => {
                 const Ico = featureIcon(feature)
@@ -564,15 +657,15 @@ export default function RoomDetailPage({ room: initialRoom }) {
 
           {/* 6 · Your stay (the itinerary) */}
           <section aria-labelledby="your-stay">
-            <SectionTitle id="your-stay" sub="From the moment you arrive to the morning you leave.">Your stay</SectionTitle>
+            <SectionTitle id="your-stay" sub={cfg.itinerarySubtitle || 'From the moment you arrive to the morning you leave.'}>{cfg.itineraryTitle || 'Your stay'}</SectionTitle>
             <div className="mt-6"><Timeline items={steps} /></div>
           </section>
 
           {/* 7 · Rates */}
           <section aria-labelledby="rates">
-            <SectionTitle id="rates" sub={askOnly ? undefined : `Rates are per night. The meal plan adds NPR ${mapAdd} per person. Final price is confirmed when you book.`}>Rates by group size</SectionTitle>
+            <SectionTitle id="rates" sub={askOnly ? undefined : fill(cfg.ratesSubtitle || 'Rates are per night. The meal plan adds NPR {map_add} per person. Final price is confirmed when you book.', { map_add: mapAdd })}>{cfg.ratesTitle || 'Rates by group size'}</SectionTitle>
             {askOnly ? (
-              <p className="mt-5 max-w-2xl leading-relaxed text-forest/70">Bigger groups are booked directly. Send us your dates and group size on WhatsApp and the team will confirm the price.</p>
+              <p className="mt-5 max-w-2xl leading-relaxed text-forest/70">{cfg.ratesAskOnlyText || 'Bigger groups are booked directly. Send us your dates and group size on WhatsApp and the team will confirm the price.'}</p>
             ) : (
               <div className="mt-5 overflow-x-auto rounded-2xl border border-forest/15">
                 <table className="w-full min-w-[30rem] text-left text-sm">
@@ -595,16 +688,16 @@ export default function RoomDetailPage({ room: initialRoom }) {
 
           {/* 8 · Included / Excluded side by side */}
           <section aria-labelledby="included">
-            <SectionTitle id="included">What’s included</SectionTitle>
+            <SectionTitle id="included">{cfg.includedTitle || 'What’s included'}</SectionTitle>
             <div className="mt-5 grid gap-8 md:grid-cols-2">
               <div>
-                <h3 className="text-xs font-bold uppercase tracking-[0.14em] text-leaf">Included</h3>
+                <h3 className="text-xs font-bold uppercase tracking-[0.14em] text-leaf">{cfg.includedHeading || 'Included'}</h3>
                 <ul className="mt-3 space-y-2.5">
                   {included.map((item) => <li key={item} className="flex gap-2.5 text-[0.95rem] leading-snug text-forest/80"><Check className="mt-0.5 h-5 w-5 shrink-0 text-leaf" aria-hidden="true" />{item}</li>)}
                 </ul>
               </div>
               <div>
-                <h3 id="excluded" className="text-xs font-bold uppercase tracking-[0.14em] text-meat">Not included</h3>
+                <h3 id="excluded" className="text-xs font-bold uppercase tracking-[0.14em] text-meat">{cfg.excludedHeading || 'Not included'}</h3>
                 <ul className="mt-3 space-y-2.5">
                   {excluded.map((item) => <li key={item} className="flex gap-2.5 text-[0.95rem] leading-snug text-forest/80"><X className="mt-0.5 h-5 w-5 shrink-0 text-meat" aria-hidden="true" />{item}</li>)}
                 </ul>
@@ -612,7 +705,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
             </div>
             {includes.length > 0 && (
               <>
-                <h3 className="mt-8 text-sm font-bold text-forest">This stay combines</h3>
+                <h3 className="mt-8 text-sm font-bold text-forest">{cfg.combinesHeading || 'This stay combines'}</h3>
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   {includes.map((item) => (
                     <Link key={item.id} href={`/rooms/${item.id}`} className="group flex gap-4 rounded-2xl border border-forest/15 bg-white p-3 transition hover:border-forest/40">
@@ -627,17 +720,17 @@ export default function RoomDetailPage({ room: initialRoom }) {
 
           {/* 9 · Good to know */}
           <section aria-labelledby="good-to-know">
-            <SectionTitle id="good-to-know">Good to know</SectionTitle>
+            <SectionTitle id="good-to-know">{cfg.goodToKnowTitle || 'Good to know'}</SectionTitle>
             <div className="mt-5 grid gap-px overflow-hidden rounded-2xl border border-forest/15 bg-forest/15 md:grid-cols-3">
-              <div className="bg-white p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><ShieldCheck className="h-5 w-5 text-sun-text" aria-hidden="true" />Stay rules</h3><ul className="mt-2 space-y-1 text-sm leading-relaxed text-forest/70"><li>No smoking, parties or events.</li><li>Check-in from 2 PM, check-out by 10 AM.</li></ul></div>
-              <div className="bg-white p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><CalendarDays className="h-5 w-5 text-sun-text" aria-hidden="true" />Cancellation</h3><p className="mt-2 text-sm leading-relaxed text-forest/70">Full refund if you cancel within 48 hours of booking and at least 24 hours before check-in.</p></div>
-              <div className="bg-white p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><Sun className="h-5 w-5 text-sun-text" aria-hidden="true" />When to visit</h3><p className="mt-2 text-sm leading-relaxed text-forest/70">Sept–Nov and Mar–May bring the clearest mountain views from the hilltop.</p></div>
+              <div className="bg-white p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><ShieldCheck className="h-5 w-5 text-sun-text" aria-hidden="true" />{cfg.stayRulesHeading || 'Stay rules'}</h3><ul className="mt-2 space-y-1 text-sm leading-relaxed text-forest/70">{stayRules.map((rule) => <li key={rule}>{rule}</li>)}</ul></div>
+              <div className="bg-white p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><CalendarDays className="h-5 w-5 text-sun-text" aria-hidden="true" />{cfg.cancellationHeading || 'Cancellation'}</h3><p className="mt-2 text-sm leading-relaxed text-forest/70">{cancellationText}</p></div>
+              <div className="bg-white p-5"><h3 className="flex items-center gap-2 font-semibold text-forest"><Sun className="h-5 w-5 text-sun-text" aria-hidden="true" />{cfg.whenToVisitHeading || 'When to visit'}</h3><p className="mt-2 text-sm leading-relaxed text-forest/70">{whenToVisitText}</p></div>
             </div>
           </section>
 
           {/* 10 · FAQs */}
           <section aria-labelledby="faqs">
-            <SectionTitle id="faqs">Frequently asked questions</SectionTitle>
+            <SectionTitle id="faqs">{cfg.faqTitle || 'Frequently asked questions'}</SectionTitle>
             <div className="mt-4"><Accordion items={roomFaqs} /></div>
           </section>
         </div>
@@ -647,8 +740,8 @@ export default function RoomDetailPage({ room: initialRoom }) {
       <section aria-labelledby="reviews" className="border-t border-forest/10">
         <div className="wrap grid gap-10 py-14 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-14">
           <div>
-            <h2 id="reviews" className="scroll-mt-28 font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">Guest reviews</h2>
-            <p className="mt-5 font-display text-5xl font-semibold leading-none text-forest">4.5<span className="text-xl text-forest/45">/5</span></p>
+            <h2 id="reviews" className="scroll-mt-28 font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">{cfg.reviewsTitle || 'Guest reviews'}</h2>
+            <p className="mt-5 font-display text-5xl font-semibold leading-none text-forest">{currentSite.reviewRating ?? 4.5}<span className="text-xl text-forest/45">/5</span></p>
             <div className="mt-3"><Stars n={5} className="h-5 w-5" /></div>
             <p className="mt-2 text-sm text-forest/60">Based on {reviewCount} Google reviews</p>
             <a href={currentSite.social.tripadvisor} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4"><Star className="h-4 w-4" aria-hidden="true" />Write a review</a>
@@ -675,8 +768,8 @@ export default function RoomDetailPage({ room: initialRoom }) {
       <section aria-labelledby="similar" className="bg-white py-14">
         <div className="wrap">
           <div className="flex items-end justify-between gap-4">
-            <Reveal><h2 id="similar" className="font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">Related stays</h2></Reveal>
-            <Link href="/rooms" className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">All rooms<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
+            <Reveal><h2 id="similar" className="font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">{cfg.relatedTitle || 'Related stays'}</h2></Reveal>
+            <Link href="/rooms" className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">{cfg.relatedAllRoomsLabel || 'All rooms'}<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
           </div>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {similar.map((item) => {
