@@ -1,128 +1,283 @@
 // ─────────────────────────────────────────────────────────────
-//  SIGNATURE MENU DATA: Printed-style editorial menu highlights
-//  All dish names & prices match src/data/menu.js.
-//  Lines marked "// TODO: confirm with the kitchen" should be
-//  reviewed with the kitchen team before publishing.
+//  MENU DATA: Sourced from G'Host Villa printed menu
+//  Each food block has 1 dedicated overhead plate photo, zero duplicates.
 // ─────────────────────────────────────────────────────────────
 
-export const signatureDishes = [
+export const menuTabs = [
+  { id: 'all', label: 'All' },
+  { id: 'breakfast', label: 'Breakfast' },
+  { id: 'snacks', label: 'Snacks' },
+  { id: 'momo', label: 'Momo & Noodles' },
+  { id: 'newari', label: 'Newari' },
+  { id: 'mains', label: 'Mains' },
+  { id: 'pizza', label: 'Pizza & Pasta' },
+  { id: 'platters', label: 'Platters' },
+  { id: 'drinks', label: 'Drinks' },
+  { id: 'bar', label: 'Bar' },
+]
+
+// 2-column printed blocks with 1 large round plate photo on the right
+export const featuredBlocks = [
   {
-    slug: 'crunchy-momo',
-    name: 'Crunchy momo',
-    price: 380,
-    priceNote: '',
-    lines: [
-      'Crispy fried dumplings', // TODO: confirm with the kitchen
-      'Golden crunchy coating', // TODO: confirm with the kitchen
-      'Served with tomato chutney', // TODO: confirm with the kitchen
+    id: 'breakfast-plates',
+    tab: 'breakfast',
+    title: 'Breakfast',
+    image: '/images/menu/villa-special-breakfast.jpg',
+    items: [
+      { name: 'Villa Special', price: '580', veg: false, pick: true, desc: 'Toast, hash brown, cornflakes, milk/tea/coffee, jam/butter/honey, potato, sausage, egg, mixed fruit, juice & mushroom' },
+      { name: 'Sunny Morning Power', price: '420', veg: false, desc: 'Scrambled egg with sautéed onion, potato & toast with butter & jam' },
+      { name: 'Grilled Sandwich & Scrambled Egg', price: '420', veg: false },
+      { name: 'Masala Omelet', price: '200', veg: false, desc: 'Egg mixed with spices, onion, tomato & herbs' },
+      { name: 'French Toast', price: '280', veg: true },
+      { name: 'Pancakes', price: '300', veg: true },
     ],
-    imagePrompt:
-      'Overhead top-down food photograph of golden crispy fried momo dumplings with a small bowl of red tomato chutney, served in a round matte light-grey rimmed plate, centred, pure white background, soft diffused natural daylight from the top-left, subtle soft shadow beneath the plate, no table, no hands, no cutlery, no text, no logo, photorealistic, appetising, 1:1 square',
   },
   {
-    slug: 'sekuwa-chicken',
-    name: 'Sekuwa chicken',
-    price: 450,
-    priceNote: '',
-    lines: [
-      'Marinated, grilled chicken',
-      'Charred over the grill', // TODO: confirm with the kitchen
-      'Sliced onion & lemon wedge', // TODO: confirm with the kitchen
+    id: 'burgers-sandwiches',
+    tab: 'breakfast',
+    title: 'Burger & Sandwich',
+    note: 'Extra cheese topping +NPR 100',
+    image: '/images/menu/chicken-burger.jpg',
+    items: [
+      { name: 'Veg Burger', price: '250', veg: true },
+      { name: 'Chicken Burger', price: '300', veg: false },
+      { name: 'Veg Sandwich', price: '250', veg: true },
+      { name: 'Chicken Sandwich', price: '320', veg: false },
+      { name: 'Tuna Sandwich', price: '420', veg: false },
+      { name: 'Grilled Chicken Cheese Sandwich', price: '450', veg: false },
     ],
-    imagePrompt:
-      'Overhead top-down food photograph of charred grilled marinated chicken pieces with sliced onion and lemon wedge, served in a round matte light-grey rimmed plate, centred, pure white background, soft diffused natural daylight from the top-left, subtle soft shadow beneath the plate, no table, no hands, no cutlery, no text, no logo, photorealistic, appetising, 1:1 square',
   },
   {
-    slug: 'newari-set',
-    name: 'Newari set',
-    price: 550,
-    priceNote: '',
-    lines: [
-      'Traditional Newari platter', // TODO: confirm with the kitchen
-      'Beaten rice (chiura)', // TODO: confirm with the kitchen
-      'Spiced soybeans & grilled meat', // TODO: confirm with the kitchen
+    id: 'veg-snacks',
+    tab: 'snacks',
+    title: 'Veg Snacks',
+    image: '/images/menu/chicken-kurkure.jpg',
+    items: [
+      { name: 'Masala Papad', price: '160', veg: true },
+      { name: 'Alu Fry', price: '200', veg: true },
+      { name: 'Jeera Aalu', price: '220', veg: true },
+      { name: 'Chau-Chau Sadeko', price: '220', veg: true },
+      { name: 'Alu Sadeko', price: '250', veg: true },
+      { name: 'Peanut Sadeko', price: '250', veg: true },
+      { name: 'Homemade Fries', price: '260', veg: true },
+      { name: 'Mushroom Chilly / Fry', price: '280', veg: true },
+      { name: 'Pakoda', price: '280', veg: true },
+      { name: 'Chips Chilly', price: '300', veg: true },
+      { name: 'Paneer Fries', price: '350', veg: true },
+      { name: 'Paneer Chilly', price: '420', veg: true },
     ],
-    imagePrompt:
-      'Overhead top-down food photograph of a traditional Newari platter with beaten rice (chiura), spiced soybeans and grilled meat, served in a round matte light-grey rimmed plate, centred, pure white background, soft diffused natural daylight from the top-left, subtle soft shadow beneath the plate, no table, no hands, no cutlery, no text, no logo, photorealistic, appetising, 1:1 square',
   },
   {
-    slug: 'crispy-fried-chicken',
-    name: 'Crispy fried chicken',
-    price: 280,
-    priceNote: 'from NPR 280 · 2 pcs',
-    lines: [
-      '2 pieces fried chicken', // TODO: confirm with the kitchen
-      'Crispy golden crust', // TODO: confirm with the kitchen
-      'Served with dipping sauce', // TODO: confirm with the kitchen
+    id: 'nonveg-snacks',
+    tab: 'snacks',
+    title: 'Non-Veg Snacks',
+    image: '/images/menu/chicken-lolly.jpg',
+    items: [
+      { name: 'Sausage Fry', price: '250', veg: false },
+      { name: 'Chicken Meatball', price: '360', veg: false },
+      { name: 'Buff Sadeko', price: '420', veg: false },
+      { name: 'Spicy Chicken Legs', price: '450', veg: false },
+      { name: 'Pork Sadeko', price: '460', veg: false },
+      { name: 'Chicken Sadeko', price: '460', veg: false },
+      { name: 'Chicken Lolly (Dry / Sauce)', price: '460', veg: false },
+      { name: 'Buff Chilly', price: '460', veg: false },
+      { name: 'Pork Chilly', price: '480', veg: false },
+      { name: 'Spicy Pork', price: '480', veg: false },
+      { name: 'Honey Garlic Chicken Wings', price: '480', veg: false },
+      { name: 'Pork Tawa', price: '500', veg: false },
     ],
-    imagePrompt:
-      'Overhead top-down food photograph of 2 pieces of crispy golden fried chicken with a small dip, served in a round matte light-grey rimmed plate, centred, pure white background, soft diffused natural daylight from the top-left, subtle soft shadow beneath the plate, no table, no hands, no cutlery, no text, no logo, photorealistic, appetising, 1:1 square',
   },
   {
-    slug: 'thali-set',
-    name: 'Thali set',
-    price: 550,
-    priceNote: '',
-    lines: [
-      'A full plate with dal, rice and sides',
-      'Seasonal vegetable curry', // TODO: confirm with the kitchen
-      'House pickle on the side', // TODO: confirm with the kitchen
+    id: 'house-specials',
+    tab: 'snacks',
+    title: 'House Specials',
+    image: '/images/menu/crispy-fried-chicken.jpg',
+    items: [
+      { name: 'Aloo Stick', price: '120', veg: true, desc: 'Spicy marinated potato wedges with hot sauce' },
+      { name: 'Chicken Chau-Chau Sadeko', price: '320', veg: false, desc: 'Wai-Wai marinated with spicy chicken' },
+      { name: 'Chicken Rings / Popsicle', price: '330', veg: false },
+      { name: 'Chicken Pakauda', price: '400', veg: false },
+      { name: 'Chicken Kurkure', price: '450', veg: false, desc: 'Crispy chicken strips with tangy flavours' },
+      { name: 'Crispy Fried Chicken', price: '280 / 700 / 1,350', veg: false, pick: true, desc: '2 pcs · Half · Full' },
     ],
-    imagePrompt:
-      'Overhead top-down food photograph of a Nepali thali with dal, rice, vegetable sides and pickle, served in a round matte light-grey rimmed plate, centred, pure white background, soft diffused natural daylight from the top-left, subtle soft shadow beneath the plate, no table, no hands, no cutlery, no text, no logo, photorealistic, appetising, 1:1 square',
   },
   {
-    slug: 'margherita-pizza',
-    name: 'Margherita pizza',
-    price: 460,
-    priceNote: 'veg',
-    lines: [
-      'Tomato sauce', // TODO: confirm with the kitchen
-      'Melted mozzarella', // TODO: confirm with the kitchen
-      'Fresh basil leaves', // TODO: confirm with the kitchen
+    id: 'fish-specials',
+    tab: 'snacks',
+    title: 'Fish & Grill Specials',
+    image: '/images/menu/whole-grilled-fish.jpg',
+    items: [
+      { name: 'Fish & Chips', price: '500', veg: false },
+      { name: 'Whole Grilled Fish', price: '700', veg: false, pick: true, desc: 'House special whole grilled fish with herbs & lemon' },
+      { name: 'House Tile / Sekuwa Chicken', price: '450', veg: false, pick: true, desc: 'Marinated, flame-grilled chicken' },
+      { name: 'Honey Garlic Lemon Chicken', price: '550', veg: false, desc: 'Shredded chicken breast grilled with herbs & sauté vegetables' },
     ],
-    imagePrompt:
-      'Overhead top-down food photograph of a whole round pizza with tomato, melted mozzarella and basil, served in a round matte light-grey rimmed plate, centred, pure white background, soft diffused natural daylight from the top-left, subtle soft shadow beneath the plate, no table, no hands, no cutlery, no text, no logo, photorealistic, appetising, 1:1 square',
   },
   {
-    slug: 'ramen-noodles',
-    name: 'Ramen noodles',
-    price: 580,
-    priceNote: '',
-    lines: [
-      'Noodles in warm broth', // TODO: confirm with the kitchen
-      'Soft-boiled egg', // TODO: confirm with the kitchen
-      'Sliced green onions', // TODO: confirm with the kitchen
+    id: 'momo',
+    tab: 'momo',
+    title: 'Handmade Momo',
+    image: '/images/menu/crunchy-momo.jpg',
+    items: [
+      { name: 'Crunchy Momo', price: '380', veg: false, pick: true, desc: 'House special crispy fried momo' },
+      { name: 'Veg Momo', price: '200 – 300', veg: true, desc: 'Steam 200 · Fry 220 · Jhol 250 · Chilly 280 · Sadeko 300' },
+      { name: 'Chicken / Buff Momo', price: '260 – 380', veg: false, desc: 'Steam 260 · Fry 280 · Sadeko 300 · Chilly 350 · Jhol 380' },
     ],
-    imagePrompt:
-      'Overhead top-down food photograph of a bowl of ramen noodles with broth, a soft-boiled egg and green onions, served in a round matte light-grey rimmed plate, centred, pure white background, soft diffused natural daylight from the top-left, subtle soft shadow beneath the plate, no table, no hands, no cutlery, no text, no logo, photorealistic, appetising, 1:1 square',
   },
   {
-    slug: 'whole-grilled-fish',
-    name: 'Whole grilled fish',
-    price: 700,
-    priceNote: '',
-    lines: [
-      'Whole fish grilled to order', // TODO: confirm with the kitchen
-      'Herbs & seasoning', // TODO: confirm with the kitchen
-      'Fresh lemon wedge', // TODO: confirm with the kitchen
+    id: 'noodles-ramen',
+    tab: 'momo',
+    title: 'Ramen, Chowmein & Thukpa',
+    image: '/images/menu/ramen-noodles.jpg',
+    items: [
+      { name: 'Ramen Noodles', price: '580', veg: false, pick: true, desc: 'Mixed with egg, sausage, vegetable & chicken/pork' },
+      { name: 'Chowmein / Fried Rice / Thukpa — Veg', price: '220', veg: true },
+      { name: 'Chowmein / Fried Rice / Thukpa — Egg', price: '250', veg: false },
+      { name: 'Chowmein / Fried Rice / Thukpa — Buff', price: '260', veg: false },
+      { name: 'Chowmein / Fried Rice / Thukpa — Chicken', price: '280', veg: false },
+      { name: 'Chowmein / Fried Rice / Thukpa — Mix', price: '300', veg: false },
     ],
-    imagePrompt:
-      'Overhead top-down food photograph of a whole grilled fish with lemon and herbs, served in a round matte light-grey rimmed plate, centred, pure white background, soft diffused natural daylight from the top-left, subtle soft shadow beneath the plate, no table, no hands, no cutlery, no text, no logo, photorealistic, appetising, 1:1 square',
+  },
+  {
+    id: 'newari',
+    tab: 'newari',
+    title: 'Newari Delights',
+    image: '/images/menu/newari-set.jpg',
+    items: [
+      { name: 'Bhatmas Sadeko', price: '250', veg: true },
+      { name: 'Gravy Sukuti Chiura', price: '420', veg: false },
+      { name: 'Chicken / Buff Chhoila', price: '420', veg: false },
+      { name: 'Newari Set (Chicken / Buff)', price: '550', veg: false, pick: true, desc: 'Beaten rice, aloo achar, chhoila, sukuti, bhatmas sadeko, peanuts & egg' },
+    ],
+  },
+  {
+    id: 'mains-thali',
+    tab: 'mains',
+    title: 'Main Course & Thali',
+    image: '/images/menu/thali-set.jpg',
+    items: [
+      { name: 'Thali Set (Chicken / Veg / Fish)', price: '550', veg: true, pick: true, desc: 'Plain rice, mixed veg, lentils, aloo bhujeya, gravy, spinach, gundruk sadeko, chatni, salad, papad, yoghurt & ghee' },
+      { name: 'Roti (per pc)', price: '45', veg: true },
+      { name: 'Plain Rice', price: '120', veg: true },
+      { name: 'Tadka Dal', price: '360', veg: true },
+      { name: 'Kadhai Chicken', price: '480', veg: false },
+      { name: 'Chicken Butter Masala', price: '520', veg: false, desc: 'Served with plain rice' },
+      { name: 'Mutter Paneer', price: '550', veg: true, desc: 'Served with plain rice' },
+    ],
+  },
+  {
+    id: 'pizza-pasta',
+    tab: 'pizza',
+    title: 'Pizza & Pasta',
+    note: 'Extra cheese topping +NPR 100',
+    image: '/images/menu/margherita-pizza.jpg',
+    items: [
+      { name: 'Margherita Pizza', price: '460', veg: true },
+      { name: 'Mushroom Pizza', price: '480', veg: true },
+      { name: 'Pepperoni Pizza', price: '500', veg: false },
+      { name: 'Spicy Chicken Pizza', price: '520', veg: false },
+      { name: 'Meat Lovers Pizza', price: '620', veg: false, desc: 'Salami, sausage, chicken & pork' },
+      { name: 'House Style Pasta', price: '280', veg: true },
+      { name: 'Meat Sauce Spaghetti / Pasta', price: '480', veg: false },
+      { name: 'Creamy Mushroom Chicken Pasta', price: '550', veg: false, desc: 'Garlic, onion, mushroom, cheese, milk & butter' },
+    ],
+  },
+  {
+    id: 'platters',
+    tab: 'platters',
+    title: 'Villa Special Platters',
+    image: '/images/menu/sekuwa-chicken.jpg',
+    items: [
+      { name: 'Momo Platter', price: '580', veg: false, desc: '4 pcs chilly, 4 pcs sadeko, 4 pcs fried, 4 pcs steam' },
+      { name: 'Veg Platter', price: '1,200', veg: true, desc: 'Piro aloo, mushroom chilly, veg pakauda, french fry' },
+      { name: 'Meat Lovers Platter', price: '1,500', veg: false, pick: true, desc: 'Honey garlic wings, spicy legs, chicken lolly, chicken chhoila' },
+      { name: 'Pork Platter', price: '1,500', veg: false, desc: 'Pork chilly, pork tawa, pork sadeko, spicy pork' },
+    ],
+  },
+  {
+    id: 'desserts',
+    tab: 'mains',
+    title: 'Desserts & Sweet Plates',
+    image: '/images/menu/pancakes-ice-cream.jpg',
+    items: [
+      { name: 'Ice-Cream', price: '250', veg: true },
+      { name: 'Pancakes with Ice Cream', price: '400', veg: true },
+      { name: 'Fried Ice-Cream', price: '400', veg: true, pick: true },
+      { name: 'Mixed Fruit with Yoghurt', price: '450', veg: true },
+    ],
   },
 ]
 
-export const signatureDesserts = [
-  { name: 'Ice cream', price: 250, desc: '' },
-  { name: 'Fried ice cream', price: 400, desc: '' },
-  { name: 'Mixed fruit with yoghurt', price: 450, desc: '' },
-]
-
-export const signatureBeverages = [
-  { name: 'Lemon tea', price: 80, desc: '' },
-  { name: 'Milk tea', price: 100, desc: '' },
-  { name: 'Masala tea', price: 160, desc: '' },
-  { name: 'Black coffee', price: 160, desc: '' },
-  { name: 'Hot lemon honey', price: 250, desc: '' },
-  { name: 'Hot chocolate', price: 300, desc: '' },
+// Bottom 2-column printed text lists (like Dessert / Beverage in the reference poster)
+export const listBlocks = [
+  {
+    id: 'soup-salad',
+    tab: 'mains',
+    title: 'Soup & Salad',
+    items: [
+      { name: 'Mushroom Soup', price: '280', veg: true },
+      { name: 'Chicken Soup', price: '320', veg: false },
+      { name: 'Chicken Creamy Soup', price: '350', veg: false },
+      { name: 'Hot & Sour Soup', price: '350', veg: false },
+      { name: 'Green Salad', price: '280', veg: true },
+      { name: 'Mix Fruits Salad', price: '420', veg: true },
+      { name: 'Chicken Salad', price: '480', veg: false },
+    ],
+  },
+  {
+    id: 'hot-drinks',
+    tab: 'drinks',
+    title: 'Hot Drinks',
+    items: [
+      { name: 'Black Tea', price: '55', veg: true },
+      { name: 'Lemon Tea', price: '80', veg: true },
+      { name: 'Milk Tea', price: '100', veg: true },
+      { name: 'Masala Tea', price: '160', veg: true },
+      { name: 'Black Coffee', price: '160', veg: true },
+      { name: 'Milk Coffee', price: '180', veg: true },
+      { name: 'Hot Lemon with Honey', price: '250', veg: true },
+      { name: 'Hot Chocolate', price: '300', veg: true },
+    ],
+  },
+  {
+    id: 'coolers-shakes',
+    tab: 'drinks',
+    title: 'Coolers, Shakes & Cold Coffee',
+    items: [
+      { name: 'Water', price: '60', veg: true },
+      { name: 'Lemon Water', price: '100', veg: true },
+      { name: 'Coke / Sprite', price: '120', veg: true },
+      { name: 'Masala Coke', price: '180', veg: true },
+      { name: 'Iced Tea / Apple Iced Tea', price: '200 / 250', veg: true },
+      { name: 'Mint Lemonade / Peach Iced Tea', price: '250', veg: true },
+      { name: 'Strawberry / Watermelon Bubble', price: '250', veg: true },
+      { name: 'Sweet / Banana Lassi', price: '250 / 280', veg: true },
+      { name: 'Strawberry / Vanilla / Chocolate Shake', price: '260', veg: true },
+      { name: 'Blue Angel', price: '280', veg: true },
+      { name: 'Cold Coffee / Honey Lime / Coffee Lemonade', price: '280 / 280 / 300', veg: true },
+      { name: 'Redbull', price: '290', veg: true },
+      { name: 'Fresh Juice / Cold Chocolate', price: '350', veg: true },
+      { name: 'Oreo Shake / KitKat Shake', price: '350 / 360', veg: true },
+      { name: 'Mojito / Cold Coffee with Ice Cream', price: '380', veg: true },
+      { name: 'Jungle Juice / Tropical Mojito', price: '400 / 450', veg: true },
+    ],
+  },
+  {
+    id: 'bar',
+    tab: 'bar',
+    title: 'Bar · Beer, Wine & Spirits',
+    items: [
+      { name: 'Tuborg Mini / Can / Bottle', price: '380 / 460 / 730', veg: true },
+      { name: 'Gorkha Strong / Premium', price: '700', veg: true },
+      { name: 'Kings Hill / Big Master', price: '480 (Glass) · 2,500 (Bottle)', veg: true },
+      { name: 'JP Chenet / Robert Son', price: '680 (Glass) · 3,500 (Bottle)', veg: true },
+      { name: 'Old Durbar Reg.', price: '480 / 1,450 / 2,600 / 5,500', veg: true, desc: '60ml · Qtr · Half · Full' },
+      { name: 'Black Chimney', price: '520 / 1,575 / 3,050 / 6,000', veg: true, desc: '60ml · Qtr · Half · Full' },
+      { name: 'J/W Red Label', price: '750 / 2,525 / 4,950 / 9,000', veg: true, desc: '60ml · Qtr · Half · Full' },
+      { name: 'J/W Black Label / JD', price: '950 / 3,325 / 6,550 / 13,000', veg: true, desc: '60ml · Qtr · Half · Full' },
+      { name: 'Vodka', price: '480 / 875 / 1,650 / 3,200', veg: true, desc: '60ml · Qtr · Half · Full' },
+      { name: 'Rum', price: '420 / 950 / 1,750 / 3,350', veg: true, desc: '60ml · Qtr · Half · Full' },
+      { name: 'Hukka Shisha (Mint / Panras / Double Apple / Strawberry)', price: '500 (Small) · 700 (Large)', veg: true, desc: 'Add on coil +NPR 80' },
+    ],
+  },
 ]
