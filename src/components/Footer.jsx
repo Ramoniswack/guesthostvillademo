@@ -4,17 +4,25 @@ import Link from 'next/link'
 import { Phone, MessageCircle } from 'lucide-react'
 import Icon from './Icons.jsx'
 import { altTelLink, directionsLink, navLinks, site, telLink, waLink } from '../data/site.js'
-
-const socials = [
-  { icon: 'insta', label: 'Instagram', href: site.social.instagram },
-  { icon: 'fb', label: 'Facebook', href: site.social.facebook },
-  { icon: 'globe', label: 'eSewa Hotels', href: site.social.esewa },
-  { icon: 'bed', label: 'MakeMyTrip', href: site.social.makemytrip },
-]
+import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const wordmarkLetters = [..."G'HOST VILLA"]
 
 export default function Footer() {
+  const backend = useBackendData()
+  const currentSite = backend?.site ?? site
+  const currentNavLinks = backend?.navLinks ?? navLinks
+  const currentTelLink = currentSite.phoneTel ? `tel:${currentSite.phoneTel}` : telLink
+  const currentAltTelLink = currentSite.altPhoneTel ? `tel:${currentSite.altPhoneTel}` : altTelLink
+  const currentDirectionsLink = currentSite.directionsLink ?? directionsLink
+  const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
+  const socials = [
+    { icon: 'insta', label: 'Instagram', href: currentSite.social.instagram },
+    { icon: 'fb', label: 'Facebook', href: currentSite.social.facebook },
+    { icon: 'globe', label: 'eSewa Hotels', href: currentSite.social.esewa },
+    { icon: 'bed', label: 'MakeMyTrip', href: currentSite.social.makemytrip },
+  ]
+
   return (
     <footer className="on-dark overflow-hidden bg-[#07120f] text-cream">
       <section className="relative isolate min-h-[28rem] overflow-hidden border-b border-white/10 sm:min-h-[32rem]">
@@ -28,7 +36,7 @@ export default function Footer() {
               Your next escape starts up here.
             </h2>
             <p className="mt-5 max-w-lg text-lg text-white/80">A private villa stay, a table with a view, and a slower pace for a little while.</p>
-            <a href={waLink('Hello G\'Host Villa! I\'d like to book a stay.')} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-12 items-center rounded-full bg-sun px-7 text-[0.7rem] font-bold uppercase tracking-[0.15em] text-forest-dark transition-colors hover:bg-sun-dark">
+            <a href={currentWhatsApp("Hello G'Host Villa! I'd like to book a stay.")} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-12 items-center rounded-full bg-sun px-7 text-[0.7rem] font-bold uppercase tracking-[0.15em] text-forest-dark transition-colors hover:bg-sun-dark">
               Book a stay
             </a>
           </div>
@@ -41,7 +49,7 @@ export default function Footer() {
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">From the hilltop</p>
             <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">Follow G&apos;Host Villa</h2>
           </div>
-          <a href={site.social.instagram} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-sun hover:text-white">
+          <a href={currentSite.social.instagram} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-sun hover:text-white">
             @the_g_host_villa_pokhara <Icon name="arrow" className="h-4 w-4" />
           </a>
         </div>
@@ -52,14 +60,14 @@ export default function Footer() {
           <div>
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Come stay awhile</p>
             <p className="mt-4 max-w-md font-display text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-white">A villa, restro and bar above the city lights.</p>
-            <a href={directionsLink} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sun hover:text-white">
+            <a href={currentDirectionsLink} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sun hover:text-white">
               Get directions <Icon name="arrow" className="h-4 w-4" />
             </a>
           </div>
           <nav aria-label="Footer navigation">
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Explore</p>
             <ul className="mt-4 space-y-2.5">
-              {[{ to: '/', label: 'Home' }, ...navLinks].map((link) => (
+              {[{ to: '/', label: 'Home' }, ...currentNavLinks].map((link) => (
                 <li key={link.to}><Link href={link.to} className="text-base text-white/80 transition-colors hover:text-sun">{link.label}</Link></li>
               ))}
             </ul>
@@ -68,15 +76,15 @@ export default function Footer() {
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Get in touch</p>
             <ul className="mt-4 space-y-3 text-base text-white/80">
               <li className="flex flex-wrap gap-2.5 pb-1">
-                <a href={waLink()} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full bg-sun px-5 text-sm font-bold text-forest-dark transition-colors hover:bg-sun-dark"><MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />WhatsApp</a>
-                <a href={telLink} className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-white/40 px-5 text-sm font-bold text-white transition-colors hover:border-sun hover:text-sun"><Phone className="h-4 w-4 shrink-0" aria-hidden="true" />Call now</a>
+                <a href={currentWhatsApp()} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full bg-sun px-5 text-sm font-bold text-forest-dark transition-colors hover:bg-sun-dark"><MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />WhatsApp</a>
+                <a href={currentTelLink} className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-white/40 px-5 text-sm font-bold text-white transition-colors hover:border-sun hover:text-sun"><Phone className="h-4 w-4 shrink-0" aria-hidden="true" />Call now</a>
               </li>
-              <li><a href={telLink} className="transition-colors hover:text-sun">{site.phoneDisplay}</a></li>
-              <li><a href={altTelLink} className="transition-colors hover:text-sun">{site.altPhoneDisplay}</a></li>
-              <li><a href={waLink()} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-sun">WhatsApp us</a></li>
-              <li><a href={`mailto:${site.email}`} className="transition-colors hover:text-sun">{site.email}</a></li>
-              <li className="max-w-xs text-sm leading-relaxed">{site.address}</li>
-              <li className="text-sm">{site.hours}</li>
+              <li><a href={currentTelLink} className="transition-colors hover:text-sun">{currentSite.phoneDisplay}</a></li>
+              <li><a href={currentAltTelLink} className="transition-colors hover:text-sun">{currentSite.altPhoneDisplay}</a></li>
+              <li><a href={currentWhatsApp()} target="_blank" rel="noopener noreferrer" className="transition-colors hover:text-sun">WhatsApp us</a></li>
+              <li><a href={`mailto:${currentSite.email}`} className="transition-colors hover:text-sun">{currentSite.email}</a></li>
+              <li className="max-w-xs text-sm leading-relaxed">{currentSite.address}</li>
+              <li className="text-sm">{currentSite.hours}</li>
             </ul>
             <div className="mt-6 flex gap-3">
               {socials.map((social) => (

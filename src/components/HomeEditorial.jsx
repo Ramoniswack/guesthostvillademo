@@ -7,13 +7,14 @@ import {
   ArrowRight, Bath, BedDouble, Car, Check, CheckCircle2, Clock, Coffee, MapPin, MessageCircle, ShieldCheck, Star, Users, Utensils, Wifi,
 } from 'lucide-react'
 import { faqs } from '../data/faq.js'
-import { buildingLabel, describePrice, findStay } from '../data/rooms.js'
+import { buildingLabel, describePrice, rooms } from '../data/rooms.js'
 import { reviews } from '../data/reviews.js'
 import { directionsLink, mapEmbed, site, stats, waLink } from '../data/site.js'
 import { gallery } from '../data/gallery.js'
 import CtaBanner from './CtaBanner.jsx'
 import KineticNumber from './KineticNumber.jsx'
 import { Button, Reveal, StaggerGrid, StaggerItem } from './ui.jsx'
+import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const trustBadges = [
   { name: 'Google', detail: '4.5★ · 379+ reviews', href: site.social.tripadvisor },
@@ -83,29 +84,63 @@ const pillars = [
 ]
 
 export default function HomeEditorial() {
+  const backend = useBackendData()
+  const editorial = backend?.home?.editorial
+  const currentSite = backend?.site ?? site
+  const currentStats = backend?.stats?.length ? backend.stats : stats
+  const currentTrustBadges = backend?.trustBadges?.length ? backend.trustBadges : trustBadges
+  const currentBenefits = backend?.home?.directBenefits?.length
+    ? backend.home.directBenefits.map((item, index) => ({
+        ...item,
+        icon: [CheckCircle2, MessageCircle, ShieldCheck][index] ?? CheckCircle2,
+      }))
+    : directBenefits
+  const currentAmenities = backend?.home?.amenities?.length
+    ? backend.home.amenities.map((item, index) => ({
+        ...item,
+        icon: [Wifi, Bath, Car, Coffee, Clock, Utensils][index] ?? CheckCircle2,
+      }))
+    : amenities
+  const currentStayFilters = backend?.home?.stayFilters?.length ? backend.home.stayFilters : stayFilters
+  const currentPillars = backend?.home?.pillars?.length ? backend.home.pillars : pillars
+  const currentGallery = backend?.home?.gallery?.length
+    ? backend.home.gallery
+    : gallery
+  const currentReviews = backend?.home?.reviews?.length ? backend.home.reviews : reviews
+  const currentFaqs = backend?.faq?.faqs?.length ? backend.faq.faqs : faqs
+  const backendRooms = backend?.stays?.rooms
+  const featuredStayIds = editorial?.stays?.featuredStayIds?.length
+    ? editorial.stays.featuredStayIds
+    : stayIds
+  const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
+  const currentDirectionsLink = currentSite.directionsLink ?? directionsLink
+  const currentMapEmbed = currentSite.mapEmbed ?? mapEmbed
   const [stayTab, setStayTab] = useState('all')
   const [activeGallery, setActiveGallery] = useState(null)
   const [reviewIndex, setReviewIndex] = useState(0)
   const galleryCloseRef = useRef(null)
   const galleryTriggerRef = useRef(null)
 
-  const allFeaturedStays = useMemo(() => stayIds.map(findStay).filter(Boolean), [])
+  const allFeaturedStays = useMemo(() => {
+    const availableRooms = backendRooms?.length ? backendRooms : rooms
+    return featuredStayIds.map((id) => availableRooms.find((room) => room.id === id)).filter(Boolean)
+  }, [backendRooms, featuredStayIds])
   const visibleStays = useMemo(() => {
-    if (stayTab === 'couples') {
-      return allFeaturedStays.filter((r) => ['mountain-view-room', 'city-view-room', 'suite'].includes(r.id))
-    }
-    if (stayTab === 'groups') {
-      return allFeaturedStays.filter((r) => ['pyramid-dome-house', 'villa-top-floor'].includes(r.id))
-    }
-    if (stayTab === 'estate') {
-      return allFeaturedStays.filter((r) => ['villa-top-floor', 'whole-villa'].includes(r.id))
-    }
+    const filter = currentStayFilters.find((item) => item.id === stayTab)
+    if (filter?.roomIds?.length) return allFeaturedStays.filter((room) => filter.roomIds.includes(room.id))
+    if (stayTab === 'couples') return allFeaturedStays.filter((r) => ['mountain-view-room', 'city-view-room', 'suite'].includes(r.id))
+    if (stayTab === 'groups') return allFeaturedStays.filter((r) => ['pyramid-dome-house', 'villa-top-floor'].includes(r.id))
+    if (stayTab === 'estate') return allFeaturedStays.filter((r) => ['villa-top-floor', 'whole-villa'].includes(r.id))
     return allFeaturedStays
-  }, [allFeaturedStays, stayTab])
+  }, [allFeaturedStays, currentStayFilters, stayTab])
 
-  const quote = reviews[reviewIndex]
+  const quote = currentReviews[reviewIndex] ?? currentReviews[0]
   const changeReview = (direction) =>
-    setReviewIndex((index) => (index + direction + reviews.length) % reviews.length)
+    setReviewIndex((index) => (index + direction + currentReviews.length) % currentReviews.length)
+
+  useEffect(() => {
+    if (reviewIndex >= currentReviews.length) setReviewIndex(0)
+  }, [currentReviews.length, reviewIndex])
 
   useEffect(() => {
     if (!activeGallery) return undefined
@@ -133,7 +168,7 @@ export default function HomeEditorial() {
       <section className="border-b border-forest/10 bg-white py-8 md:py-10">
         <div className="wrap">
           <div className="grid grid-cols-2 md:grid-cols-4">
-            {stats.map((stat, index) => (
+            {currentStats.map((stat, index) => (
               <div
                 key={stat.label}
                 className={`px-4 py-4 text-center first:pl-0 last:pr-0 md:px-6 ${
@@ -153,7 +188,7 @@ export default function HomeEditorial() {
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 border-t border-forest/10 pt-6">
-            {trustBadges.map((badge) => (
+            {currentTrustBadges.map((badge) => (
               <a
                 key={badge.name}
                 href={badge.href}
@@ -174,20 +209,20 @@ export default function HomeEditorial() {
       <section className="bg-white py-16 md:py-24">
         <div className="wrap grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
           <Reveal className="max-w-xl">
-            <p className="label">A hilltop hideaway · Pokhara</p>
+            <p className="label">{editorial?.intro?.eyebrow || 'A hilltop hideaway · Pokhara'}</p>
             <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.04em] text-forest sm:text-5xl lg:text-6xl">
-              Stay, dine &amp; gather.
+              {editorial?.intro?.title || 'Stay, dine & gather.'}
             </h2>
             <p className="mt-5 text-base leading-relaxed text-forest/75 md:text-lg">
-              G’Host Villa brings crisp mountain air, warm rooms and easy hospitality together along the Sarangkot ridge—just 20 minutes above Lakeside Pokhara.
+              {editorial?.intro?.paragraph1 || 'G’Host Villa brings crisp mountain air, warm rooms and easy hospitality together along the Sarangkot ridge—just 20 minutes above Lakeside Pokhara.'}
             </p>
             <p className="mt-3 text-base leading-relaxed text-forest/75">
-              Check into a quiet room in our Crystal Pyramid Dome House, dine under the pyramid roof, or take over the 7-BHK Main Villa for a private group gathering.
+              {editorial?.intro?.paragraph2 || 'Check into a quiet room in our Crystal Pyramid Dome House, dine under the pyramid roof, or take over the 7-BHK Main Villa for a private group gathering.'}
             </p>
 
             {/* Why book direct pills */}
             <div className="mt-7 grid gap-2 sm:grid-cols-3">
-              {directBenefits.map(({ icon: Ico, label }) => (
+              {currentBenefits.map(({ icon: Ico, label }) => (
                 <span
                   key={label}
                   className="inline-flex items-center justify-center gap-1.5 rounded-full border border-forest/15 bg-white px-3 py-2 text-[0.72rem] font-semibold text-forest"
@@ -200,7 +235,7 @@ export default function HomeEditorial() {
 
             {/* 6-item Amenity Grid */}
             <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 border-y border-forest/10 py-5 text-xs font-semibold text-forest sm:grid-cols-3">
-              {amenities.map(({ icon: Ico, label }) => (
+              {currentAmenities.map(({ icon: Ico, label }) => (
                 <li key={label} className="inline-flex items-center gap-2">
                   <Ico className="h-4 w-4 shrink-0 text-sun-text" aria-hidden="true" />
                   <span>{label}</span>
@@ -220,15 +255,15 @@ export default function HomeEditorial() {
             <div className="grid grid-cols-2 gap-4">
               <div className="col-span-2 overflow-hidden rounded-2xl border border-forest/15 shadow-soft">
                 <img
-                  src="/images/day-aerial.webp"
-                  alt="G’Host Villa buildings on the forested ridge above Pokhara"
+                  src={editorial?.intro?.imageMain || '/images/day-aerial.webp'}
+                  alt={editorial?.intro?.imageMainAlt || 'G’Host Villa buildings on the forested ridge above Pokhara'}
                   className="h-60 w-full object-cover object-[50%_58%] sm:h-72"
                 />
               </div>
               <div className="overflow-hidden rounded-2xl border border-forest/15 shadow-soft">
                 <img
-                  src="/images/garden.webp"
-                  alt="Garden lawns and seating at G’Host Villa"
+                  src={editorial?.intro?.imageGarden || '/images/garden.webp'}
+                  alt={editorial?.intro?.imageGardenAlt || 'Garden lawns and seating at G’Host Villa'}
                   loading="lazy"
                   className="h-44 w-full object-cover sm:h-52"
                 />
@@ -236,18 +271,18 @@ export default function HomeEditorial() {
               <div className="flex flex-col gap-3">
                 <div className="flex-1 overflow-hidden rounded-2xl border border-forest/15 shadow-soft">
                   <img
-                    src="/images/pyramid.webp"
-                    alt="Crystal Pyramid Dome House and restaurant"
+                    src={editorial?.intro?.imagePyramid || '/images/pyramid.webp'}
+                    alt={editorial?.intro?.imagePyramidAlt || 'Crystal Pyramid Dome House and restaurant'}
                     loading="lazy"
                     className="h-28 w-full object-cover sm:h-32"
                   />
                 </div>
                 <div className="rounded-2xl bg-sun px-4 py-3.5 text-forest-dark shadow-soft">
                   <p className="font-display text-2xl font-semibold leading-none">
-                    <KineticNumber value={20} suffix=" mins" />
+                    <KineticNumber value={Number(editorial?.intro?.badgeNumber) || 20} suffix={editorial?.intro?.badgeSuffix || ' mins'} />
                   </p>
                   <p className="mt-1 text-[0.68rem] font-bold uppercase tracking-[0.12em]">
-                    above Lakeside Pokhara
+                    {editorial?.intro?.badgeLabel || 'above Lakeside Pokhara'}
                   </p>
                 </div>
               </div>
@@ -261,14 +296,14 @@ export default function HomeEditorial() {
         <div className="wrap">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <Reveal>
-              <p className="label">Stay collection</p>
+              <p className="label">{editorial?.stays?.eyebrow || 'Stay collection'}</p>
               <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-forest sm:text-5xl">
-                Find a space that fits your plans.
+                {editorial?.stays?.title || 'Find a space that fits your plans.'}
               </h2>
             </Reveal>
 
             <div className="flex flex-wrap items-center gap-2">
-              {stayFilters.map((f) => {
+              {currentStayFilters.map((f) => {
                 const active = stayTab === f.id
                 return (
                   <button
@@ -287,10 +322,10 @@ export default function HomeEditorial() {
                 )
               })}
               <Link
-                href="/rooms"
+                href={editorial?.stays?.viewAllHref || '/rooms'}
                 className="inline-flex items-center gap-1.5 rounded-full border border-forest/20 bg-white px-4 py-2 text-xs font-bold text-sun-text transition hover:border-forest hover:text-forest"
               >
-                <span>View all rooms</span>
+                <span>{editorial?.stays?.viewAllLabel || 'View all rooms'}</span>
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
               </Link>
             </div>
@@ -320,7 +355,9 @@ export default function HomeEditorial() {
                   </div>
                   <div className="flex flex-1 flex-col p-6">
                     <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-sun-text">
-                      {buildingLabel(room)}
+                      {room.building === 'both'
+                        ? 'Both buildings'
+                        : (backend?.stays?.buildings?.find((item) => item.id === room.building)?.name ?? buildingLabel(room))}
                     </p>
                     <h3 className="mt-2 font-display text-xl font-semibold leading-snug text-forest sm:text-2xl">
                       {room.name}
@@ -371,18 +408,18 @@ export default function HomeEditorial() {
         <div className="wrap">
           <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="label">The G’Host experience</p>
+              <p className="label">{editorial?.pillarsSection?.eyebrow || 'The G’Host experience'}</p>
               <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-forest sm:text-5xl">
-                Three ways to enjoy the hilltop.
+                {editorial?.pillarsSection?.title || 'Three ways to enjoy the hilltop.'}
               </h2>
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-forest/70">
-              Whether you’re here for a quiet night, a table with a view, or a family celebration.
+              {editorial?.pillarsSection?.subtitle || 'Whether you’re here for a quiet night, a table with a view, or a family celebration.'}
             </p>
           </Reveal>
 
           <StaggerGrid className="grid gap-6 md:grid-cols-3">
-            {pillars.map((item) => (
+            {currentPillars.map((item) => (
               <StaggerItem key={item.tag} className="h-full">
                 <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-forest/15 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-warm">
                   <div className="relative aspect-[16/10] overflow-hidden bg-forest-dark">
@@ -427,21 +464,21 @@ export default function HomeEditorial() {
           <Reveal className="mt-6 flex flex-col items-start justify-between gap-5 rounded-2xl border border-forest/15 bg-white p-6 shadow-soft sm:flex-row sm:items-center sm:p-7">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun-text">
-                Group bookings · 8–24 guests
+                {editorial?.pillarsSection?.buyoutEyebrow || 'Group bookings · 8–24 guests'}
               </p>
               <h3 className="mt-1.5 font-display text-2xl font-semibold text-forest">
-                A villa all to yourselves.
+                {editorial?.pillarsSection?.buyoutTitle || 'A villa all to yourselves.'}
               </h3>
               <p className="mt-1 text-sm text-forest/70">
-                Birthdays, family reunions or team retreats—book a private floor or take over the entire 7-BHK Main Villa.
+                {editorial?.pillarsSection?.buyoutDescription || 'Birthdays, family reunions or team retreats—book a private floor or take over the entire 7-BHK Main Villa.'}
               </p>
             </div>
             <Button
               variant="outline"
-              href={waLink("Hello G'Host Villa! I would like to enquire about a group booking or whole-villa stay.")}
+              href={currentWhatsApp(editorial?.pillarsSection?.buyoutWhatsappText || "Hello G'Host Villa! I would like to enquire about a group booking or whole-villa stay.")}
               arrow={false}
             >
-              Ask about groups
+              {editorial?.pillarsSection?.buyoutCtaLabel || 'Ask about groups'}
             </Button>
           </Reveal>
         </div>
@@ -452,19 +489,19 @@ export default function HomeEditorial() {
         <div className="wrap">
           <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="label !text-sun">Villa gallery</p>
+              <p className="label !text-sun">{editorial?.gallerySection?.eyebrow || 'Villa gallery'}</p>
               <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-white sm:text-5xl">
-                Inside G’Host Villa.
+                {editorial?.gallerySection?.title || 'Inside G’Host Villa.'}
               </h2>
             </div>
-            <p className="text-sm text-white/65">Tap any photo to view it full screen.</p>
+            <p className="text-sm text-white/65">{editorial?.gallerySection?.hint || 'Tap any photo to view it full screen.'}</p>
           </Reveal>
 
           <div
             aria-label="Villa gallery"
             className="grid auto-rows-[150px] grid-cols-2 gap-3 sm:auto-rows-[190px] sm:gap-5 md:grid-cols-4"
           >
-            {gallery.slice(0, 6).map((photo, index) => (
+            {currentGallery.slice(0, 6).map((photo, index) => (
               <motion.button
                 key={photo.src}
                 type="button"
@@ -538,9 +575,9 @@ export default function HomeEditorial() {
         <div className="wrap">
           <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-16">
             <Reveal className="flex min-h-[26rem] flex-col">
-              <p className="label">Testimonials</p>
+              <p className="label">{editorial?.testimonialsSection?.eyebrow || 'Testimonials'}</p>
               <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-forest sm:text-5xl">
-                What guests say.
+                {editorial?.testimonialsSection?.title || 'What guests say.'}
               </h2>
               <span className="mt-6 block font-display text-6xl leading-none text-sun-text">“</span>
               <AnimatePresence mode="wait">
@@ -599,14 +636,14 @@ export default function HomeEditorial() {
                 playsInline
                 loop
                 preload="metadata"
-                poster="/images/day-aerial.webp"
+                poster={editorial?.testimonialsSection?.videoPoster || '/images/day-aerial.webp'}
                 className="absolute inset-0 h-full w-full object-cover"
               >
-                <source src="/videos/stock-hero.mp4" type="video/mp4" />
+                <source src={editorial?.testimonialsSection?.videoSrc || '/videos/stock-hero.mp4'} type="video/mp4" />
               </video>
               <div className="absolute inset-0 bg-forest-dark/20" />
               <div className="absolute inset-x-5 bottom-5 flex items-center justify-between gap-4 text-white sm:inset-x-7 sm:bottom-7">
-                <p className="text-xs font-bold uppercase tracking-[0.15em]">A little more room to breathe</p>
+                <p className="text-xs font-bold uppercase tracking-[0.15em]">{editorial?.testimonialsSection?.videoCaption || 'A little more room to breathe'}</p>
                 <span className="grid h-11 w-11 place-items-center rounded-full border border-white/60 bg-white/90 text-forest" aria-hidden="true">
                   ▶
                 </span>
@@ -615,7 +652,7 @@ export default function HomeEditorial() {
           </div>
 
           <StaggerGrid className="mt-10 grid gap-5 md:grid-cols-3">
-            {reviews.slice(0, 3).map((r) => (
+            {currentReviews.slice(0, 3).map((r) => (
               <StaggerItem key={r.name} className="h-full">
                 <blockquote className="flex h-full flex-col rounded-2xl border border-forest/15 bg-white p-5 shadow-soft">
                   <div className="flex items-center gap-1 text-sun">
@@ -638,11 +675,11 @@ export default function HomeEditorial() {
       <section className="border-t border-forest/10 bg-white pt-16 md:pt-24">
         <div className="wrap grid items-start gap-12 pb-14 lg:grid-cols-2 lg:gap-16">
           <Reveal>
-            <p className="label">Location &amp; map</p>
+            <p className="label">{editorial?.locationSection?.eyebrow || 'Location & map'}</p>
             <h2 className="mt-2 font-display text-3xl font-semibold leading-none tracking-[-0.03em] text-forest sm:text-4xl">
-              Easy to reach, above it all.
+              {editorial?.locationSection?.title || 'Easy to reach, above it all.'}
             </h2>
-            <p className="mt-3 text-sm leading-relaxed text-forest/75">{site.address}</p>
+            <p className="mt-3 text-sm leading-relaxed text-forest/75">{currentSite.address}</p>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div className="rounded-2xl border border-forest/15 bg-white p-4">
@@ -658,7 +695,7 @@ export default function HomeEditorial() {
             <div className="mt-5 overflow-hidden rounded-2xl border border-forest/15 bg-white">
               <iframe
                 title="G'Host Villa location map"
-                src={mapEmbed}
+                src={currentMapEmbed}
                 loading="lazy"
                 referrerPolicy="no-referrer-when-downgrade"
                 className="h-56 w-full border-0"
@@ -666,14 +703,14 @@ export default function HomeEditorial() {
             </div>
 
             <div className="mt-5 grid gap-3 sm:grid-cols-2">
-              <Button href={directionsLink} variant="solid" arrow={false} className="w-full">
+              <Button href={currentDirectionsLink} variant="solid" arrow={false} className="w-full">
                 <span className="inline-flex items-center gap-2">
                   <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
                   <span>Get Directions</span>
                 </span>
               </Button>
               <Button
-                href={waLink("Hello G'Host Villa! Could you share directions to the villa?")}
+                href={currentWhatsApp("Hello G'Host Villa! Could you share directions to the villa?")}
                 variant="outline"
                 arrow={false}
                 className="w-full"
@@ -692,7 +729,7 @@ export default function HomeEditorial() {
               Quick answers.
             </h2>
             <div className="mt-5 divide-y divide-forest/15 border-y border-forest/15">
-              {faqs.slice(0, 5).map((faq) => (
+              {currentFaqs.slice(0, 5).map((faq) => (
                 <details key={faq.q} className="group py-4">
                   <summary className="flex cursor-pointer list-none items-center justify-between gap-5 text-sm font-semibold text-forest">
                     <span>{faq.q}</span>

@@ -3,7 +3,7 @@
 // Icons come from lucide-react. Usage anywhere: <Icon name="leaf" className="h-5 w-5" />
 // To use another Lucide icon, import it and add it to the MAP below.
 import {
-  ArrowUpRight, Bath, BedDouble, Calendar, Check, ChevronDown, ChevronLeft, ChevronRight, Clock, Coffee, Download,
+  ArrowRight, Bath, BedDouble, Calendar, Check, ChevronDown, ChevronLeft, ChevronRight, Clock, Coffee, Download,
   DoorOpen, Droplet, Flame, Footprints, Globe, Home, Leaf, Mail, MapPin, Maximize2, Menu, MessageCircle, Mountain,
   Navigation, Phone, Search, Snowflake, Sparkles, Star, TreePine, Users, Utensils, Waves, Wifi, X,
 } from 'lucide-react'
@@ -24,7 +24,7 @@ const MAP = {
   phone: Phone, pin: MapPin, chat: MessageCircle, bed: BedDouble, utensils: Utensils, wifi: Wifi,
   bath: Bath, flame: Flame, snow: Snowflake, coffee: Coffee, door: DoorOpen, drop: Droplet,
   feet: Footprints, mountain: Mountain, pine: TreePine, check: Check, chevron: ChevronDown,
-  chevronL: ChevronLeft, chevronR: ChevronRight, arrow: ArrowUpRight, menu: Menu, close: X,
+  chevronL: ChevronLeft, chevronR: ChevronRight, arrow: ArrowRight, menu: Menu, close: X,
   search: Search, download: Download, leaf: Leaf, nav: Navigation, clock: Clock, mail: Mail,
   insta: Instagram, fb: Facebook, globe: Globe,
   calendar: Calendar, users: Users, home: Home, maximize: Maximize2, sparkles: Sparkles, pool: Waves,

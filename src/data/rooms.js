@@ -340,19 +340,19 @@ export function recommendedFor(guests) {
 export const WHATSAPP_FROM = 8
 
 /** Extra nightly charge for the MAP meal plan, matching the owner's handwritten rate card. */
-export function mapAddFor(room, guests) {
+export function mapAddFor(room, guests, mapAdd = MAP_ADD) {
   const rule = room.pricing
   if (rule?.mapBase != null && guests >= rule.included) {
-    return rule.mapBase + Math.max(0, guests - rule.included) * MAP_ADD
+    return rule.mapBase + Math.max(0, guests - rule.included) * mapAdd
   }
-  return MAP_ADD * guests
+  return mapAdd * guests
 }
 
 // ── Price for one stay ──
 // returns { kind: 'ask' } | { kind: 'exact', total, perPerson } | { kind: 'range', min, max }
-export function priceFor(room, guests, plan = 'BB') {
+export function priceFor(room, guests, plan = 'BB', mapAdd = MAP_ADD) {
   const g = Math.min(Math.max(guests ?? room.defaultGuests, room.minGuests), room.maxGuests)
-  const map = plan === 'MAP' ? mapAddFor(room, g) : 0
+  const map = plan === 'MAP' ? mapAddFor(room, g, mapAdd) : 0
   const rule = room.pricing
   if (room.whatsappOnly || rule.type === 'ask') return { kind: 'ask', guests: g }
   if (rule.type === 'tiers') {
@@ -366,8 +366,8 @@ export function priceFor(room, guests, plan = 'BB') {
 }
 
 /** Text for a price block. guests = null means "show the from-price". */
-export function describePrice(room, guests, plan = 'BB') {
-  const result = priceFor(room, guests, plan)
+export function describePrice(room, guests, plan = 'BB', mapAdd = MAP_ADD) {
+  const result = priceFor(room, guests, plan, mapAdd)
   const label = guests == null ? 'From' : 'Total'
   const planTag = plan === 'MAP' ? ' · MAP' : ''
   if (result.kind === 'ask') return { label: '', main: 'Price on WhatsApp', note: 'Confirmed directly with the villa team', perPerson: null }
@@ -375,7 +375,7 @@ export function describePrice(room, guests, plan = 'BB') {
     return { label, main: `${formatNpr(result.min)} – ${result.max.toLocaleString('en-US')}`, note: `per night · ${result.guests} guests${planTag}`, perPerson: null }
   }
   if (room.pricing.type === 'perPerson' && guests == null) {
-    const pp = room.pricing.rate + (plan === 'MAP' ? MAP_ADD : 0)
+    const pp = room.pricing.rate + (plan === 'MAP' ? mapAdd : 0)
     return { label, main: formatNpr(pp), note: `per person · from ${room.minGuests} guests${planTag}`, perPerson: null }
   }
   return {
@@ -386,9 +386,9 @@ export function describePrice(room, guests, plan = 'BB') {
   }
 }
 
-export const rateTable = (room, plan) => {
+export const rateTable = (room, plan, mapAdd = MAP_ADD) => {
   const rows = []
-  for (let g = room.minGuests; g <= room.maxGuests && rows.length < 12; g += 1) rows.push({ guests: g, bb: priceFor(room, g, 'BB'), map: priceFor(room, g, 'MAP') })
+  for (let g = room.minGuests; g <= room.maxGuests && rows.length < 12; g += 1) rows.push({ guests: g, bb: priceFor(room, g, 'BB', mapAdd), map: priceFor(room, g, 'MAP', mapAdd) })
   return rows
 }
 
@@ -416,8 +416,8 @@ export function groupHint(guests) {
 }
 
 /** Lowest and highest nightly cost for a stay, or null when the price is only given on WhatsApp. */
-export function costSpan(room, guests, plan) {
-  const result = priceFor(room, guests, plan)
+export function costSpan(room, guests, plan, mapAdd = MAP_ADD) {
+  const result = priceFor(room, guests, plan, mapAdd)
   if (result.kind === 'exact') return { min: result.total, max: result.total }
   if (result.kind === 'range') return { min: result.min, max: result.max }
   return null

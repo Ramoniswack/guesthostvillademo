@@ -7,11 +7,12 @@ import { ArrowRight, ArrowUpDown, Bath, BedDouble, ChevronDown, Coffee, Minus, M
 import RangeSlider from './RangeSlider.jsx'
 import { Button, Reveal } from './ui.jsx'
 import {
-  rooms, buildings, plans, MAX_GUESTS,
+  rooms, buildings, plans, MAX_GUESTS, MAP_ADD,
   recommendedFor, describePrice, costSpan, buildingLabel,
 } from '../data/rooms.js'
 import { waLink } from '../data/site.js'
 import { nightsBetween, stayQuery, stayQuote, todayISO } from '../lib/booking.js'
+import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 function cardTag(room) {
   if (room.id === 'mountain-view-room') return 'Most popular'
@@ -19,10 +20,10 @@ function cardTag(room) {
   return room.badge
 }
 
-function StayCard({ room, guests, plan, checkIn, checkOut }) {
-  const price = describePrice(room, guests, plan)
+function StayCard({ room, availableBuildings, mapAdd, guests, plan, checkIn, checkOut }) {
+  const price = describePrice(room, guests, plan, mapAdd)
   const nights = nightsBetween(checkIn, checkOut)
-  const quote = nights > 0 && !room.whatsappOnly ? stayQuote(room, guests ?? room.defaultGuests, plan, nights) : null
+  const quote = nights > 0 && !room.whatsappOnly ? stayQuote(room, guests ?? room.defaultGuests, plan, nights, mapAdd) : null
   const href = `/rooms/${room.id}${stayQuery({ guests, plan, checkIn, checkOut })}`
   const tag = cardTag(room)
   const roomAmenities = [
@@ -43,7 +44,9 @@ function StayCard({ room, guests, plan, checkIn, checkOut }) {
         )}
       </div>
       <div className="flex flex-1 flex-col p-5">
-        <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-sun-text">{buildingLabel(room)}</p>
+        <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-sun-text">
+          {room.building === 'both' ? 'Both buildings' : (availableBuildings.find((item) => item.id === room.building)?.name ?? buildingLabel(room))}
+        </p>
         <h3 className="mt-1.5 font-display text-xl font-semibold leading-snug tracking-[-0.025em] text-forest">{room.name}</h3>
         <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs font-medium text-forest/65">
           <span className="inline-flex items-center gap-1.5"><Users className="h-3.5 w-3.5 text-forest/50" aria-hidden="true" />{room.capacity}</span>
@@ -106,7 +109,7 @@ function Option({ name, checked, onChange, children, hint }) {
   )
 }
 
-function BookingBar({ building, setBuilding, checkIn, setCheckIn, checkOut, setCheckOut, guests, setGuests }) {
+function BookingBar({ availableBuildings, maxGuests, building, setBuilding, checkIn, setCheckIn, checkOut, setCheckOut, guests, setGuests }) {
   const [isCompact, setIsCompact] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const bookingBarRef = useRef(null)
@@ -126,14 +129,14 @@ function BookingBar({ building, setBuilding, checkIn, setCheckIn, checkOut, setC
     document.getElementById('stay-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
-  const buildingName = building === 'all' ? 'Any space' : (buildings.find((b) => b.id === building)?.name ?? 'Any space')
+  const buildingName = building === 'all' ? 'Any space' : (availableBuildings.find((b) => b.id === building)?.name ?? 'Any space')
   const dateText = checkIn && checkOut ? `${checkIn.slice(5)} → ${checkOut.slice(5)}` : checkIn ? checkIn.slice(5) : 'Add dates'
   const guestText = guests == null ? 'Any guests' : `${guests} ${guests === 1 ? 'guest' : 'guests'}`
 
   return (
-    <div ref={bookingBarRef} className={`sticky top-0 z-30 border-b border-forest/10 bg-white/95 px-5 backdrop-blur-md transition-all duration-300 sm:px-8 lg:px-12 ${isCompact ? 'py-1.5 shadow-md shadow-forest/5' : 'py-2'}`}>
+    <div ref={bookingBarRef} className={`sticky top-0 z-30 border-b border-forest/10 bg-white/95 backdrop-blur-md transition-all duration-300 ${isCompact ? 'shadow-md shadow-forest/5' : ''}`}>
       {/* Mobile compact search pill */}
-      <div className="md:hidden">
+      <div className="px-5 py-2 sm:px-8 md:hidden">
         <button
           type="button"
           onClick={() => setMobileOpen((o) => !o)}
@@ -168,7 +171,7 @@ function BookingBar({ building, setBuilding, checkIn, setCheckIn, checkOut, setC
                   <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">Stay type</span>
                   <select value={building} onChange={(e) => setBuilding(e.target.value)} className="mt-1 w-full bg-transparent text-sm font-semibold text-forest outline-none">
                     <option value="all">Any G’Host space</option>
-                    {buildings.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+                    {availableBuildings.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
                   </select>
                 </label>
                 <div className="grid grid-cols-2 gap-px bg-forest/15">
@@ -186,7 +189,7 @@ function BookingBar({ building, setBuilding, checkIn, setCheckIn, checkOut, setC
                   <div className="flex items-center gap-3 font-semibold text-forest">
                     <button type="button" aria-label="Remove guest" onClick={() => setGuests((c) => (c == null || c <= 1 ? null : c - 1))} className="grid h-7 w-7 place-items-center rounded-full border border-forest/20">−</button>
                     <span className="min-w-8 text-center text-sm">{guests ?? 'Any'}</span>
-                    <button type="button" aria-label="Add guest" onClick={() => setGuests((c) => Math.min(MAX_GUESTS, (c ?? 0) + 1))} className="grid h-7 w-7 place-items-center rounded-full border border-forest/20">+</button>
+                    <button type="button" aria-label="Add guest" onClick={() => setGuests((c) => Math.min(maxGuests, (c ?? 0) + 1))} className="grid h-7 w-7 place-items-center rounded-full border border-forest/20">+</button>
                   </div>
                 </div>
                 <div className="bg-white p-2.5">
@@ -199,31 +202,31 @@ function BookingBar({ building, setBuilding, checkIn, setCheckIn, checkOut, setC
       </div>
 
       {/* Desktop horizontal bar */}
-      <form onSubmit={submit} className={`relative mx-auto hidden ${isCompact ? 'max-w-[1120px]' : 'max-w-[1440px]'} gap-px overflow-hidden rounded-2xl bg-forest/15 p-px shadow-lg shadow-forest/10 transition-all duration-300 md:grid md:grid-cols-[1.25fr_1fr_1fr_0.75fr_auto]`} aria-label="Search G’Host stays">
-        <label className={`bg-white px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}>
+      <form onSubmit={submit} className={`relative mx-auto hidden ${isCompact ? 'max-w-[1120px]' : 'max-w-[1440px]'} px-5 transition-all duration-300 sm:px-8 lg:px-12 md:grid md:grid-cols-[1.25fr_1fr_1fr_0.75fr_auto] md:divide-x md:divide-forest/10`} aria-label="Search G’Host stays">
+        <label className={`pr-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-3.5'}`}>
           <span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Stay type</span>
           <select value={building} onChange={(e) => setBuilding(e.target.value)} className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`}>
             <option value="all">Any G’Host space</option>
-            {buildings.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
+            {availableBuildings.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
           </select>
         </label>
-        <label className={`bg-white px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}>
+        <label className={`px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-3.5'}`}>
           <span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Check in</span>
           <input aria-label="Check in" type="date" min={todayISO()} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`} />
         </label>
-        <label className={`bg-white px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}>
+        <label className={`px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-3.5'}`}>
           <span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Check out</span>
           <input aria-label="Check out" type="date" min={checkIn || todayISO()} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`} />
         </label>
-        <div className={`bg-white px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-4'}`}>
+        <div className={`px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-3.5'}`}>
           <span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Guests</span>
           <div className={`${isCompact ? '' : 'mt-1'} flex items-center justify-between font-semibold text-forest`}>
             <button type="button" aria-label="Remove guest" onClick={() => setGuests((c) => (c == null || c <= 1 ? null : c - 1))} className="grid h-7 w-7 place-items-center rounded-full border border-forest/20 transition hover:bg-forest hover:text-cream">−</button>
             <span>{guests ?? 'Any'}</span>
-            <button type="button" aria-label="Add guest" onClick={() => setGuests((c) => Math.min(MAX_GUESTS, (c ?? 0) + 1))} className="grid h-7 w-7 place-items-center rounded-full border border-forest/20 transition hover:bg-forest hover:text-cream">+</button>
+            <button type="button" aria-label="Add guest" onClick={() => setGuests((c) => Math.min(maxGuests, (c ?? 0) + 1))} className="grid h-7 w-7 place-items-center rounded-full border border-forest/20 transition hover:bg-forest hover:text-cream">+</button>
           </div>
         </div>
-        <div className="flex items-center bg-white p-2">
+        <div className="flex items-center py-2 pl-5">
           <button type="submit" className={`w-full rounded-full bg-sun px-7 text-sm font-bold uppercase tracking-[0.12em] text-forest transition hover:bg-sun-dark ${isCompact ? 'min-h-10' : 'min-h-12'}`}>Find a stay</button>
         </div>
       </form>
@@ -232,6 +235,22 @@ function BookingBar({ building, setBuilding, checkIn, setCheckIn, checkOut, setC
 }
 
 export default function Rooms() {
+  const backend = useBackendData()
+  const staysData = backend?.stays
+  const currentSite = backend?.site
+  const currentRooms = staysData?.rooms?.length ? staysData.rooms : rooms
+  const currentBuildings = staysData?.buildings?.length ? staysData.buildings : buildings
+  const currentPlans = staysData?.plans?.length ? staysData.plans : plans
+  const maxGuests = staysData?.MAX_GUESTS ?? MAX_GUESTS
+  const mapAdd = staysData?.MAP_ADD ?? MAP_ADD
+  const currentRecommendedFor = (guestCount) => {
+    const rule = staysData?.recommendationRules?.find(
+      (item) => guestCount >= item.minGuests && guestCount <= item.maxGuests,
+    )
+    const ids = rule?.staySlugs ?? recommendedFor(guestCount).map((room) => room.id)
+    return ids.map((id) => currentRooms.find((room) => room.id === id)).filter((room) => room && guestCount <= room.maxGuests)
+  }
+  const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
   const [building, setBuilding] = useState('all')
   const [guests, setGuests] = useState(null) // null = any group size
   const [plan, setPlan] = useState('BB')
@@ -248,7 +267,7 @@ export default function Rooms() {
   useEffect(() => {
     const q = new URLSearchParams(window.location.search)
     const g = Number(q.get('guests'))
-    if (g >= 1 && g <= MAX_GUESTS) setGuests(g)
+    if (g >= 1 && g <= maxGuests) setGuests(g)
     const i = q.get('in'), o = q.get('out')
     if (i && i >= todayISO()) { setCheckIn(i); if (o && o > i) setCheckOut(o) }
   }, [])
@@ -256,20 +275,20 @@ export default function Rooms() {
   const priceActive = priceMin > 0 || priceMax < PRICE_MAX
 
   const visible = useMemo(() => {
-    const pool = guests == null ? rooms.filter((room) => room.catalog) : recommendedFor(guests)
+    const pool = guests == null ? currentRooms.filter((room) => room.catalog) : currentRecommendedFor(guests)
     const list = pool.filter((room) => {
       if (building !== 'all' && room.building !== 'both' && room.building !== building) return false
-      if (view !== 'any' && !room.views.includes(view)) return false
+      if (view !== 'any' && !(room.views ?? []).includes(view)) return false
       if (priceActive) {
-        const span = costSpan(room, guests, plan)
+        const span = costSpan(room, guests, plan, mapAdd)
         if (span && (span.max < priceMin || (priceMax < PRICE_MAX && span.min > priceMax))) return false
       }
       return true
     })
     if (sort === 'best') return list
-    const key = (room) => costSpan(room, guests, plan)?.min ?? Number.POSITIVE_INFINITY
-    return [...list].sort((a, b) => (sort === 'low' ? key(a) - key(b) : (costSpan(b, guests, plan)?.max ?? -1) - (costSpan(a, guests, plan)?.max ?? -1)))
-  }, [building, guests, plan, view, priceMin, priceMax, priceActive, sort])
+    const key = (room) => costSpan(room, guests, plan, mapAdd)?.min ?? Number.POSITIVE_INFINITY
+    return [...list].sort((a, b) => (sort === 'low' ? key(a) - key(b) : (costSpan(b, guests, plan, mapAdd)?.max ?? -1) - (costSpan(a, guests, plan, mapAdd)?.max ?? -1)))
+  }, [building, guests, plan, view, priceMin, priceMax, priceActive, sort, currentRooms, staysData, mapAdd])
 
   const clearFilters = () => { setBuilding('all'); setGuests(null); setPlan('BB'); setView('any'); setPriceMin(0); setPriceMax(PRICE_MAX); setSort('best'); setCheckIn(''); setCheckOut('') }
   const activeCount = [building !== 'all', guests != null, plan !== 'BB', view !== 'any', priceActive, checkIn || checkOut].filter(Boolean).length
@@ -280,6 +299,8 @@ export default function Rooms() {
   return (
     <section id="rooms" className="bg-white pb-16 pt-[4.5rem] md:pb-20">
       <BookingBar
+        availableBuildings={currentBuildings}
+        maxGuests={maxGuests}
         building={building}
         setBuilding={setBuilding}
         checkIn={checkIn}
@@ -330,9 +351,9 @@ export default function Rooms() {
                     <span className="text-xs font-semibold text-forest">{guestLabel}</span>
                   </div>
                   <div className="mt-3">
-                    <RangeSlider min={0} max={MAX_GUESTS} step={1} value={guests ?? 0} onChange={(n) => setGuests(n === 0 ? null : n)} labels={['Number of guests']} />
+                    <RangeSlider min={0} max={maxGuests} step={1} value={guests ?? 0} onChange={(n) => setGuests(n === 0 ? null : n)} labels={['Number of guests']} />
                   </div>
-                  <div className="mt-1.5 flex justify-between text-[0.7rem] text-forest/50"><span>Any</span><span>{MAX_GUESTS}</span></div>
+                  <div className="mt-1.5 flex justify-between text-[0.7rem] text-forest/50"><span>Any</span><span>{maxGuests}</span></div>
                 </div>
 
                 <div className="bg-white px-5 py-4">
@@ -349,7 +370,7 @@ export default function Rooms() {
                 <div role="group" aria-labelledby="filter-building" className="bg-white px-5 py-4">
                   <p id="filter-building" className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Building</p>
                   <div className="mt-2 space-y-1">
-                    {[{ id: 'all', name: 'Both buildings' }, ...buildings].map((item) => (
+                    {[{ id: 'all', name: 'Both buildings' }, ...currentBuildings].map((item) => (
                       <Option key={item.id} name="building" checked={building === item.id} onChange={() => setBuilding(item.id)}>{item.name}</Option>
                     ))}
                   </div>
@@ -386,7 +407,7 @@ export default function Rooms() {
                       <div role="group" aria-labelledby="filter-plan" className="bg-white px-5 py-4">
                         <p id="filter-plan" className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55">Meal plan</p>
                         <div className="mt-2 space-y-1">
-                          {plans.map((item) => <Option key={item.id} name="plan" checked={plan === item.id} onChange={() => setPlan(item.id)} hint={item.note}>{item.label} ({item.short})</Option>)}
+                          {currentPlans.map((item) => <Option key={item.id} name="plan" checked={plan === item.id} onChange={() => setPlan(item.id)} hint={item.note}>{item.label} ({item.short})</Option>)}
                         </div>
                       </div>
                     </motion.div>
@@ -407,7 +428,7 @@ export default function Rooms() {
                   transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.25), ease: [0.22, 0.61, 0.36, 1] }}
                   className="h-full"
                 >
-                  <StayCard room={room} guests={guests} plan={plan} checkIn={checkIn} checkOut={checkOut} />
+                  <StayCard room={room} availableBuildings={currentBuildings} mapAdd={mapAdd} guests={guests} plan={plan} checkIn={checkIn} checkOut={checkOut} />
                 </motion.div>
               ))}
               {visible.length === 0 && (
@@ -425,7 +446,7 @@ export default function Rooms() {
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun">Group or custom stay?</p>
             <h2 className="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] md:text-3xl">Tell us your group size and we’ll suggest the best fit.</h2>
           </div>
-          <Button href={waLink("Hello G'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.")} variant="light">Ask on WhatsApp</Button>
+          <Button href={currentWhatsApp("Hello G'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.")} variant="light">Ask on WhatsApp</Button>
         </Reveal>
       </div>
     </section>

@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
@@ -8,6 +8,7 @@ import {
 } from 'lucide-react'
 import { Button, Reveal, StaggerGrid, StaggerItem } from '../components/ui.jsx'
 import { directionsLink, site, telLink, waLink } from '../data/site.js'
+import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const estateFacts = [
   { label: 'Estate layout', value: 'Crystal Pyramid Dome + 7BHK Main Villa' },
@@ -139,8 +140,26 @@ const siteFacilities = [
 ]
 
 export default function AboutPage() {
+  const backend = useBackendData()
+  const about = backend?.about
+  const content = about?.content ?? {}
+  const currentSite = backend?.site ?? site
+  const currentEstateFacts = about?.estateFacts?.length ? about.estateFacts : estateFacts
+  const currentEstateZones = about?.estateZones?.length ? about.estateZones : estateZones
+  const currentHostingLedger = about?.hostingLedger?.length ? about.hostingLedger : hostingLedger
+  const currentHouseRules = about?.houseRules?.length ? about.houseRules : houseRules
+  const currentFacilities = about?.siteFacilities?.length ? about.siteFacilities : siteFacilities
+  const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
+  const currentTelLink = currentSite.phoneTel ? `tel:${currentSite.phoneTel}` : telLink
+  const currentDirectionsLink = currentSite.directionsLink ?? directionsLink
   const [activeZoneId, setActiveZoneId] = useState(estateZones[0].id)
-  const activeZone = estateZones.find((z) => z.id === activeZoneId) ?? estateZones[0]
+  const activeZone = currentEstateZones.find((z) => z.id === activeZoneId) ?? currentEstateZones[0]
+
+  useEffect(() => {
+    if (!currentEstateZones.some((zone) => zone.id === activeZoneId) && currentEstateZones.length) {
+      setActiveZoneId(currentEstateZones[0].id)
+    }
+  }, [activeZoneId, currentEstateZones])
 
   return (
     <>
@@ -148,23 +167,23 @@ export default function AboutPage() {
       <section className="bg-white pb-16 pt-28 md:pb-20 md:pt-36">
         <div className="wrap">
           <Reveal>
-            <p className="label">About G’Host Villa · Sarangkot Ridge, Pokhara</p>
+            <p className="label">{content.eyebrow || 'About G’Host Villa · Sarangkot Ridge, Pokhara'}</p>
             <h1 className="mt-3 max-w-4xl font-display text-4xl font-semibold leading-[0.94] tracking-[-0.045em] text-forest sm:text-6xl lg:text-[4.5rem]">
-              Built for the quiet side of Pokhara.
+              {content.title || 'Built for the quiet side of Pokhara.'}
             </h1>
           </Reveal>
 
           <Reveal delay={0.08} className="mt-8 grid gap-6 border-t border-forest/15 pt-8 md:grid-cols-2 md:gap-12">
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun-text">Why the Sarangkot ridge</p>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun-text">{content.whyTitle || 'Why the Sarangkot ridge'}</p>
               <p className="mt-2.5 text-base leading-relaxed text-forest/80">
-                Twenty minutes uphill from Lakeside, the traffic fades into pine forest and crisp mountain air. We built on the Ranipauwa–Sarangkot ridge so guests wake up facing the Annapurna range and Phewa Valley instead of busy streets.
+                {content.whyText || 'Twenty minutes uphill from Lakeside, the traffic fades into pine forest and crisp mountain air. We built on the Ranipauwa–Sarangkot ridge so guests wake up facing the Annapurna range and Phewa Valley instead of busy streets.'}
               </p>
             </div>
             <div>
-              <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun-text">What “G’Host” means</p>
+              <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun-text">{content.meaningTitle || 'What “G’Host” means'}</p>
               <p className="mt-2.5 text-base leading-relaxed text-forest/80">
-                Short for “your gracious host”—the idea that a hilltop stay should feel like visiting a well-kept family estate. From a quiet room for two to a 7BHK celebration, the same on-site team looks after your stay from arrival to checkout.
+                {content.meaningText || 'Short for “your gracious host”—the idea that a hilltop stay should feel like visiting a well-kept family estate. From a quiet room for two to a 7BHK celebration, the same on-site team looks after your stay from arrival to checkout.'}
               </p>
             </div>
           </Reveal>
@@ -173,12 +192,12 @@ export default function AboutPage() {
             <div className="grid lg:grid-cols-[1.15fr_0.85fr]">
               <div className="relative min-h-[18rem] overflow-hidden sm:min-h-[24rem]">
                 <img
-                  src="/images/day-aerial.webp"
-                  alt="Aerial view of G’Host Villa buildings along the Sarangkot ridge"
+                  src={content.profileImage || '/images/day-aerial.webp'}
+                  alt={content.profileImageAlt || 'Aerial view of G’Host Villa buildings along the Sarangkot ridge'}
                   className="h-full w-full object-cover object-[50%_58%]"
                 />
                 <span className="absolute left-4 top-4 rounded-full bg-sun px-3.5 py-1.5 text-[0.68rem] font-bold uppercase tracking-[0.13em] text-forest-dark">
-                  Sarangkot · 20 mins from Lakeside
+                  {content.profileBadge || 'Sarangkot · 20 mins from Lakeside'}
                 </span>
               </div>
 
@@ -186,7 +205,7 @@ export default function AboutPage() {
                 <div>
                   <p className="text-xs font-bold uppercase tracking-[0.15em] text-sun">Property profile</p>
                   <dl className="mt-5 divide-y divide-white/15 border-y border-white/15">
-                    {estateFacts.map((fact) => (
+                    {currentEstateFacts.map((fact) => (
                       <div key={fact.label} className="py-3.5">
                         <dt className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-white/60">
                           {fact.label}
@@ -214,18 +233,18 @@ export default function AboutPage() {
         <div className="wrap">
           <Reveal className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="label">Inside the estate</p>
+              <p className="label">{content.zonesEyebrow || 'Inside the estate'}</p>
               <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-forest sm:text-5xl">
-                Four spaces, one hillside.
+                {content.zonesTitle || 'Four spaces, one hillside.'}
               </h2>
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-forest/70">
-              Select a wing or gathering area to see its layout, guest fit, and rooms.
+              {content.zonesSubtitle || 'Select a wing or gathering area to see its layout, guest fit, and rooms.'}
             </p>
           </Reveal>
 
           <div role="tablist" aria-label="Estate zones" className="mt-8 flex flex-wrap gap-2.5">
-            {estateZones.map((zone) => {
+            {currentEstateZones.map((zone) => {
               const selected = zone.id === activeZoneId
               return (
                 <button
@@ -314,16 +333,16 @@ export default function AboutPage() {
       <section className="border-t border-forest/15 bg-white py-16 md:py-24">
         <div className="wrap grid items-start gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
           <Reveal className="lg:sticky lg:top-28">
-            <p className="label">How we host</p>
+            <p className="label">{content.hostingEyebrow || 'How we host'}</p>
             <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-forest sm:text-5xl">
-              Personal hosting, not a front desk.
+              {content.hostingTitle || 'Personal hosting, not a front desk.'}
             </h2>
             <p className="mt-4 text-base leading-relaxed text-forest/75">
-              Instead of fixed hotel packages or distant call centres, our Sarangkot kitchen and hosting crew tailor rooms, meals and outdoor setups directly around your group.
+              {content.hostingSubtitle || 'Instead of fixed hotel packages or distant call centres, our Sarangkot kitchen and hosting crew tailor rooms, meals and outdoor setups directly around your group.'}
             </p>
             <div className="mt-7">
               <Button
-                href={waLink("Hello G'Host Villa! I'd like to talk through a stay with the hosting team.")}
+                href={currentWhatsApp("Hello G'Host Villa! I'd like to talk through a stay with the hosting team.")}
                 arrow={false}
               >
                 <span className="inline-flex items-center gap-2">
@@ -335,7 +354,7 @@ export default function AboutPage() {
           </Reveal>
 
           <StaggerGrid className="space-y-4">
-            {hostingLedger.map((item) => (
+            {currentHostingLedger.map((item) => (
               <StaggerItem key={item.number}>
                 <article className="flex flex-col gap-4 rounded-2xl border border-forest/15 bg-white p-6 shadow-soft sm:flex-row sm:items-start sm:gap-5">
                   <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-sun font-display text-base font-bold text-forest-dark">
@@ -371,13 +390,13 @@ export default function AboutPage() {
         <div className="wrap">
           <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="label !text-sun">Good to know</p>
+              <p className="label !text-sun">{content.standardsEyebrow || 'Good to know'}</p>
               <h2 className="mt-2 font-display text-3xl font-semibold leading-none tracking-[-0.03em] text-white sm:text-4xl">
-                Property standards &amp; direct desk.
+                {content.standardsTitle || 'Property standards & direct desk.'}
               </h2>
             </div>
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-white/65">
-              {site.hours}
+              {currentSite.hours}
             </p>
           </Reveal>
 
@@ -388,7 +407,7 @@ export default function AboutPage() {
                 <h3 className="font-display text-xl font-semibold text-white">Check-in &amp; house rhythm</h3>
               </div>
               <ul className="mt-5 space-y-3 text-sm leading-relaxed text-white/85">
-                {houseRules.map((rule) => (
+                {currentHouseRules.map((rule) => (
                   <li key={rule} className="flex items-start gap-2.5">
                     <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-sun" aria-hidden="true" />
                     <span>{rule}</span>
@@ -403,7 +422,7 @@ export default function AboutPage() {
                 <h3 className="font-display text-xl font-semibold text-white">On-site facilities</h3>
               </div>
               <ul className="mt-5 space-y-3 text-sm leading-relaxed text-white/85">
-                {siteFacilities.map((facility) => (
+                {currentFacilities.map((facility) => (
                   <li key={facility} className="flex items-start gap-2.5">
                     <Check className="mt-0.5 h-4 w-4 shrink-0 text-sun" aria-hidden="true" />
                     <span>{facility}</span>
@@ -418,23 +437,23 @@ export default function AboutPage() {
                 <h3 className="font-display text-xl font-semibold text-white">Direct desk &amp; address</h3>
               </div>
               <div className="mt-5 space-y-3 text-sm text-white/85">
-                <p className="leading-relaxed">{site.address}</p>
+                <p className="leading-relaxed">{currentSite.address}</p>
                 <p className="flex items-center gap-2">
                   <Phone className="h-4 w-4 shrink-0 text-sun" aria-hidden="true" />
-                  <a href={telLink} className="font-semibold hover:text-sun">
-                    {site.phoneDisplay}
+                  <a href={currentTelLink} className="font-semibold hover:text-sun">
+                    {currentSite.phoneDisplay}
                   </a>
                   <span className="text-white/40">·</span>
-                  <span>{site.altPhoneDisplay}</span>
+                  <span>{currentSite.altPhoneDisplay}</span>
                 </p>
                 <p>
-                  <a href={`mailto:${site.email}`} className="underline decoration-sun/60 underline-offset-4 hover:text-sun">
-                    {site.email}
+                  <a href={`mailto:${currentSite.email}`} className="underline decoration-sun/60 underline-offset-4 hover:text-sun">
+                    {currentSite.email}
                   </a>
                 </p>
               </div>
               <div className="mt-auto pt-6">
-                <Button href={directionsLink} variant="primary" arrow={false} className="w-full">
+                <Button href={currentDirectionsLink} variant="primary" arrow={false} className="w-full">
                   <span className="inline-flex items-center gap-2">
                     <MapPin className="h-4 w-4 shrink-0" aria-hidden="true" />
                     <span>Get Directions</span>

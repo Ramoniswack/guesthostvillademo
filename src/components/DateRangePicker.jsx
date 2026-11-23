@@ -20,7 +20,7 @@ function monthCells(year, month) {
  * Inline range calendar. Click a check-in date, then a check-out date.
  * `blocked` is a Set of taken nights; they are crossed out and cannot be part of a stay.
  */
-export default function DateRangePicker({ checkIn, checkOut, onChange, blocked = new Set(), months = 1 }) {
+export default function DateRangePicker({ checkIn, checkOut, onChange, blocked = new Set(), months = 1, maxNights = MAX_NIGHTS }) {
   const today = todayISO()
   const start = parseISO(checkIn) ?? new Date()
   const [cursor, setCursor] = useState({ y: start.getFullYear(), m: start.getMonth() })
@@ -31,14 +31,14 @@ export default function DateRangePicker({ checkIn, checkOut, onChange, blocked =
 
   const pick = (iso) => {
     const choosingEnd = checkIn && !checkOut && iso > checkIn
-    if (choosingEnd && !rangeBlocked(blocked, checkIn, iso) && nightsBetween(checkIn, iso) <= MAX_NIGHTS) onChange(checkIn, iso)
+    if (choosingEnd && !rangeBlocked(blocked, checkIn, iso) && nightsBetween(checkIn, iso) <= maxNights) onChange(checkIn, iso)
     else onChange(iso, '')
     setHover('')
   }
 
   const isDisabled = (iso) => {
     if (iso < today) return true
-    if (checkIn && !checkOut && iso > checkIn) return rangeBlocked(blocked, checkIn, iso) || nightsBetween(checkIn, iso) > MAX_NIGHTS
+    if (checkIn && !checkOut && iso > checkIn) return rangeBlocked(blocked, checkIn, iso) || nightsBetween(checkIn, iso) > maxNights
     return blocked.has(iso)
   }
 
@@ -51,7 +51,7 @@ export default function DateRangePicker({ checkIn, checkOut, onChange, blocked =
   const quick = (n) => {
     if (!checkIn) return
     const out = addDays(checkIn, n)
-    if (!rangeBlocked(blocked, checkIn, out)) onChange(checkIn, out)
+    if (n <= maxNights && !rangeBlocked(blocked, checkIn, out)) onChange(checkIn, out)
   }
 
   return (

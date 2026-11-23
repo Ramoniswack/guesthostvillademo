@@ -1,6 +1,6 @@
 // Small date + quote helpers for the booking calendar. All dates are local 'YYYY-MM-DD' strings.
 import { blockedNights } from '../data/availability.js'
-import { findStay, mapAddFor, priceFor, MAP_ADD } from '../data/rooms.js'
+import { rooms, mapAddFor, priceFor, MAP_ADD } from '../data/rooms.js'
 
 const pad = (n) => String(n).padStart(2, '0')
 export const toISO = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
@@ -23,25 +23,25 @@ export const fmtDate = (iso, opts = { weekday: 'short', day: 'numeric', month: '
 }
 
 // Every stay that physically overlaps this one (so a booked room blocks the building that contains it).
-function relatedIds(room) {
+function relatedIds(room, stays, availability) {
   const ids = new Set([room.id])
-  const walk = (item) => (item.includes ?? []).forEach((id) => { if (!ids.has(id)) { ids.add(id); const child = findStay(id); if (child) walk(child) } })
+  const walk = (item) => (item.includes ?? []).forEach((id) => { if (!ids.has(id)) { ids.add(id); const child = stays.find((stay) => stay.id === id); if (child) walk(child) } })
   walk(room)
   // and any stay that includes this one
   let grew = true
   while (grew) {
     grew = false
-    for (const id of Object.keys(blockedNights)) {
-      const other = findStay(id)
+    for (const id of Object.keys(availability)) {
+      const other = stays.find((stay) => stay.id === id)
       if (other && !ids.has(id) && (other.includes ?? []).some((inc) => ids.has(inc))) { ids.add(id); grew = true }
     }
   }
   return ids
 }
 
-export function blockedSetFor(room) {
+export function blockedSetFor(room, availability = blockedNights, stays = rooms) {
   const set = new Set()
-  relatedIds(room).forEach((id) => (blockedNights[id] ?? []).forEach((d) => set.add(d)))
+  relatedIds(room, stays, availability).forEach((id) => (availability[id] ?? []).forEach((d) => set.add(d)))
   return set
 }
 
@@ -52,16 +52,16 @@ export function rangeBlocked(blocked, checkIn, checkOut) {
 }
 
 /** Full quote for the stay: lines for the price breakdown plus a total (or range, or ask). */
-export function stayQuote(room, guests, plan, nights) {
+export function stayQuote(room, guests, plan, nights, mapAdd = MAP_ADD) {
   const n = Math.max(1, nights || 0)
-  const bb = priceFor(room, guests, 'BB')
+  const bb = priceFor(room, guests, 'BB', mapAdd)
   const g = bb.guests
   if (bb.kind === 'ask') return { kind: 'ask', nights: n, guests: g }
-  const mealPerNight = plan === 'MAP' ? mapAddFor(room, g) : 0
+  const mealPerNight = plan === 'MAP' ? mapAddFor(room, g, mapAdd) : 0
   const mealText = mealPerNight
     ? (room.pricing?.mapBase != null && g >= room.pricing.included
       ? `MAP meal plan × ${n} ${n === 1 ? 'night' : 'nights'}`
-      : `NPR ${MAP_ADD} × ${g} guests × ${n} ${n === 1 ? 'night' : 'nights'}`)
+      : `NPR ${mapAdd} × ${g} guests × ${n} ${n === 1 ? 'night' : 'nights'}`)
     : null
   if (bb.kind === 'range') {
     return {

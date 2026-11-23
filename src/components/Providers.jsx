@@ -4,6 +4,7 @@ import { useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { motion, MotionConfig, useScroll, useSpring } from 'framer-motion'
 import { initSmoothScroll, scrollToTop } from '../lib/smoothScroll.js'
+import { BackendProvider } from '../lib/backend.jsx'
 import Navbar, { MobileBar } from './Navbar.jsx'
 import Footer from './Footer.jsx'
 import BackToTop from './BackToTop.jsx'
@@ -34,23 +35,25 @@ export default function Providers({ children }) {
 
   return (
     // reducedMotion="user": visitors who prefer less motion get fades only, no movement
-    <MotionConfig reducedMotion="user">
-      <ScrollToTop />
-      <ScrollProgress />
-      <Navbar />
-      <main>
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35, ease: [0.22, 0.61, 0.36, 1] }}
-        >
-          {children}
-        </motion.div>
-      </main>
-      <Footer />
-      <MobileBar />
-      <BackToTop />
-    </MotionConfig>
+    <BackendProvider>
+      <MotionConfig reducedMotion="user">
+        <ScrollToTop />
+        <ScrollProgress />
+        <Navbar />
+        <main>
+          <motion.div
+            key={pathname}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35, ease: [0.22, 0.61, 0.36, 1] }}
+          >
+            {children}
+          </motion.div>
+        </main>
+        <Footer />
+        <MobileBar />
+        <BackToTop />
+      </MotionConfig>
+    </BackendProvider>
   )
 }

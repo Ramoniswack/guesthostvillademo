@@ -2,6 +2,7 @@
 
 import { Button, Reveal } from './ui.jsx'
 import { directionsLink } from '../data/site.js'
+import { useBackendData } from '../lib/backend.jsx'
 
 const steps = [
   {
@@ -22,6 +23,8 @@ const steps = [
 ]
 
 export default function Visit() {
+  const backend = useBackendData()
+  const currentDirectionsLink = backend?.site?.directionsLink ?? directionsLink
   return (
     <section id="find-us" className="section">
       <div className="wrap grid items-center gap-16 lg:grid-cols-[0.9fr_1.1fr] lg:gap-24">
@@ -56,7 +59,7 @@ export default function Visit() {
               </li>
             ))}
           </ol>
-          <Button href={directionsLink} variant="solid" className="mt-12">Get Directions</Button>
+          <Button href={currentDirectionsLink} variant="solid" className="mt-12">Get Directions</Button>
         </Reveal>
       </div>
     </section>

@@ -6,6 +6,7 @@ import { Download, Leaf, MessageCircle, Search, Utensils } from 'lucide-react'
 import { Button, Reveal } from './ui.jsx'
 import { categories, menuNote } from '../data/menu.js'
 import { site, waLink } from '../data/site.js'
+import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const npr = (n) => `NPR ${n.toLocaleString('en-US')}`
 
@@ -103,6 +104,12 @@ const categoryCount = (cat, vegOnly) =>
   )
 
 export default function Menu() {
+  const backend = useBackendData()
+  const menuCategories = backend?.menu?.categories?.length ? backend.menu.categories : categories
+  const currentMenuNote = backend?.menu?.menuNote ?? menuNote
+  const menuSettings = backend?.menu?.settings ?? {}
+  const currentSite = backend?.site ?? site
+  const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
   const [tab, setTab] = useState(categories[0].id)
   const [query, setQuery] = useState('')
   const [vegOnly, setVegOnly] = useState(false)
@@ -113,6 +120,12 @@ export default function Menu() {
 
   const first = useRef(true)
   useEffect(() => {
+    if (!menuCategories.some((category) => category.id === tab) && menuCategories.length) {
+      setTab(menuCategories[0].id)
+    }
+  }, [menuCategories, tab])
+
+  useEffect(() => {
     if (first.current) { first.current = false; return }
     const btn = tabRefs.current[tab]
     const strip = btn?.parentElement
@@ -122,15 +135,15 @@ export default function Menu() {
   const filterItems = (items) => items.map((it) => (vegOnly ? onlyVeg(it) : it)).filter(Boolean)
 
   const tabGroups = useMemo(() => {
-    const cat = categories.find((c) => c.id === tab)
-    return cat.groups.map((g) => ({ ...g, items: filterItems(g.items) })).filter((g) => g.items.length)
+    const cat = menuCategories.find((c) => c.id === tab) ?? menuCategories[0]
+    return (cat?.groups ?? []).map((g) => ({ ...g, items: filterItems(g.items) })).filter((g) => g.items.length)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, vegOnly])
+  }, [menuCategories, tab, vegOnly])
 
   const results = useMemo(() => {
     if (!searching) return []
     const out = []
-    categories.forEach((c) =>
+    menuCategories.forEach((c) =>
       c.groups.forEach((g) => {
         const items = filterItems(g.items).filter((it) =>
           [it.name, it.desc, g.title, c.label, ...(it.options || []).map((o) => o.label)]
@@ -144,7 +157,7 @@ export default function Menu() {
     )
     return out
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, vegOnly])
+  }, [menuCategories, q, vegOnly])
 
   const groups = searching ? results : tabGroups
 
@@ -154,31 +167,31 @@ export default function Menu() {
       <div className="wrap">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <Reveal className="max-w-2xl">
-            <p className="label">Pyramid Restro &amp; Bottle Bar · {site.hours}</p>
+            <p className="label">{menuSettings.eyebrow || `Pyramid Restro & Bottle Bar · ${currentSite.hours}`}</p>
             <h1 className="mt-2 font-display text-4xl font-semibold leading-[0.94] tracking-[-0.045em] text-forest sm:text-6xl">
-              Fresh food, mountain air.
+              {menuSettings.title || 'Fresh food, mountain air.'}
             </h1>
             <p className="mt-4 text-base leading-relaxed text-forest/75">
-              Nepali classics, Newari platters, handmade momo, wood-fired plates, BBQ and drinks served overlooking the valley.
+              {menuSettings.subtitle || 'Nepali classics, Newari platters, handmade momo, wood-fired plates, BBQ and drinks served overlooking the valley.'}
             </p>
             <p className="mt-5 inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-2 text-xs font-semibold text-forest">
               <Leaf className="h-3.5 w-3.5 shrink-0 text-leaf" aria-hidden="true" />
-              <span>{menuNote}</span>
+              <span>{currentMenuNote}</span>
             </p>
           </Reveal>
 
           <Reveal delay={0.08} className="flex flex-col items-start gap-3 lg:items-end">
             <div className="flex flex-wrap gap-2.5">
-              <Button href={waLink("Hello G'Host Villa! I'd like to reserve a table or order food.")} arrow={false}>
+              <Button href={currentWhatsApp("Hello G'Host Villa! I'd like to reserve a table or order food.")} arrow={false}>
                 <span className="inline-flex items-center gap-2">
                   <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
                   <span>Reserve a table</span>
                 </span>
               </Button>
-              <Button href={site.menuPdf} variant="outline" arrow={false} download>
+              <Button href={currentSite.menuPdf} variant="outline" arrow={false} download>
                 <span className="inline-flex items-center gap-2">
                   <Download className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span>PDF Menu</span>
+                  <span>{menuSettings.downloadPdfLabel || 'PDF Menu'}</span>
                 </span>
               </Button>
             </div>
@@ -223,7 +236,7 @@ export default function Menu() {
           </div>
 
           <div role="tablist" aria-label="Menu categories" className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-0.5">
-            {categories.map((c) => {
+            {menuCategories.map((c) => {
               const on = !searching && tab === c.id
               const count = categoryCount(c, vegOnly)
               return (
@@ -316,10 +329,10 @@ export default function Menu() {
                 <span>Order on WhatsApp</span>
               </span>
             </Button>
-            <Button href={site.menuPdf} variant="light" arrow={false} download>
+            <Button href={currentSite.menuPdf} variant="light" arrow={false} download>
               <span className="inline-flex items-center gap-2">
                 <Download className="h-4 w-4 shrink-0" aria-hidden="true" />
-                <span>PDF Menu</span>
+                <span>{menuSettings.downloadPdfLabel || 'PDF Menu'}</span>
               </span>
             </Button>
           </div>

@@ -5,21 +5,25 @@ import { AnimatePresence, motion } from 'framer-motion'
 import Icon from './Icons.jsx'
 import { Reveal } from './ui.jsx'
 import { faqs } from '../data/faq.js'
+import { useBackendData } from '../lib/backend.jsx'
 
 export default function Faq() {
+  const backend = useBackendData()
+  const currentFaqs = backend?.faq?.faqs?.length ? backend.faq.faqs : faqs
+  const content = backend?.faq?.content
   const [open, setOpen] = useState(0)
   return (
     <section id="faq" className="pb-24 pt-20 md:pb-40 md:pt-28">
       <div className="wrap grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-24">
         <Reveal>
-          <p className="label">Good to know</p>
-          <h2 className="h2">Questions, answered</h2>
-          <p className="lead mt-5 max-w-sm">Can't find it here? Message us on WhatsApp and we'll reply as soon as we can.</p>
+          <p className="label">{content?.sectionEyebrow || 'Good to know'}</p>
+          <h2 className="h2">{content?.sectionTitle || 'Questions, answered'}</h2>
+          <p className="lead mt-5 max-w-sm">{content?.sectionLead || "Can't find it here? Message us on WhatsApp and we'll reply as soon as we can."}</p>
         </Reveal>
 
         <Reveal delay={0.1}>
           <ul className="space-y-4">
-            {faqs.map((f, i) => {
+            {currentFaqs.map((f, i) => {
               const isOpen = open === i
               return (
                 <li key={f.q} className="overflow-hidden rounded-3xl bg-white">

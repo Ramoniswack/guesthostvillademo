@@ -13,13 +13,14 @@ import { Button, Reveal } from '../components/ui.jsx'
 import CtaBanner from '../components/CtaBanner.jsx'
 import BookingPanel from '../components/BookingPanel.jsx'
 import {
-  rooms, findStay, buildingLabel, describePrice, rateTable, formatNpr, stayMessage, MAP_ADD, plans,
+  rooms, buildingLabel, describePrice, rateTable, formatNpr, stayMessage, MAP_ADD, plans,
 } from '../data/rooms.js'
 import { reviews } from '../data/reviews.js'
 import { faqs } from '../data/faq.js'
 import { gallery as siteGallery } from '../data/gallery.js'
 import { site, waLink } from '../data/site.js'
 import { blockedSetFor, fmtDate, nightsBetween, parseISO, rangeBlocked, stayQuery, stayQuote, todayISO } from '../lib/booking.js'
+import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const cellText = (result) => {
   if (result.kind === 'ask') return 'On WhatsApp'
@@ -143,7 +144,21 @@ function Lightbox({ photos, index, setIndex, alt }) {
   )
 }
 
-export default function RoomDetailPage({ room }) {
+export default function RoomDetailPage({ room: initialRoom }) {
+  const backend = useBackendData()
+  const allRooms = backend?.stays?.rooms?.length ? backend.stays.rooms : rooms
+  const room = allRooms.find((item) => item.id === initialRoom.id) ?? initialRoom
+  const currentSite = backend?.site ?? site
+  const currentReviews = backend?.home?.reviews?.length ? backend.home.reviews : reviews
+  const currentFaqs = backend?.faq?.faqs?.length ? backend.faq.faqs : faqs
+  const currentGallery = backend?.home?.gallery?.length ? backend.home.gallery : siteGallery
+  const currentPlans = backend?.stays?.plans?.length ? backend.stays.plans : plans
+  const mapAdd = backend?.stays?.MAP_ADD ?? MAP_ADD
+  const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
+  const getBuildingLabel = (stay) =>
+    stay.building === 'both'
+      ? 'Both buildings'
+      : (backend?.stays?.buildings?.find((item) => item.id === stay.building)?.name ?? buildingLabel(stay))
   const [guests, setGuests] = useState(room.defaultGuests)
   const [plan, setPlan] = useState('BB')
   const [checkIn, setCheckIn] = useState('')
@@ -159,6 +174,8 @@ export default function RoomDetailPage({ room }) {
   const [enquiry, setEnquiry] = useState({ name: '', phone: '', message: '' })
   const panelRef = useRef(null)
   const setDates = (inDate, outDate) => { setCheckIn(inDate); setCheckOut(outDate) }
+  const blockedNights = backend?.stays?.blockedNights
+  const blocked = useMemo(() => blockedSetFor(room, blockedNights, allRooms), [room, blockedNights, allRooms])
 
   // Pick up what the guest chose on the rooms list (?guests=&plan=&in=&out=)
   useEffect(() => {
@@ -167,10 +184,10 @@ export default function RoomDetailPage({ room }) {
     if (g >= room.minGuests && g <= room.maxGuests) setGuests(g)
     if (q.get('plan') === 'MAP') setPlan('MAP')
     const i = q.get('in'), o = q.get('out')
-    if (parseISO(i) && parseISO(o) && i >= todayISO() && o > i && !rangeBlocked(blockedSetFor(room), i, o)) setDates(i, o)
+    if (parseISO(i) && parseISO(o) && i >= todayISO() && o > i && !rangeBlocked(blocked, i, o)) setDates(i, o)
     try { setSaved(localStorage.getItem(`saved:${room.id}`) === '1') } catch { /* storage unavailable */ }
     setReady(true)
-  }, [room])
+  }, [room, blocked])
 
   // Keep the address bar shareable
   useEffect(() => {
@@ -208,36 +225,36 @@ export default function RoomDetailPage({ room }) {
 
   // Room photos first, topped up with villa photos so the mosaic always has five tiles
   const photos = useMemo(() => {
-    const list = [...new Set([room.image, ...(room.gallery ?? []), ...siteGallery.map((g) => g.src)])]
+    const list = [...new Set([room.image, ...(room.gallery ?? []), ...currentGallery.map((g) => g.src)])]
     return list.slice(0, Math.max(5, new Set([room.image, ...(room.gallery ?? [])]).size))
-  }, [room])
+  }, [room, currentGallery])
 
-  const includes = (room.includes ?? []).map(findStay).filter(Boolean)
-  const table = useMemo(() => rateTable(room), [room])
+  const includes = (room.includes ?? []).map((id) => allRooms.find((item) => item.id === id)).filter(Boolean)
+  const table = useMemo(() => rateTable(room, 'BB', mapAdd), [room, mapAdd])
   const similar = useMemo(() => {
-    const others = rooms.filter((item) => item.id !== room.id && item.catalog)
+    const others = allRooms.filter((item) => item.id !== room.id && item.catalog)
     return [...others.filter((item) => item.building === room.building), ...others.filter((item) => item.building !== room.building)].slice(0, 3)
-  }, [room])
+  }, [room, allRooms])
   const askOnly = table.every((row) => row.bb.kind === 'ask')
   const nights = nightsBetween(checkIn, checkOut)
-  const quote = nights > 0 && !room.whatsappOnly ? stayQuote(room, guests, plan, nights) : null
-  const barPrice = describePrice(room, guests, plan)
-  const fromPrice = describePrice(room, null, 'BB')
+  const quote = nights > 0 && !room.whatsappOnly ? stayQuote(room, guests, plan, nights, mapAdd) : null
+  const barPrice = describePrice(room, guests, plan, mapAdd)
+  const fromPrice = describePrice(room, null, 'BB', mapAdd)
   const barReady = room.whatsappOnly || nights > 0
 
   const facts = [
     { icon: Users, title: 'Capacity', text: room.capacity },
     { icon: BedDouble, title: 'Bed', text: room.bed },
-    { icon: Building2, title: 'Building', text: buildingLabel(room) },
+    { icon: Building2, title: 'Building', text: getBuildingLabel(room) },
     { icon: Eye, title: 'View', text: room.viewText || 'Hilltop and garden' },
     { icon: Clock, title: 'Check-in / out', text: '2 PM / 10 AM' },
     { icon: Utensils, title: 'Meals', text: 'Breakfast included' },
   ]
 
   const steps = [
-    { icon: KeyRound, title: 'Arrive and check in', body: `Check-in is from 2 PM. ${site.locationNote} on ${site.address.split(',')[0]}, an easy taxi, car or scooter ride. The team meets you at the pyramid and shows you to ${room.name}.` },
+    { icon: KeyRound, title: 'Arrive and check in', body: `Check-in is from 2 PM. ${currentSite.locationNote} on ${currentSite.address.split(',')[0]}, an easy taxi, car or scooter ride. The team meets you at the pyramid and shows you to ${room.name}.` },
     { icon: BedDouble, title: 'Settle into your room', body: `${room.bhk}. ${room.bed}${room.viewText ? `, with ${room.viewText.toLowerCase()}` : ''}. ${room.bestFor}` },
-    { icon: Utensils, title: 'Eat and drink', body: `Breakfast is included on the BB plan. Lunch and dinner are at the pyramid restro and bottle bar, or add the meal plan for NPR ${MAP_ADD} per person per night.` },
+    { icon: Utensils, title: 'Eat and drink', body: `Breakfast is included on the BB plan. Lunch and dinner are at the pyramid restro and bottle bar, or add the meal plan for NPR ${mapAdd} per person per night.` },
     { icon: Mountain, title: 'Enjoy the hilltop', body: 'You are up in the hills above Pokhara, so mornings start quiet and clear. Take the views in, then head down to Lakeside whenever you like.' },
     { icon: DoorOpen, title: 'Check out', body: 'Check-out is by 10 AM. Need a later departure? Ask on WhatsApp and the team will help where they can.' },
   ]
@@ -250,8 +267,8 @@ export default function RoomDetailPage({ room }) {
     'Extra guests beyond the number in the rate',
     'Personal expenses and tips',
   ]
-  const roomFaqs = faqs.slice(0, 6).map((item) => ({ title: item.q, body: item.a }))
-  const reviewCount = '379+'
+  const roomFaqs = currentFaqs.slice(0, 6).map((item) => ({ title: item.q, body: item.a }))
+  const reviewCount = currentSite.reviewCountLabel || '379+'
 
   const sendEnquiry = (event) => {
     event.preventDefault()
@@ -259,7 +276,7 @@ export default function RoomDetailPage({ room }) {
     if (enquiry.message.trim()) lines.push(enquiry.message.trim())
     if (enquiry.name.trim()) lines.push(`Name: ${enquiry.name.trim()}`)
     if (enquiry.phone.trim()) lines.push(`Phone: ${enquiry.phone.trim()}`)
-    window.open(waLink(lines.join('\n')), '_blank', 'noopener,noreferrer')
+    window.open(currentWhatsApp(lines.join('\n')), '_blank', 'noopener,noreferrer')
   }
   const field = 'mt-1.5 w-full border border-forest/20 bg-white px-3 py-2.5 text-sm text-forest outline-none placeholder:text-forest/40 focus:border-forest'
 
@@ -273,7 +290,7 @@ export default function RoomDetailPage({ room }) {
             <li aria-hidden="true">›</li>
             <li><Link href="/rooms" className="transition hover:text-forest">Rooms</Link></li>
             <li aria-hidden="true">›</li>
-            <li className="text-forest/80">{buildingLabel(room)}</li>
+            <li className="text-forest/80">{getBuildingLabel(room)}</li>
           </ol>
         </nav>
         <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
@@ -373,13 +390,13 @@ export default function RoomDetailPage({ room }) {
               Choose from {plans.length} available options
             </SectionTitle>
             <div className="mt-5 grid gap-4 sm:grid-cols-2">
-              {plans.map((p) => {
-                const price = describePrice(room, guests, p.id)
-                const planQuote = nights > 0 && !room.whatsappOnly ? stayQuote(room, guests, p.id, nights) : null
+              {currentPlans.map((p) => {
+                const price = describePrice(room, guests, p.id, mapAdd)
+                const planQuote = nights > 0 && !room.whatsappOnly ? stayQuote(room, guests, p.id, nights, mapAdd) : null
                 const selected = plan === p.id
                 const isExpanded = expandedPlan === p.id
                 const optionBullets = [
-                  `${room.name} · ${buildingLabel(room)}`,
+                  `${room.name} · ${getBuildingLabel(room)}`,
                   p.id === 'MAP' ? 'Breakfast + lunch or dinner daily' : 'Breakfast included every morning',
                   'Attached bathroom with hot water',
                   'Free high-speed Wi-Fi & restro access',
@@ -450,7 +467,7 @@ export default function RoomDetailPage({ room }) {
                         >
                           <div className="mt-2.5 rounded-xl bg-white/70 p-3 text-xs leading-relaxed text-forest/75">
                             {p.id === 'MAP'
-                              ? `Includes daily breakfast plus your choice of lunch or dinner at the pyramid restro (+NPR ${MAP_ADD}/person/night). Check-in from 2 PM, check-out by 10 AM.`
+                              ? `Includes daily breakfast plus your choice of lunch or dinner at the pyramid restro (+NPR ${mapAdd}/person/night). Check-in from 2 PM, check-out by 10 AM.`
                               : 'Includes daily breakfast for all guests in your booking. Lunch, dinner and bar orders can be added anytime at the pyramid restro. Check-in from 2 PM, check-out by 10 AM.'}
                           </div>
                         </motion.div>
@@ -500,7 +517,7 @@ export default function RoomDetailPage({ room }) {
                       {selected ? (
                         room.whatsappOnly || nights > 0 ? (
                           <a
-                            href={waLink(stayMessage(room, { guests, plan: p.id, checkIn, checkOut }))}
+                            href={currentWhatsApp(stayMessage(room, { guests, plan: p.id, checkIn, checkOut }))}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
@@ -553,7 +570,7 @@ export default function RoomDetailPage({ room }) {
 
           {/* 7 · Rates */}
           <section aria-labelledby="rates">
-            <SectionTitle id="rates" sub={askOnly ? undefined : `Rates are per night. The meal plan adds NPR ${MAP_ADD} per person. Final price is confirmed when you book.`}>Rates by group size</SectionTitle>
+            <SectionTitle id="rates" sub={askOnly ? undefined : `Rates are per night. The meal plan adds NPR ${mapAdd} per person. Final price is confirmed when you book.`}>Rates by group size</SectionTitle>
             {askOnly ? (
               <p className="mt-5 max-w-2xl leading-relaxed text-forest/70">Bigger groups are booked directly. Send us your dates and group size on WhatsApp and the team will confirm the price.</p>
             ) : (
@@ -600,7 +617,7 @@ export default function RoomDetailPage({ room }) {
                   {includes.map((item) => (
                     <Link key={item.id} href={`/rooms/${item.id}`} className="group flex gap-4 rounded-2xl border border-forest/15 bg-white p-3 transition hover:border-forest/40">
                       <img src={item.image} alt={item.alt} loading="lazy" className="h-20 w-24 shrink-0 rounded-xl object-cover" />
-                      <span className="min-w-0 self-center"><span className="block font-display text-lg leading-tight text-forest">{item.name}</span><span className="mt-1 block text-xs text-forest/60">{buildingLabel(item)}</span></span>
+                      <span className="min-w-0 self-center"><span className="block font-display text-lg leading-tight text-forest">{item.name}</span><span className="mt-1 block text-xs text-forest/60">{getBuildingLabel(item)}</span></span>
                     </Link>
                   ))}
                 </div>
@@ -634,10 +651,10 @@ export default function RoomDetailPage({ room }) {
             <p className="mt-5 font-display text-5xl font-semibold leading-none text-forest">4.5<span className="text-xl text-forest/45">/5</span></p>
             <div className="mt-3"><Stars n={5} className="h-5 w-5" /></div>
             <p className="mt-2 text-sm text-forest/60">Based on {reviewCount} Google reviews</p>
-            <a href={site.social.tripadvisor} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4"><Star className="h-4 w-4" aria-hidden="true" />Write a review</a>
+            <a href={currentSite.social.tripadvisor} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4"><Star className="h-4 w-4" aria-hidden="true" />Write a review</a>
           </div>
           <ul className="divide-y divide-forest/10">
-            {reviews.map((r) => (
+            {currentReviews.map((r) => (
               <li key={r.name} className="py-5 first:pt-0">
                 <div className="flex items-center gap-3">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white text-forest/60"><User className="h-5 w-5" aria-hidden="true" /></span>
@@ -663,12 +680,12 @@ export default function RoomDetailPage({ room }) {
           </div>
           <div className="mt-8 grid gap-6 md:grid-cols-3">
             {similar.map((item) => {
-              const p = describePrice(item, null, 'BB')
+              const p = describePrice(item, null, 'BB', mapAdd)
               return (
                 <Link key={item.id} href={`/rooms/${item.id}`} className="group flex flex-col overflow-hidden rounded-2xl border border-forest/15 bg-white transition hover:-translate-y-1 hover:shadow-warm">
                   <div className="overflow-hidden"><img src={item.image} alt={item.alt} loading="lazy" className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105" /></div>
                   <div className="flex flex-1 flex-col p-5">
-                    <p className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-sun-text">{buildingLabel(item)}</p>
+                    <p className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-sun-text">{getBuildingLabel(item)}</p>
                     <h3 className="mt-2 font-display text-xl leading-tight text-forest">{item.name}</h3>
                     <p className="mt-1.5 flex items-center gap-1.5 text-sm text-forest/60"><Users className="h-4 w-4" aria-hidden="true" />{item.capacity}</p>
                     <p className="mt-auto pt-4 font-display text-lg font-semibold text-forest">{p.label} {p.main}</p>
@@ -701,7 +718,7 @@ export default function RoomDetailPage({ room }) {
             )}
           </div>
           {barReady ? (
-            <a tabIndex={panelVisible ? -1 : 0} href={waLink(stayMessage(room, { guests, plan, checkIn, checkOut }))} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-5 text-sm font-semibold text-forest-dark"><MessageCircle className="h-4 w-4" aria-hidden="true" />{room.whatsappOnly ? 'Ask us' : 'Request stay'}</a>
+            <a tabIndex={panelVisible ? -1 : 0} href={currentWhatsApp(stayMessage(room, { guests, plan, checkIn, checkOut }))} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-5 text-sm font-semibold text-forest-dark"><MessageCircle className="h-4 w-4" aria-hidden="true" />{room.whatsappOnly ? 'Ask us' : 'Request stay'}</a>
           ) : (
             <button type="button" tabIndex={panelVisible ? -1 : 0} onClick={goToBooking} className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-5 text-sm font-semibold text-forest-dark"><CalendarDays className="h-4 w-4" aria-hidden="true" />Choose dates</button>
           )}

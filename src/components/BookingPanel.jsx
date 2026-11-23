@@ -4,9 +4,10 @@ import { useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { CalendarDays, ChevronDown, Heart, Minus, Plus, Star } from 'lucide-react'
 import DateRangePicker from './DateRangePicker.jsx'
-import { plans, describePrice, formatNpr, stayMessage } from '../data/rooms.js'
+import { plans, describePrice, formatNpr, stayMessage, MAP_ADD, rooms } from '../data/rooms.js'
 import { waLink } from '../data/site.js'
 import { blockedSetFor, fmtDate, nightsBetween, stayQuote } from '../lib/booking.js'
+import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const nightsText = (n) => `${n} ${n === 1 ? 'night' : 'nights'}`
 const range = (min, max) => `${formatNpr(min)} – ${max.toLocaleString('en-US')}`
@@ -41,17 +42,27 @@ export default function BookingPanel({
   setCalendarOpen: setControlledOpen,
   onEnquire,
 }) {
+  const backend = useBackendData()
+  const currentPlans = backend?.stays?.plans?.length ? backend.stays.plans : plans
+  const allRooms = backend?.stays?.rooms?.length ? backend.stays.rooms : rooms
+  const mapAdd = backend?.stays?.MAP_ADD ?? MAP_ADD
+  const maxNights = backend?.stays?.MAX_NIGHTS
+  const currentSite = backend?.site
+  const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
   const [localOpen, setLocalOpen] = useState(false)
   const [groupOpen, setGroupOpen] = useState(false)
 
   const calendarOpen = controlledOpen !== undefined ? controlledOpen : localOpen
   const setCalendarOpen = setControlledOpen || setLocalOpen
 
-  const blocked = useMemo(() => blockedSetFor(room), [room])
+  const blocked = useMemo(
+    () => blockedSetFor(room, backend?.stays?.blockedNights, allRooms),
+    [room, backend?.stays?.blockedNights, allRooms],
+  )
   const nights = nightsBetween(checkIn, checkOut)
   const hasDates = nights > 0
-  const price = describePrice(room, guests, plan)
-  const quote = hasDates ? stayQuote(room, guests, plan, nights) : null
+  const price = describePrice(room, guests, plan, mapAdd)
+  const quote = hasDates ? stayQuote(room, guests, plan, nights, mapAdd) : null
   const ask = room.whatsappOnly
 
   const onDates = (ci, co) => {
@@ -102,7 +113,7 @@ export default function BookingPanel({
             >
               <div className="space-y-3 pb-4">
                 <div className="grid grid-cols-2 gap-2">
-                  {plans.map((item) => {
+                  {currentPlans.map((item) => {
                     const on = plan === item.id
                     return (
                       <button
@@ -170,7 +181,7 @@ export default function BookingPanel({
             className="overflow-hidden"
           >
             <div className="mt-3 rounded-xl border border-forest/15 bg-white p-3 shadow-soft">
-              <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={onDates} blocked={blocked} />
+              <DateRangePicker checkIn={checkIn} checkOut={checkOut} onChange={onDates} blocked={blocked} maxNights={maxNights} />
             </div>
           </motion.div>
         )}
@@ -195,7 +206,7 @@ export default function BookingPanel({
       <div className="mt-4 space-y-2.5">
         {ask || hasDates ? (
           <a
-            href={waLink(stayMessage(room, { guests, plan, checkIn, checkOut }))}
+            href={currentWhatsApp(stayMessage(room, { guests, plan, checkIn, checkOut }))}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"

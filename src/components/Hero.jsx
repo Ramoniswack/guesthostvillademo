@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import Icon from './Icons.jsx'
 import { Button } from './ui.jsx'
+import { useBackendData } from '../lib/backend.jsx'
 
 const heroMedia = [
   { type: 'video', src: '/videos/stock-hero.mp4', poster: '/images/hero.webp', position: '50% 54%' },
@@ -16,15 +17,22 @@ const heroMedia = [
 const CURTAIN_COLS = 6
 
 export default function Hero() {
+  const backend = useBackendData()
+  const heroContent = backend?.home?.hero
+  const slides = heroContent?.slides?.length ? heroContent.slides : heroMedia
   const [heroIndex, setHeroIndex] = useState(0)
   const [introDone, setIntroDone] = useState(false)
   const { scrollY } = useScroll()
   const shouldReduceMotion = useReducedMotion()
   const dragStart = useRef(null)
   const videoRef = useRef(null)
-  const currentMedia = heroMedia[heroIndex]
-  const nextSlide = useCallback(() => setHeroIndex((index) => (index + 1) % heroMedia.length), [])
-  const previousSlide = useCallback(() => setHeroIndex((index) => (index - 1 + heroMedia.length) % heroMedia.length), [])
+  const currentMedia = slides[heroIndex % slides.length]
+  const nextSlide = useCallback(() => setHeroIndex((index) => (index + 1) % slides.length), [slides.length])
+  const previousSlide = useCallback(() => setHeroIndex((index) => (index - 1 + slides.length) % slides.length), [slides.length])
+
+  useEffect(() => {
+    if (heroIndex >= slides.length) setHeroIndex(0)
+  }, [heroIndex, slides.length])
 
   // Headline: fades out and moves up as you scroll
   const headlineY = useTransform(scrollY, [0, 200], [0, -50])
@@ -91,20 +99,20 @@ export default function Hero() {
 
       <div className="wrap relative flex min-h-[calc(100svh-3.5rem)] select-none items-center justify-center px-12 pb-28 pt-20 text-center sm:px-10 md:min-h-[100svh] md:pb-[clamp(8rem,20vw,20rem)] md:pt-24">
           <div className="w-full max-w-5xl">
-            <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-sun sm:text-[0.68rem]">Sarangkot, Pokhara · Nepal</p>
+            <p className="text-[0.65rem] font-bold uppercase tracking-[0.2em] text-sun sm:text-[0.68rem]">{heroContent?.eyebrow || 'Sarangkot, Pokhara · Nepal'}</p>
             <motion.h1
               className="mt-4 font-display text-[clamp(2.25rem,8.5vw,3.5rem)] font-semibold leading-[0.94] text-white sm:mt-6 sm:text-7xl lg:text-[7rem]"
               style={{ letterSpacing: '-0.04em', y: headlineY, opacity: headlineOpacity }}
             >
-              Your private space.<br />Hosted your way.
+              {heroContent?.headlineLine1 || 'Your private space.'}<br />{heroContent?.headlineLine2 || 'Hosted your way.'}
             </motion.h1>
             <motion.p
               className="mx-auto mt-4 max-w-xl text-base leading-[1.45] text-white/85 sm:mt-6 sm:text-lg md:text-xl"
               style={{ y: descY, opacity: descOpacity }}
             >
-              A hilltop villa, restro and bar made for quiet stays, big gatherings and slow Pokhara days.
+              {heroContent?.description || 'A hilltop villa, restro and bar made for quiet stays, big gatherings and slow Pokhara days.'}
             </motion.p>
-            <div className="mt-6 sm:mt-7" onPointerDown={(event) => event.stopPropagation()}><Button href="/rooms">Find your stay</Button></div>
+            <div className="mt-6 sm:mt-7" onPointerDown={(event) => event.stopPropagation()}><Button href={heroContent?.ctaHref || '/rooms'}>{heroContent?.ctaLabel || 'Find your stay'}</Button></div>
           </div>
       </div>
 

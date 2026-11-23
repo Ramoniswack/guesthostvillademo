@@ -8,6 +8,7 @@ import {
 import { Button, Reveal, StaggerGrid, StaggerItem } from '../components/ui.jsx'
 import { reviews } from '../data/reviews.js'
 import { waLink } from '../data/site.js'
+import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const includedEverywhere = [
   { icon: BedDouble, label: 'Private room or floor' },
@@ -84,6 +85,32 @@ const packageFaqs = [
 ]
 
 export default function PackagesPage() {
+  const backend = useBackendData()
+  const packagesData = backend?.packages
+  const currentSite = backend?.site
+  const currentPackages = packagesData?.packages?.length ? packagesData.packages : packages
+  const currentExtras = packagesData?.extras?.length ? packagesData.extras : extras
+  const currentPackageFaqs = packagesData?.packageFaqs?.length ? packagesData.packageFaqs : packageFaqs
+  const currentReviews = backend?.home?.reviews?.length ? backend.home.reviews : reviews
+  const iconByName = {
+    bed: BedDouble,
+    BedDouble,
+    coffee: Coffee,
+    Coffee,
+    bath: Bath,
+    Bath,
+    wifi: Wifi,
+    Wifi,
+  }
+  const currentIncluded = packagesData?.includedEverywhere?.length
+    ? packagesData.includedEverywhere.map((item) => ({ ...item, icon: iconByName[item.icon] ?? Check }))
+    : includedEverywhere
+  const termIcons = [CalendarDays, Clock, ShieldCheck]
+  const currentBookingTerms = packagesData?.bookingTerms?.length
+    ? packagesData.bookingTerms.map((item, index) => ({ ...item, Icon: termIcons[index] ?? Check }))
+    : null
+  const currentContent = packagesData?.content ?? {}
+  const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
   const [openFaq, setOpenFaq] = useState(0)
   const [enquiry, setEnquiry] = useState({
     occasion: 'Group weekend',
@@ -116,7 +143,7 @@ export default function PackagesPage() {
       enquiry.name ? `Name: ${enquiry.name}` : null,
       enquiry.notes.trim() ? `Notes: ${enquiry.notes.trim()}` : null,
     ].filter(Boolean)
-    window.open(waLink(lines.join('\n')), '_blank', 'noopener,noreferrer')
+    window.open(currentWhatsApp(lines.join('\n')), '_blank', 'noopener,noreferrer')
   }
 
   const field =
@@ -129,17 +156,17 @@ export default function PackagesPage() {
         <div className="wrap">
           <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
             <Reveal className="max-w-2xl">
-              <p className="label">Packages · Private Stays · Group Buyouts</p>
+              <p className="label">{currentContent.eyebrow || 'Packages · Private Stays · Group Buyouts'}</p>
               <h1 className="mt-2 font-display text-4xl font-semibold leading-[0.94] tracking-[-0.045em] text-forest sm:text-6xl">
-                Make the stay yours.
+                {currentContent.title || 'Make the stay yours.'}
               </h1>
               <p className="mt-4 text-base leading-relaxed text-forest/75 md:text-lg">
-                Choose a clear starting package for two, a weekend with friends, or an exclusive 7-BHK buyout above Pokhara.
+                {currentContent.subtitle || 'Choose a clear starting package for two, a weekend with friends, or an exclusive 7-BHK buyout above Pokhara.'}
               </p>
             </Reveal>
 
             <Reveal delay={0.08} className="grid grid-cols-2 gap-2 sm:gap-2.5 lg:w-[24rem] lg:shrink-0">
-              {includedEverywhere.map(({ icon: Ico, label }) => (
+              {currentIncluded.map(({ icon: Ico, label }) => (
                 <span
                   key={label}
                   className="inline-flex items-center justify-center gap-1.5 rounded-full border border-forest/15 bg-white px-2.5 py-2 text-[0.72rem] font-semibold text-forest shadow-sm sm:gap-2 sm:px-3.5 sm:text-xs"
@@ -157,7 +184,7 @@ export default function PackagesPage() {
       <section className="bg-white pb-16 md:pb-24">
         <div className="wrap">
           <StaggerGrid className="grid gap-6 lg:grid-cols-3">
-            {packages.map((pkg) => (
+            {currentPackages.map((pkg) => (
               <StaggerItem key={pkg.id} className="h-full">
                 <article
                   className={`flex h-full flex-col overflow-hidden rounded-2xl border-2 bg-white transition hover:-translate-y-1 ${
@@ -214,7 +241,7 @@ export default function PackagesPage() {
 
                     <div className="mt-auto space-y-2 pt-6">
                       <Button
-                        href={waLink(`Hello G'Host Villa! I am interested in the ${pkg.title} package.`)}
+                        href={currentWhatsApp(`Hello G'Host Villa! I am interested in the ${pkg.title} package.`)}
                         arrow={false}
                         className="w-full"
                       >
@@ -239,27 +266,37 @@ export default function PackagesPage() {
 
           {/* Compact Booking Terms */}
           <div className="mt-8 grid gap-4 rounded-2xl border border-forest/15 bg-white p-5 shadow-soft md:grid-cols-3 md:p-6">
-            <div className="flex items-start gap-3">
-              <CalendarDays className="mt-0.5 h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />
-              <div>
-                <p className="text-sm font-bold text-forest">Minimum stay</p>
-                <p className="mt-0.5 text-xs text-forest/70">1 night for rooms &amp; groups; flexible for full buyouts.</p>
+            {currentBookingTerms ? currentBookingTerms.map(({ Icon, title, text }) => (
+              <div key={title} className="flex items-start gap-3">
+                <Icon className="mt-0.5 h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />
+                <div>
+                  <p className="text-sm font-bold text-forest">{title}</p>
+                  <p className="mt-0.5 text-xs text-forest/70">{text}</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <Clock className="mt-0.5 h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />
-              <div>
-                <p className="text-sm font-bold text-forest">Check-in &amp; check-out</p>
-                <p className="mt-0.5 text-xs text-forest/70">Check-in from 2:00 PM · Check-out by 10:00 AM.</p>
+            )) : <>
+              <div className="flex items-start gap-3">
+                <CalendarDays className="mt-0.5 h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />
+                <div>
+                  <p className="text-sm font-bold text-forest">Minimum stay</p>
+                  <p className="mt-0.5 text-xs text-forest/70">1 night for rooms &amp; groups; flexible for full buyouts.</p>
+                </div>
               </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-leaf" aria-hidden="true" />
-              <div>
-                <p className="text-sm font-bold text-forest">Cancellation</p>
-                <p className="mt-0.5 text-xs text-forest/70">Free cancellation within 48 hours of booking (24h+ before check-in).</p>
+              <div className="flex items-start gap-3">
+                <Clock className="mt-0.5 h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />
+                <div>
+                  <p className="text-sm font-bold text-forest">Check-in &amp; check-out</p>
+                  <p className="mt-0.5 text-xs text-forest/70">Check-in from 2:00 PM · Check-out by 10:00 AM.</p>
+                </div>
               </div>
-            </div>
+              <div className="flex items-start gap-3">
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-leaf" aria-hidden="true" />
+                <div>
+                  <p className="text-sm font-bold text-forest">Cancellation</p>
+                  <p className="mt-0.5 text-xs text-forest/70">Free cancellation within 48 hours of booking (24h+ before check-in).</p>
+                </div>
+              </div>
+            </>}
           </div>
         </div>
       </section>
@@ -269,18 +306,18 @@ export default function PackagesPage() {
         <div className="wrap">
           <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="label !text-sun">Add a little more</p>
+              <p className="label !text-sun">{currentContent.extrasEyebrow || 'Add a little more'}</p>
               <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-white sm:text-5xl">
-                Add a little more to the stay.
+                {currentContent.extrasTitle || 'Add a little more to the stay.'}
               </h2>
             </div>
             <p className="max-w-sm text-sm leading-relaxed text-white/75">
-              Pair any stay with pyramid dining, garden BBQ evenings, or celebration setups.
+              {currentContent.extrasSubtitle || 'Pair any stay with pyramid dining, garden BBQ evenings, or celebration setups.'}
             </p>
           </Reveal>
 
           <StaggerGrid className="grid gap-6 md:grid-cols-3">
-            {extras.map((item) => (
+            {currentExtras.map((item) => (
               <StaggerItem key={item.title}>
                 <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-white/15 bg-forest">
                   <div className="aspect-[4/3] overflow-hidden">
@@ -384,7 +421,7 @@ export default function PackagesPage() {
           <Reveal delay={0.08} className="space-y-8">
             <div className="space-y-4">
               <p className="label">Guest reviews</p>
-              {reviews.slice(0, 2).map((r) => (
+              {currentReviews.slice(0, 2).map((r) => (
                 <blockquote key={r.name} className="rounded-2xl border border-forest/15 bg-white p-5 shadow-soft">
                   <div className="flex items-center gap-1 text-sun">
                     {Array.from({ length: r.rating }, (_, i) => (
@@ -402,7 +439,7 @@ export default function PackagesPage() {
             <div>
               <p className="label">Package FAQ</p>
               <ul className="mt-3 divide-y divide-forest/15 border-y border-forest/15">
-                {packageFaqs.map((item, idx) => {
+                {currentPackageFaqs.map((item, idx) => {
                   const isOpen = openFaq === idx
                   return (
                     <li key={item.q}>

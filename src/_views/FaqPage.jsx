@@ -4,16 +4,19 @@ import { PageHero } from '../components/ui.jsx'
 import Faq from '../components/Faq.jsx'
 import Jobs from '../components/Jobs.jsx'
 import CtaBanner from '../components/CtaBanner.jsx'
+import { useBackendData } from '../lib/backend.jsx'
 
 export default function FaqPage() {
+  const backend = useBackendData()
+  const content = backend?.faq?.content
   return (
     <>
       <PageHero
-        eyebrow="Good to know · Careers"
-        title="Questions & careers."
-        text="Check-in, food, getting here—and how to join the villa team."
-        image="/images/day-aerial.webp"
-        position="50% 55%"
+        eyebrow={content?.heroEyebrow || 'Good to know · Careers'}
+        title={content?.heroTitle || 'Questions & careers.'}
+        text={content?.heroText || 'Check-in, food, getting here—and how to join the villa team.'}
+        image={content?.heroImage || '/images/day-aerial.webp'}
+        position={content?.heroPosition || '50% 55%'}
         compact
       />
 

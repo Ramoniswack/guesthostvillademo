@@ -8,23 +8,34 @@ npm run dev       # local preview at http://localhost:3000
 npm run build     # production build → out/
 ```
 
+## Django CMS connection
+
+The site loads content from the Django backend at `/api/v1/bootstrap/` when it starts. For local development, start the backend on port `8000` and run the frontend with `npm run dev`; the frontend defaults to `http://127.0.0.1:8000`. If the API is unavailable, the existing `src/data/` content remains as a fallback.
+
+For a deployed static build, set `NEXT_PUBLIC_API_BASE_URL` to the public Django backend URL **before** building because Next.js embeds this value into the exported files. The Django server must allow cross-origin requests from the frontend domain.
+
+```powershell
+$env:NEXT_PUBLIC_API_BASE_URL = 'https://your-backend.example.com'
+npm run build
+```
+
 ## Pages
 `/` Home · `/rooms` · `/menu` · `/faq` · `/jobs`. Each lives in `src/app/<route>/page.jsx` and renders a view from `src/_views/`.
 The navbar links are set in `src/data/site.js` (`navLinks`).
 
-## Where to edit things
+## Existing frontend fallback data
 
-| I want to…                         | Edit this file                         |
+When the backend API is reachable, Django CMS is the content source. The existing frontend data files are preserved as offline fallbacks.
+
+| Fallback content | File |
 |------------------------------------|----------------------------------------|
-| Set phone / WhatsApp / email / hours / map / social links | `src/data/site.js` |
-| Change menu items or **prices**    | `src/data/menu.js` (one line per item)  |
-| Change rooms, names, amenities     | `src/data/rooms.js`                     |
-| Edit FAQ answers                   | `src/data/faq.js` (answers marked `[CONFIRM]`) |
-| Replace sample reviews             | `src/data/reviews.js` (delete `placeholder: true`) |
-| Change the photo strip             | `src/data/gallery.js`                   |
-| Room **prices** (NPR / night)      | `src/data/rooms.js` (`price`, then delete `placeholderPrice`) |
-| Job openings                       | `src/data/jobs.js`                      |
-| Years / guests counters            | `src/data/site.js` (`stats`)            |
+| Contact details, navigation, stats | `src/data/site.js` |
+| Menu and prices | `src/data/menu.js` |
+| Rooms and prices | `src/data/rooms.js` |
+| FAQ answers | `src/data/faq.js` |
+| Reviews | `src/data/reviews.js` |
+| Gallery | `src/data/gallery.js` |
+| Job openings | `src/data/jobs.js` |
 
 Everything in `[SQUARE BRACKETS]` on the live page is a placeholder for you to replace.
 

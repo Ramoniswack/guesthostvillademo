@@ -7,6 +7,7 @@ import Icon from './Icons.jsx'
 import { Button } from './ui.jsx'
 import { lockScroll } from '../lib/smoothScroll.js'
 import { directionsLink, navLinks, site, telLink, waLink } from '../data/site.js'
+import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 function usePastHero() {
   const [past, setPast] = useState(false)
@@ -39,9 +40,9 @@ function NavLink({ to, className, children, ...rest }) {
   )
 }
 
-function Brand({ light = false, solid = false }) {
+function Brand({ light = false, solid = false, siteData = site }) {
   return (
-    <Link href="/" className="group flex items-center gap-2.5" aria-label={`${site.name}, home`}>
+    <Link href="/" className="group flex items-center gap-2.5" aria-label={`${siteData.name}, home`}>
       <span className="grid h-8 w-8 place-items-center">
         <img src="/images/logo-icon.webp" alt="" width="36" height="26" className="h-5 w-auto" />
       </span>
@@ -53,6 +54,12 @@ function Brand({ light = false, solid = false }) {
 }
 
 export default function Navbar() {
+  const backend = useBackendData()
+  const currentSite = backend?.site ?? site
+  const currentNavLinks = backend?.navLinks ?? navLinks
+  const currentTelLink = currentSite.phoneTel ? `tel:${currentSite.phoneTel}` : telLink
+  const currentDirectionsLink = currentSite.directionsLink ?? directionsLink
+  const bookingLink = backendWhatsAppLink(currentSite, "Hello G'Host Villa! I'd like to book a stay.") ?? waLink("Hello G'Host Villa! I'd like to book a stay.")
   const [open, setOpen] = useState(false)
   const [hideOnRoomsScroll, setHideOnRoomsScroll] = useState(false)
   const pathname = usePathname()
@@ -86,11 +93,11 @@ export default function Navbar() {
     <>
       <header className={`fixed inset-x-0 top-0 z-40 transition-all duration-300 ${hideOnRoomsScroll ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'} ${solid ? 'border-b border-forest/10 bg-white/95 shadow-[0_10px_30px_rgba(29,45,35,0.08)] backdrop-blur-xl' : 'bg-gradient-to-b from-black/35 to-transparent'}`}>
         <div className="mx-auto flex h-[4.5rem] max-w-[1440px] items-center justify-between gap-6 px-5 sm:px-8 lg:px-12">
-          <Brand solid={solid} />
+          <Brand solid={solid} siteData={currentSite} />
 
           <div className="flex items-center gap-7">
             <nav aria-label="Main" className="hidden items-center gap-6 lg:flex">
-              {navLinks.map((link) => (
+              {currentNavLinks.map((link) => (
                 <NavLink
                   key={link.to}
                   to={link.to}
@@ -103,7 +110,7 @@ export default function Navbar() {
 
             <div className="flex items-center gap-2.5">
               <a
-                href={waLink('Hello G\'Host Villa! I\'d like to book a stay.')}
+                href={bookingLink}
                 target="_blank"
                 rel="noopener noreferrer"
                 className={`hidden min-h-10 items-center rounded-full px-6 text-[0.68rem] font-bold uppercase tracking-[0.15em] transition-colors sm:inline-flex ${solid ? 'bg-forest text-cream hover:bg-forest-dark' : 'bg-white text-forest hover:bg-white'}`}
@@ -127,13 +134,13 @@ export default function Navbar() {
       {open && (
         <div role="dialog" aria-modal="true" aria-label="Menu" data-lenis-prevent className="on-dark fixed inset-0 z-50 flex flex-col overflow-y-auto bg-[#07120f] text-white">
           <div className="flex h-[4.5rem] shrink-0 items-center justify-between px-5 sm:px-8">
-            <Brand light />
+            <Brand light siteData={currentSite} />
             <button type="button" onClick={() => setOpen(false)} aria-label="Close menu" className="grid h-10 w-10 place-items-center rounded-full border border-white/30">
               <Icon name="close" className="h-5 w-5" />
             </button>
           </div>
           <nav aria-label="Mobile" className="flex flex-1 flex-col justify-center px-6 py-10">
-            {[{ to: '/', label: 'Home' }, ...navLinks].map((link) => (
+            {[{ to: '/', label: 'Home' }, ...currentNavLinks].map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
@@ -145,11 +152,11 @@ export default function Navbar() {
             ))}
           </nav>
           <div className="grid gap-3 px-6 pb-9">
-            <a href={waLink('Hello G\'Host Villa! I\'d like to book a stay.')} target="_blank" rel="noopener noreferrer" className="flex min-h-14 items-center justify-center rounded-full bg-sun px-5 text-sm font-bold uppercase tracking-[0.14em] text-forest-dark">
+            <a href={bookingLink} target="_blank" rel="noopener noreferrer" className="flex min-h-14 items-center justify-center rounded-full bg-sun px-5 text-sm font-bold uppercase tracking-[0.14em] text-forest-dark">
               Book a stay
             </a>
-            <Button href={telLink} variant="light" arrow={false} icon="phone">Call {site.phoneDisplay}</Button>
-            <Button href={directionsLink} variant="light" arrow={false} icon="nav">Get directions</Button>
+            <Button href={currentTelLink} variant="light" arrow={false} icon="phone">Call {currentSite.phoneDisplay}</Button>
+            <Button href={currentDirectionsLink} variant="light" arrow={false} icon="nav">Get directions</Button>
           </div>
         </div>
       )}
@@ -158,12 +165,16 @@ export default function Navbar() {
 }
 
 export function MobileBar() {
+  const backend = useBackendData()
+  const currentSite = backend?.site ?? site
+  const currentTelLink = currentSite.phoneTel ? `tel:${currentSite.phoneTel}` : telLink
+  const bookingLink = backendWhatsAppLink(currentSite) ?? waLink()
   return (
     <div className="fixed inset-x-0 bottom-0 z-40 grid grid-cols-2 gap-px bg-forest/20 pb-[env(safe-area-inset-bottom)] md:hidden" aria-label="Quick contact">
-      <a href={telLink} className="flex min-h-14 items-center justify-center gap-2 bg-white text-xs font-bold uppercase tracking-[0.12em] text-forest">
+      <a href={currentTelLink} className="flex min-h-14 items-center justify-center gap-2 bg-white text-xs font-bold uppercase tracking-[0.12em] text-forest">
         <Icon name="phone" className="h-4 w-4" /> Call
       </a>
-      <a href={waLink()} target="_blank" rel="noopener noreferrer" className="flex min-h-14 items-center justify-center gap-2 bg-forest text-xs font-bold uppercase tracking-[0.12em] text-cream">
+      <a href={bookingLink} target="_blank" rel="noopener noreferrer" className="flex min-h-14 items-center justify-center gap-2 bg-forest text-xs font-bold uppercase tracking-[0.12em] text-cream">
         <Icon name="chat" className="h-4 w-4" /> Book a stay
       </a>
     </div>
