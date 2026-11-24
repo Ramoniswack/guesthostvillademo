@@ -1,8 +1,103 @@
 'use client'
 
+import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import Icon from './Icons.jsx'
+
+/** Custom dropdown select matching the site's rounded forest/sun/white UI. */
+export function CustomSelect({
+  value,
+  onChange,
+  options,
+  ariaLabel,
+  prefixIcon,
+  triggerClassName = '',
+  menuAlign = 'left',
+}) {
+  const [open, setOpen] = useState(false)
+  const rootRef = useRef(null)
+  const selected = options.find((opt) => opt.value === value) || options[0]
+
+  useEffect(() => {
+    if (!open) return undefined
+    const onPointerDown = (e) => {
+      if (rootRef.current && !rootRef.current.contains(e.target)) setOpen(false)
+    }
+    const onKeyDown = (e) => {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('mousedown', onPointerDown)
+    document.addEventListener('keydown', onKeyDown)
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown)
+      document.removeEventListener('keydown', onKeyDown)
+    }
+  }, [open])
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        aria-label={ariaLabel}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        onClick={() => setOpen((o) => !o)}
+        className={`flex w-full items-center justify-between gap-2 text-left outline-none transition ${triggerClassName}`}
+      >
+        <span className="flex min-w-0 items-center gap-2">
+          {prefixIcon}
+          <span className="truncate">{selected?.label}</span>
+        </span>
+        <Icon
+          name="chevron"
+          className={`h-4 w-4 shrink-0 text-forest/60 transition-transform duration-200 ${open ? 'rotate-180 text-forest' : ''}`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {open && (
+          <motion.ul
+            role="listbox"
+            aria-label={ariaLabel}
+            initial={{ opacity: 0, y: 6, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.98 }}
+            transition={{ duration: 0.16, ease: 'easeOut' }}
+            className={`absolute top-full z-50 mt-2 max-h-64 min-w-[13rem] overflow-y-auto rounded-2xl border border-forest/15 bg-white p-1.5 shadow-[0_18px_45px_rgba(31,61,43,0.16)] ${
+              menuAlign === 'right' ? 'right-0' : 'left-0 w-full'
+            }`}
+          >
+            {options.map((opt) => {
+              const isSelected = opt.value === value
+              return (
+                <li key={opt.value} role="option" aria-selected={isSelected}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onChange(opt.value)
+                      setOpen(false)
+                    }}
+                    className={`flex w-full items-center justify-between gap-2.5 rounded-xl px-3.5 py-2.5 text-left text-xs font-semibold transition sm:text-sm ${
+                      isSelected
+                        ? 'bg-sun/25 text-forest-dark'
+                        : 'text-forest/80 hover:bg-forest/5 hover:text-forest'
+                    }`}
+                  >
+                    <span className="truncate">{opt.label}</span>
+                    {isSelected && (
+                      <Icon name="check" className="h-4 w-4 shrink-0 text-forest" strokeWidth={2.4} />
+                    )}
+                  </button>
+                </li>
+              )
+            })}
+          </motion.ul>
+        )}
+      </AnimatePresence>
+    </div>
+  )
+}
 
 /** Gentle fade-up on scroll. Reduced-motion users get the fade only (via MotionConfig in App). */
 export function Reveal({ children, delay = 0, className = '' }) {
@@ -51,14 +146,10 @@ export function StaggerItem({ children, className = '' }) {
   )
 }
 
-/** Small circular arrow used on every button. */
+/** Small arrow icon used on buttons. */
 export function ArrowCircle({ className = '' }) {
   return (
-    <span
-      className={`inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full border border-current ${className}`}
-    >
-      <Icon name="arrow" className="h-3.5 w-3.5" strokeWidth={2.2} />
-    </span>
+    <Icon name="arrow" className={`h-4 w-4 shrink-0 ${className}`} strokeWidth={2.2} />
   )
 }
 

@@ -11,11 +11,13 @@ const wordmarkLetters = [..."G'HOST VILLA"]
 export default function Footer() {
   const backend = useBackendData()
   const currentSite = backend?.site ?? site
+  const footer = backend?.footer ?? {}
   const currentNavLinks = backend?.navLinks ?? navLinks
   const currentTelLink = currentSite.phoneTel ? `tel:${currentSite.phoneTel}` : telLink
   const currentAltTelLink = currentSite.altPhoneTel ? `tel:${currentSite.altPhoneTel}` : altTelLink
   const currentDirectionsLink = currentSite.directionsLink ?? directionsLink
   const currentWhatsApp = (message) => backendWhatsAppLink(currentSite, message) ?? waLink(message)
+  const letters = [...(footer.wordmark || "G'HOST VILLA")]
   const socials = [
     { icon: 'insta', label: 'Instagram', href: currentSite.social.instagram },
     { icon: 'fb', label: 'Facebook', href: currentSite.social.facebook },
@@ -26,18 +28,18 @@ export default function Footer() {
   return (
     <footer className="on-dark overflow-hidden bg-[#07120f] text-cream">
       <section className="relative isolate min-h-[28rem] overflow-hidden border-b border-white/10 sm:min-h-[32rem]">
-        <img src="/images/night-aerial.webp" alt="G'Host Villa glowing above Pokhara after dusk" className="absolute inset-0 -z-20 h-full w-full object-cover object-center" loading="lazy" />
+        <img src={footer.heroImage || '/images/night-aerial.webp'} alt={footer.heroImageAlt || "G'Host Villa glowing above Pokhara after dusk"} className="absolute inset-0 -z-20 h-full w-full object-cover object-center" loading="lazy" />
         <div className="absolute inset-0 -z-10 bg-[#07120f]/70" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#07120f]/85 via-[#07120f]/35 to-[#07120f]/70" />
         <div className="mx-auto flex min-h-[28rem] max-w-[1440px] items-end px-6 py-12 sm:min-h-[32rem] sm:px-10 sm:py-16 lg:px-14">
           <div className="max-w-2xl">
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sun">Sarangkot, Pokhara</p>
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sun">{footer.heroEyebrow || 'Sarangkot, Pokhara'}</p>
             <h2 className="mt-4 font-display text-5xl font-semibold leading-[0.95] tracking-[-0.055em] text-white sm:text-7xl">
-              Your next escape starts up here.
+              {footer.heroTitle || 'Your next escape starts up here.'}
             </h2>
-            <p className="mt-5 max-w-lg text-lg text-white/80">A private villa stay, a table with a view, and a slower pace for a little while.</p>
+            <p className="mt-5 max-w-lg text-lg text-white/80">{footer.heroSubtitle || 'A private villa stay, a table with a view, and a slower pace for a little while.'}</p>
             <a href={currentWhatsApp("Hello G'Host Villa! I'd like to book a stay.")} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-12 items-center rounded-full bg-sun px-7 text-[0.7rem] font-bold uppercase tracking-[0.15em] text-forest-dark transition-colors hover:bg-sun-dark">
-              Book a stay
+              {footer.heroCtaLabel || 'Book a stay'}
             </a>
           </div>
         </div>
@@ -46,11 +48,11 @@ export default function Footer() {
       <section className="mx-auto max-w-[1440px] px-6 py-12 sm:px-10 lg:px-14 lg:py-16">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">From the hilltop</p>
-            <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">Follow G&apos;Host Villa</h2>
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">{footer.socialEyebrow || 'From the hilltop'}</p>
+            <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">{footer.socialTitle || "Follow G'Host Villa"}</h2>
           </div>
           <a href={currentSite.social.instagram} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-sun hover:text-white">
-            @the_g_host_villa_pokhara <Icon name="arrow" className="h-4 w-4" />
+            {footer.socialHandle || '@the_g_host_villa_pokhara'} <Icon name="arrow" className="h-4 w-4" />
           </a>
         </div>
       </section>
@@ -58,14 +60,14 @@ export default function Footer() {
       <section className="border-t border-white/10">
         <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-12 sm:px-10 md:grid-cols-[1.3fr_0.7fr_0.9fr] lg:px-14 lg:py-16">
           <div>
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Come stay awhile</p>
-            <p className="mt-4 max-w-md font-display text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-white">A villa, restro and bar above the city lights.</p>
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">{footer.exploreEyebrow || 'Come stay awhile'}</p>
+            <p className="mt-4 max-w-md font-display text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-white">{footer.exploreTitle || 'A villa, restro and bar above the city lights.'}</p>
             <a href={currentDirectionsLink} target="_blank" rel="noopener noreferrer" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-sun hover:text-white">
-              Get directions <Icon name="arrow" className="h-4 w-4" />
+              {footer.exploreCtaLabel || 'Get directions'} <Icon name="arrow" className="h-4 w-4" />
             </a>
           </div>
           <nav aria-label="Footer navigation">
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Explore</p>
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">{footer.navHeading || 'Explore'}</p>
             <ul className="mt-4 space-y-2.5">
               {[{ to: '/', label: 'Home' }, ...currentNavLinks].map((link) => (
                 <li key={link.to}><Link href={link.to} className="text-base text-white/80 transition-colors hover:text-sun">{link.label}</Link></li>
@@ -73,7 +75,7 @@ export default function Footer() {
             </ul>
           </nav>
           <div>
-            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">Get in touch</p>
+            <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">{footer.contactHeading || 'Get in touch'}</p>
             <ul className="mt-4 space-y-3 text-base text-white/80">
               <li className="flex flex-wrap gap-2.5 pb-1">
                 <a href={currentWhatsApp()} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full bg-sun px-5 text-sm font-bold text-forest-dark transition-colors hover:bg-sun-dark"><MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />WhatsApp</a>
@@ -98,16 +100,16 @@ export default function Footer() {
       </section>
 
       <div className="border-t border-white/10 px-4 pb-[calc(4rem+env(safe-area-inset-bottom))] pt-8 text-center sm:px-8 md:pb-0">
-        <p aria-label="G'Host Villa" className="whitespace-nowrap font-display text-[15vw] font-semibold leading-[0.72] tracking-[-0.075em] text-white sm:text-[12vw]">
-          {wordmarkLetters.map((letter, index) => (
+        <p aria-label={currentSite.name || "G'Host Villa"} className="whitespace-nowrap font-display text-[15vw] font-semibold leading-[0.72] tracking-[-0.075em] text-white sm:text-[12vw]">
+          {letters.map((letter, index) => (
             <span key={`${letter}-${index}`} aria-hidden="true" className="inline-block cursor-default transition-[color,text-shadow] duration-300 hover:text-[#F3D6A4] hover:[text-shadow:0_0_14px_rgba(246,217,166,0.24)]">
               {letter === ' ' ? '\u00a0' : letter}
             </span>
           ))}
         </p>
         <div className="mx-auto flex max-w-[1440px] flex-col gap-2 px-2 py-7 text-[0.65rem] font-semibold uppercase tracking-[0.14em] text-sage-light sm:flex-row sm:items-center sm:justify-between">
-          <span>Restro &amp; Bar · Sarangkot, Pokhara</span>
-          <span>© {new Date().getFullYear()} G&apos;Host Villa</span>
+          <span>{footer.bottomLeftText || 'Restro & Bar · Sarangkot, Pokhara'}</span>
+          <span>© {new Date().getFullYear()} {currentSite.name || "G'Host Villa"}</span>
         </div>
       </div>
     </footer>

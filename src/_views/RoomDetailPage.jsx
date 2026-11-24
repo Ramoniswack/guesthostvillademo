@@ -41,22 +41,46 @@ function featureIcon(text) {
   return Sparkles
 }
 
-/** Collapsible FAQ list. */
+/** Collapsible FAQ list matching the rounded bordered card UI. */
 function Accordion({ items }) {
   const [open, setOpen] = useState(0)
   return (
-    <ul className="divide-y divide-forest/10 border-y border-forest/10">
+    <ul className="space-y-2.5">
       {items.map((item, index) => {
         const isOpen = open === index
         return (
-          <li key={item.title}>
+          <li
+            key={item.title}
+            className={`overflow-hidden rounded-2xl border bg-white transition-colors ${
+              isOpen ? 'border-forest/35 shadow-soft' : 'border-forest/15 hover:border-forest/30'
+            }`}
+          >
             <h3>
-              <button type="button" aria-expanded={isOpen} onClick={() => setOpen(isOpen ? -1 : index)} className="flex w-full items-center gap-4 py-4 text-left">
-                <span className="min-w-0 flex-1 text-[0.95rem] font-semibold leading-snug text-forest">{item.title}</span>
-                <ChevronDown className={`h-5 w-5 shrink-0 text-forest/50 transition ${isOpen ? 'rotate-180' : ''}`} aria-hidden="true" />
+              <button
+                type="button"
+                aria-expanded={isOpen}
+                onClick={() => setOpen(isOpen ? -1 : index)}
+                className="flex w-full items-center justify-between gap-4 px-5 py-3.5 text-left"
+              >
+                <span className="min-w-0 flex-1 text-[0.95rem] font-semibold leading-snug text-forest">
+                  {item.title}
+                </span>
+                <span
+                  className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border transition-transform duration-300 ${
+                    isOpen
+                      ? 'rotate-180 border-sun bg-sun text-forest-dark'
+                      : 'border-forest/15 bg-white text-forest'
+                  }`}
+                >
+                  <ChevronDown className="h-4 w-4" aria-hidden="true" />
+                </span>
               </button>
             </h3>
-            {isOpen && <div className="pb-5 pr-8 text-[0.95rem] leading-relaxed text-forest/70">{item.body}</div>}
+            {isOpen && (
+              <div className="border-t border-forest/10 px-5 pb-4 pt-3 text-sm leading-relaxed text-forest/70">
+                {item.body}
+              </div>
+            )}
           </li>
         )
       })}
@@ -339,10 +363,6 @@ export default function RoomDetailPage({ room: initialRoom }) {
               <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4 text-sun-text" aria-hidden="true" />{room.locationLabel || cfg.locationLabel || 'Sarangkot, Pokhara'}</span>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-sm font-semibold text-forest">
-            <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 transition hover:bg-white"><Share2 className="h-4 w-4" aria-hidden="true" />{copied ? 'Link copied' : 'Share'}</button>
-            <button type="button" onClick={toggleSaved} aria-pressed={saved} className="inline-flex items-center gap-2 rounded-full px-3.5 py-2 transition hover:bg-white"><Heart className={`h-4 w-4 ${saved ? 'fill-sun text-sun-text' : ''}`} aria-hidden="true" />{saved ? 'Saved' : 'Save'}</button>
-          </div>
         </div>
       </header>
 
@@ -413,6 +433,10 @@ export default function RoomDetailPage({ room: initialRoom }) {
           <button type="button" onClick={() => setPhoto(0)} className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-2 text-sm font-semibold text-forest shadow-soft transition hover:bg-white">
             <Images className="h-4 w-4" aria-hidden="true" />{fill(cfg.showAllPhotosLabel || 'Show all {count} photos', { count: photos.length })}
           </button>
+        </div>
+        <div className="mt-3 flex items-center justify-end gap-2 text-sm font-semibold text-forest">
+          <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-1.5 shadow-sm transition hover:border-forest/35"><Share2 className="h-4 w-4" aria-hidden="true" />{copied ? 'Link copied' : 'Share'}</button>
+          <button type="button" onClick={toggleSaved} aria-pressed={saved} className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-1.5 shadow-sm transition hover:border-forest/35"><Heart className={`h-4 w-4 ${saved ? 'fill-sun text-sun-text' : ''}`} aria-hidden="true" />{saved ? 'Saved' : 'Save'}</button>
         </div>
       </section>
 

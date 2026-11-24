@@ -1,11 +1,13 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import {
-  Bath, BedDouble, CalendarDays, Check, Clock, Coffee, MessageCircle, Plus, Send, ShieldCheck, Star, Wifi,
+  ArrowRight, Bath, BedDouble, CalendarDays, Check, Clock, Coffee, MessageCircle, Plus, Send, ShieldCheck, Star, Users, Wifi,
 } from 'lucide-react'
-import { Button, Reveal, StaggerGrid, StaggerItem } from '../components/ui.jsx'
+import { Button, CustomSelect, Reveal, StaggerGrid, StaggerItem } from '../components/ui.jsx'
+import { extras, packageFaqs, packages } from '../data/packages.js'
 import { reviews } from '../data/reviews.js'
 import { waLink } from '../data/site.js'
 import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
@@ -15,73 +17,6 @@ const includedEverywhere = [
   { icon: Coffee, label: 'Daily breakfast' },
   { icon: Bath, label: 'Hot water' },
   { icon: Wifi, label: 'Free Wi-Fi & parking' },
-]
-
-const packages = [
-  {
-    id: 'couple',
-    label: 'For two',
-    badge: 'Couple stay',
-    popular: false,
-    title: 'A quiet couple escape',
-    intro: 'A warm private room, breakfast for two and wide hilltop views above Pokhara.',
-    price: 'From NPR 6,800',
-    note: 'per night · 1–2 adults',
-    image: '/images/room-couple.webp',
-    included: ['Private Mountain or City View room', 'Breakfast for two', 'Valley & Himalayan views', 'Hot water, Wi-Fi & parking'],
-    extra: ['Lunch or dinner at the restro', 'Room decoration on request'],
-  },
-  {
-    id: 'family',
-    label: 'For groups',
-    badge: 'Most popular',
-    popular: true,
-    title: 'A weekend with your people',
-    intro: 'Bring family or friends for a private villa wing with room to gather, eat and slow down.',
-    price: 'From NPR 1,550',
-    note: 'per person · 4–12 guests',
-    image: '/images/garden.webp',
-    included: ['Private wing (3–4 bedrooms)', 'Welcome drink & daily breakfast', 'Garden & viewing terraces', 'Hot water, Wi-Fi & parking'],
-    extra: ['BBQ platter & bonfire setup', 'MAP meal plan (+NPR 550 pp)'],
-  },
-  {
-    id: 'buyout',
-    label: 'Private buyout',
-    badge: '7-BHK estate',
-    popular: false,
-    title: 'The whole villa, yours',
-    intro: 'Take over the entire G’Host estate for a celebration, retreat or reunion with space for everyone.',
-    price: 'From NPR 1,550',
-    note: 'per person · 12–24 guests',
-    image: '/images/pyramid.webp',
-    included: ['7-BHK full estate buyout', 'Private host & kitchen team', 'Garden, dining & pyramid bar', 'Event & celebration setup'],
-    extra: ['Custom multi-course group menu', 'Decorations & sound setup'],
-  },
-]
-
-const extras = [
-  { title: 'Breakfast at the pyramid', text: 'Start slowly with fresh breakfast and mountain air under the pyramid roof.', image: '/images/pyramid.webp' },
-  { title: 'Garden BBQ & bonfire', text: 'Gather on the lawns for grilled platters, warm fire and valley lights.', image: '/images/garden.webp' },
-  { title: 'Hilltop celebration setup', text: 'Flowers, custom dinner tables and flexible spaces for birthdays or retreats.', image: '/images/day-aerial.webp' },
-]
-
-const packageFaqs = [
-  {
-    q: 'Do you require a deposit to confirm a package?',
-    a: 'Small room stays are confirmed directly on WhatsApp with no advance payment. Group bookings and full-villa buyouts may require a small booking deposit once dates and menu are finalized.',
-  },
-  {
-    q: 'Can we add extra beds or floor mattresses for larger groups?',
-    a: 'Yes. Extra beds and floor mattresses are available for larger groups and families at NPR 1,500 per extra guest per night (or included in per-person group packages).',
-  },
-  {
-    q: 'What about food for children?',
-    a: 'We prepare mild, kid-friendly meals on request at the pyramid restro. Children sharing existing beds are priced on request or at reduced child rates for group packages.',
-  },
-  {
-    q: 'Can you arrange birthday or anniversary decorations?',
-    a: 'Yes—let us know your occasion in the enquiry form or on WhatsApp and our team can set up flowers, candles, cake or garden seating.',
-  },
 ]
 
 export default function PackagesPage() {
@@ -183,67 +118,73 @@ export default function PackagesPage() {
       {/* 2 · 3-Column Side-by-Side Package Tier Cards + Booking Terms */}
       <section className="bg-white pb-16 md:pb-24">
         <div className="wrap">
-          <StaggerGrid className="grid gap-5 lg:grid-cols-3">
+          <StaggerGrid className="grid gap-6 lg:grid-cols-3 lg:gap-8">
             {currentPackages.map((pkg) => (
               <StaggerItem key={pkg.id} className="h-full">
-                <article
-                  className={`flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition hover:-translate-y-0.5 ${
-                    pkg.popular ? 'border-2 border-sun shadow-warm' : 'border-forest/15 shadow-soft hover:border-forest/35'
+                <Link
+                  href={`/packages/${pkg.id}`}
+                  className={`group flex h-full flex-col overflow-hidden rounded-2xl border bg-white transition duration-300 hover:-translate-y-1 ${
+                    pkg.popular
+                      ? 'border-2 border-sun shadow-warm'
+                      : 'border-forest/15 shadow-soft hover:border-forest/35'
                   }`}
                 >
-                  <div className="relative h-36 overflow-hidden bg-forest-dark">
-                    <img src={pkg.image} alt={pkg.title} loading="lazy" className="h-full w-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+                  <div className="relative h-48 overflow-hidden bg-forest-dark sm:h-52">
+                    <img
+                      src={pkg.image}
+                      alt={pkg.title}
+                      loading="lazy"
+                      className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     <span
-                      className={`absolute left-3.5 top-3 rounded-full px-2.5 py-0.5 text-[0.6rem] font-bold uppercase tracking-[0.12em] ${
+                      className={`absolute left-4 top-4 rounded-full px-3.5 py-1 text-[0.64rem] font-bold uppercase tracking-[0.12em] ${
                         pkg.popular ? 'bg-sun text-forest-dark' : 'bg-white/95 text-forest'
                       }`}
                     >
                       {pkg.badge}
                     </span>
-                    <div className="absolute bottom-2.5 left-3.5 right-3.5 flex items-baseline justify-between gap-2 text-white">
-                      <span className="font-display text-lg font-bold leading-none sm:text-xl">{pkg.price}</span>
-                      <span className="text-[0.68rem] font-medium text-white/85">{pkg.note}</span>
-                    </div>
+                    <span className="absolute bottom-3.5 left-4 inline-flex items-center gap-1.5 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur-sm">
+                      <Users className="h-3.5 w-3.5 text-sun" aria-hidden="true" />
+                      {pkg.note}
+                    </span>
                   </div>
 
-                  <div className="flex flex-1 flex-col p-4">
-                    <h2 className="font-display text-lg font-semibold leading-snug tracking-[-0.02em] text-forest">
-                      {pkg.title}
-                    </h2>
-                    <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-forest/65">{pkg.intro}</p>
-
-                    <div className="mt-3 flex flex-wrap gap-1.5">
-                      {pkg.included.slice(0, 2).map((item) => (
-                        <span
-                          key={item}
-                          className="inline-flex items-center gap-1 rounded-full bg-forest/5 px-2.5 py-1 text-[0.68rem] font-medium text-forest/80"
-                        >
-                          <Check className="h-3 w-3 shrink-0 text-leaf" aria-hidden="true" />
-                          <span>{item}</span>
-                        </span>
-                      ))}
+                  <div className="flex flex-1 flex-col justify-between p-6 sm:p-7">
+                    <div>
+                      <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-sun-text">
+                        {pkg.label}
+                      </p>
+                      <h2 className="mt-2 font-display text-2xl font-semibold leading-tight tracking-[-0.025em] text-forest transition-colors group-hover:text-sun-text">
+                        {pkg.title}
+                      </h2>
+                      <p className="mt-2.5 line-clamp-2 text-sm leading-relaxed text-forest/70">
+                        {pkg.intro}
+                      </p>
                     </div>
 
-                    <div className="mt-auto pt-4">
-                      <a
-                        href={currentWhatsApp(`Hello G'Host Villa! I am interested in the ${pkg.title} package.`)}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex min-h-[36px] w-full items-center justify-center gap-1.5 rounded-full bg-sun px-4 text-xs font-bold text-forest-dark transition hover:bg-sun-dark"
-                      >
-                        <MessageCircle className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-                        <span>Book on WhatsApp</span>
-                      </a>
+                    <div className="mt-6 flex items-center justify-between gap-4 border-t border-forest/10 pt-5">
+                      <div>
+                        <p className="text-[0.65rem] font-bold uppercase tracking-[0.12em] text-forest/50">
+                          {currentContent.cardRateLabel || 'Starting rate'}
+                        </p>
+                        <p className="mt-1 font-display text-xl font-bold leading-none text-forest">
+                          {pkg.price}
+                        </p>
+                      </div>
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-[0.1em] text-forest transition-colors group-hover:text-sun-text">
+                        <span>{pkg.ctaLabel || currentContent.cardCtaLabel || 'Explore'}</span>
+                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                      </span>
                     </div>
                   </div>
-                </article>
+                </Link>
               </StaggerItem>
             ))}
           </StaggerGrid>
 
           {/* Compact Booking Terms */}
-          <div className="mt-8 grid gap-4 rounded-2xl border border-forest/15 bg-white p-5 shadow-soft md:grid-cols-3 md:p-6">
+          <div className="mt-10 grid gap-4 rounded-2xl border border-forest/15 bg-white p-5 shadow-soft md:grid-cols-3 md:p-6">
             {currentBookingTerms ? currentBookingTerms.map(({ Icon, title, text }) => (
               <div key={title} className="flex items-start gap-3">
                 <Icon className="mt-0.5 h-5 w-5 shrink-0 text-sun-text" aria-hidden="true" />
@@ -321,29 +262,31 @@ export default function PackagesPage() {
       <section id="package-planner" className="scroll-mt-24 bg-white py-16 md:py-24">
         <div className="wrap grid items-start gap-12 lg:grid-cols-[1.02fr_0.98fr] lg:gap-14">
           <Reveal className="rounded-2xl border border-forest/15 bg-white p-6 shadow-soft sm:p-8">
-            <p className="label">Custom package planner</p>
+            <p className="label">{currentContent.plannerEyebrow || 'Custom package planner'}</p>
             <h2 className="mt-2 font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-forest">
-              Tell us your dates &amp; group size.
+              {currentContent.plannerTitle || 'Tell us your dates & group size.'}
             </h2>
             <p className="mt-2 text-sm text-forest/70">
-              Send your details directly to our Sarangkot team on WhatsApp—no payment needed now.
+              {currentContent.plannerSubtitle || 'Send your details directly to our Sarangkot team on WhatsApp—no payment needed now.'}
             </p>
 
             <form onSubmit={sendGroupEnquiry} className="mt-6 space-y-4">
               <div className="grid gap-4 sm:grid-cols-2">
-                <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/60">
-                  Package / Occasion
-                  <select
+                <div className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/60">
+                  <span>Package / Occasion</span>
+                  <CustomSelect
+                    ariaLabel="Package or Occasion"
                     value={enquiry.occasion}
-                    onChange={(e) => setEnquiry({ ...enquiry, occasion: e.target.value })}
-                    className={`${field} normal-case tracking-normal`}
-                  >
-                    <option>Couple escape</option>
-                    <option>Group weekend</option>
-                    <option>Full villa buyout</option>
-                    <option>Birthday / celebration</option>
-                  </select>
-                </label>
+                    onChange={(val) => setEnquiry({ ...enquiry, occasion: val })}
+                    options={[
+                      { value: 'Couple escape', label: 'Couple escape' },
+                      { value: 'Group weekend', label: 'Group weekend' },
+                      { value: 'Full villa buyout', label: 'Full villa buyout' },
+                      { value: 'Birthday / celebration', label: 'Birthday / celebration' },
+                    ]}
+                    triggerClassName={`${field} font-semibold normal-case tracking-normal`}
+                  />
+                </div>
                 <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/60">
                   Guests
                   <input

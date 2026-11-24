@@ -89,16 +89,17 @@ export default function HomeEditorial() {
   const currentSite = backend?.site ?? site
   const currentStats = backend?.stats?.length ? backend.stats : stats
   const currentTrustBadges = backend?.trustBadges?.length ? backend.trustBadges : trustBadges
+  const iconByName = { CheckCircle2, MessageCircle, ShieldCheck, Wifi, Bath, Car, Coffee, Clock, Utensils, BedDouble, Users, Star, MapPin }
   const currentBenefits = backend?.home?.directBenefits?.length
     ? backend.home.directBenefits.map((item, index) => ({
         ...item,
-        icon: [CheckCircle2, MessageCircle, ShieldCheck][index] ?? CheckCircle2,
+        icon: iconByName[item.icon] ?? [CheckCircle2, MessageCircle, ShieldCheck][index] ?? CheckCircle2,
       }))
     : directBenefits
   const currentAmenities = backend?.home?.amenities?.length
     ? backend.home.amenities.map((item, index) => ({
         ...item,
-        icon: [Wifi, Bath, Car, Coffee, Clock, Utensils][index] ?? CheckCircle2,
+        icon: iconByName[item.icon] ?? [Wifi, Bath, Car, Coffee, Clock, Utensils][index] ?? CheckCircle2,
       }))
     : amenities
   const currentStayFilters = backend?.home?.stayFilters?.length ? backend.home.stayFilters : stayFilters
@@ -244,9 +245,9 @@ export default function HomeEditorial() {
             </ul>
 
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button href="/rooms" className="w-full sm:w-auto">Explore rooms</Button>
-              <Button href="/about" variant="outline" arrow={false} className="w-full sm:w-auto">
-                Our story
+              <Button href={editorial?.intro?.primaryCtaHref || '/rooms'} className="w-full sm:w-auto">{editorial?.intro?.primaryCtaLabel || 'Explore rooms'}</Button>
+              <Button href={editorial?.intro?.secondaryCtaHref || '/about'} variant="outline" arrow={false} className="w-full sm:w-auto">
+                {editorial?.intro?.secondaryCtaLabel || 'Our story'}
               </Button>
             </div>
           </Reveal>
@@ -683,12 +684,12 @@ export default function HomeEditorial() {
 
             <div className="mt-5 grid grid-cols-2 gap-3">
               <div className="rounded-2xl border border-forest/15 bg-white p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-sun-text">Lakeside</p>
-                <p className="mt-1 font-display text-xl font-semibold text-forest">~20 mins</p>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-sun-text">{editorial?.locationSection?.lakesideLabel || 'Lakeside'}</p>
+                <p className="mt-1 font-display text-xl font-semibold text-forest">{editorial?.locationSection?.lakesideTime || '~20 mins'}</p>
               </div>
               <div className="rounded-2xl border border-forest/15 bg-white p-4">
-                <p className="text-xs font-bold uppercase tracking-[0.12em] text-sun-text">Pokhara Airport</p>
-                <p className="mt-1 font-display text-xl font-semibold text-forest">~30 mins</p>
+                <p className="text-xs font-bold uppercase tracking-[0.12em] text-sun-text">{editorial?.locationSection?.airportLabel || 'Pokhara Airport'}</p>
+                <p className="mt-1 font-display text-xl font-semibold text-forest">{editorial?.locationSection?.airportTime || '~30 mins'}</p>
               </div>
             </div>
 
@@ -724,9 +725,9 @@ export default function HomeEditorial() {
           </Reveal>
 
           <Reveal delay={0.08}>
-            <p className="label">FAQ</p>
+            <p className="label">{editorial?.locationSection?.faqEyebrow || 'FAQ'}</p>
             <h2 className="mt-2 font-display text-3xl font-semibold leading-none tracking-[-0.03em] text-forest sm:text-4xl">
-              Quick answers.
+              {editorial?.locationSection?.faqTitle || 'Quick answers.'}
             </h2>
             <div className="mt-5 divide-y divide-forest/15 border-y border-forest/15">
               {currentFaqs.slice(0, 5).map((faq) => (
@@ -741,10 +742,10 @@ export default function HomeEditorial() {
             </div>
             <div className="mt-6">
               <Link
-                href="/faq"
+                href={editorial?.locationSection?.faqCtaHref || '/faq'}
                 className="inline-flex items-center gap-2 rounded-full border border-forest/20 px-4 py-2 text-xs font-bold uppercase tracking-[0.12em] text-forest transition hover:border-forest hover:bg-forest hover:text-white"
               >
-                <span>Read all FAQs</span>
+                <span>{editorial?.locationSection?.faqCtaLabel || 'Read all FAQs'}</span>
                 <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
               </Link>
             </div>

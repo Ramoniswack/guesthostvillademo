@@ -123,8 +123,8 @@ export default function Hero() {
         className="pointer-events-none absolute inset-x-0 -bottom-px z-10 h-24 w-full sm:h-28 md:h-auto md:aspect-[1024/217] md:translate-y-12 lg:translate-y-16"
         style={{
           backgroundColor: '#FFFFFF',
-          WebkitMaskImage: 'url(/images/mountain-edge.svg)',
-          maskImage: 'url(/images/mountain-edge.svg)',
+          WebkitMaskImage: `url(${heroContent?.mountainMaskImage || '/images/mountain-edge.svg'})`,
+          maskImage: `url(${heroContent?.mountainMaskImage || '/images/mountain-edge.svg'})`,
           WebkitMaskRepeat: 'no-repeat',
           maskRepeat: 'no-repeat',
           WebkitMaskSize: '100% 100%',

@@ -5,7 +5,7 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, ArrowUpDown, Bath, BedDouble, ChevronDown, Coffee, Minus, Mountain, Plus, RotateCcw, Search, SlidersHorizontal, Users, Wifi, X } from 'lucide-react'
 import RangeSlider from './RangeSlider.jsx'
-import { Button, Reveal } from './ui.jsx'
+import { Button, CustomSelect, Reveal } from './ui.jsx'
 import {
   rooms, buildings, plans, MAX_GUESTS, MAP_ADD,
   recommendedFor, describePrice, costSpan, buildingLabel,
@@ -167,14 +167,20 @@ function BookingBar({ availableBuildings, maxGuests, building, setBuilding, chec
               transition={{ duration: 0.22, ease: [0.22, 0.61, 0.36, 1] }}
               className="overflow-hidden"
             >
-              <form onSubmit={submit} className="mt-2.5 grid gap-px overflow-hidden rounded-2xl bg-forest/15 p-px shadow-soft" aria-label="Search G’Host stays mobile">
-                <label className="bg-white px-4 py-3">
+              <form onSubmit={submit} className="mt-2.5 grid gap-px rounded-2xl border border-forest/15 bg-forest/15 p-px shadow-soft" aria-label="Search G’Host stays mobile">
+                <div className="rounded-t-2xl bg-white px-4 py-3">
                   <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">Stay type</span>
-                  <select value={building} onChange={(e) => setBuilding(e.target.value)} className="mt-1 w-full bg-transparent text-sm font-semibold text-forest outline-none">
-                    <option value="all">Any G’Host space</option>
-                    {availableBuildings.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-                  </select>
-                </label>
+                  <CustomSelect
+                    ariaLabel="Stay type"
+                    value={building}
+                    onChange={setBuilding}
+                    options={[
+                      { value: 'all', label: 'Any G’Host space' },
+                      ...availableBuildings.map((b) => ({ value: b.id, label: b.name })),
+                    ]}
+                    triggerClassName="mt-1 text-sm font-semibold text-forest"
+                  />
+                </div>
                 <div className="grid grid-cols-2 gap-px bg-forest/15">
                   <label className="bg-white px-4 py-3">
                     <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">Check in</span>
@@ -204,13 +210,19 @@ function BookingBar({ availableBuildings, maxGuests, building, setBuilding, chec
 
       {/* Desktop horizontal bar */}
       <form onSubmit={submit} className={`relative mx-auto hidden ${isCompact ? 'max-w-[1120px]' : 'max-w-[1440px]'} px-5 transition-all duration-300 sm:px-8 lg:px-12 md:grid md:grid-cols-[1.25fr_1fr_1fr_0.75fr_auto] md:divide-x md:divide-forest/10`} aria-label="Search G’Host stays">
-        <label className={`pr-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-3.5'}`}>
+        <div className={`pr-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-3.5'}`}>
           <span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Stay type</span>
-          <select value={building} onChange={(e) => setBuilding(e.target.value)} className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`}>
-            <option value="all">Any G’Host space</option>
-            {availableBuildings.map((b) => <option key={b.id} value={b.id}>{b.name}</option>)}
-          </select>
-        </label>
+          <CustomSelect
+            ariaLabel="Stay type"
+            value={building}
+            onChange={setBuilding}
+            options={[
+              { value: 'all', label: 'Any G’Host space' },
+              ...availableBuildings.map((b) => ({ value: b.id, label: b.name })),
+            ]}
+            triggerClassName={`${isCompact ? '' : 'mt-1'} font-semibold text-forest`}
+          />
+        </div>
         <label className={`px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-3.5'}`}>
           <span className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${isCompact ? 'hidden' : ''}`}>Check in</span>
           <input aria-label="Check in" type="date" min={todayISO()} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className={`${isCompact ? '' : 'mt-1'} w-full bg-transparent font-semibold text-forest outline-none`} />
@@ -320,11 +332,15 @@ export default function Rooms() {
           </div>
           <div className="flex items-center gap-3">
             <p className="text-sm font-semibold text-forest/65">{visible.length} {visible.length === 1 ? 'stay' : 'stays'}{guests != null ? ` for ${guests} ${guests === 1 ? 'guest' : 'guests'}` : ''}{hiddenAsk ? ' · includes WhatsApp rates' : ''}</p>
-            <label className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-3.5 py-2 text-xs font-semibold text-forest"><ArrowUpDown className="h-3.5 w-3.5 text-forest/55" aria-hidden="true" />
-              <select aria-label="Sort stays" value={sort} onChange={(event) => setSort(event.target.value)} className="bg-transparent outline-none">
-                {sorts.map((item) => <option key={item.id} value={item.id}>{item.label}</option>)}
-              </select>
-            </label>
+            <CustomSelect
+              ariaLabel="Sort stays"
+              value={sort}
+              onChange={setSort}
+              options={sorts.map((item) => ({ value: item.id, label: item.label }))}
+              prefixIcon={<ArrowUpDown className="h-3.5 w-3.5 shrink-0 text-forest/55" aria-hidden="true" />}
+              triggerClassName="rounded-full border border-forest/15 bg-white px-3.5 py-2 text-xs font-semibold text-forest hover:border-forest/35"
+              menuAlign="right"
+            />
           </div>
         </Reveal>
 

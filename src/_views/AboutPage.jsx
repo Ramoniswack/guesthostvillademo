@@ -203,7 +203,7 @@ export default function AboutPage() {
 
               <div className="flex flex-col justify-between p-6 sm:p-8 lg:p-10">
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-[0.15em] text-sun">Property profile</p>
+                  <p className="text-xs font-bold uppercase tracking-[0.15em] text-sun">{content.profileLabel || 'Property profile'}</p>
                   <dl className="mt-5 divide-y divide-white/15 border-y border-white/15">
                     {currentEstateFacts.map((fact) => (
                       <div key={fact.label} className="py-3.5">
@@ -347,7 +347,7 @@ export default function AboutPage() {
               >
                 <span className="inline-flex items-center gap-2">
                   <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
-                  <span>Message the team on WhatsApp</span>
+                  <span>{content.hostingCtaLabel || 'Message the team on WhatsApp'}</span>
                 </span>
               </Button>
             </div>
