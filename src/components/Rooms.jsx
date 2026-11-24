@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import { ArrowRight, ArrowUpDown, Bath, BedDouble, ChevronDown, Coffee, Minus, Mountain, Plus, RotateCcw, Search, SlidersHorizontal, Users, Wifi, X } from 'lucide-react'
 import RangeSlider from './RangeSlider.jsx'
+import RoomCard from './RoomCard.jsx'
 import { Button, CustomSelect, Reveal } from './ui.jsx'
 import {
   rooms, buildings, plans, MAX_GUESTS, MAP_ADD,
@@ -437,18 +438,30 @@ export default function Rooms() {
 
           <div id="stay-results">
             <div className="grid gap-6 md:grid-cols-2">
-              {visible.map((room, index) => (
-                <motion.div
-                  key={room.id}
-                  layout
-                  initial={{ opacity: 0, y: 16 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.25), ease: [0.22, 0.61, 0.36, 1] }}
-                  className="h-full"
-                >
-                  <StayCard room={room} availableBuildings={currentBuildings} mapAdd={mapAdd} guests={guests} plan={plan} checkIn={checkIn} checkOut={checkOut} />
-                </motion.div>
-              ))}
+              {visible.map((room, index) => {
+                const eyebrow = (
+                  room.building === 'both'
+                    ? 'Both buildings'
+                    : (currentBuildings.find((item) => item.id === room.building)?.name ?? buildingLabel(room))
+                ).toUpperCase()
+                return (
+                  <motion.div
+                    key={room.id}
+                    layout
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.35, delay: Math.min(index * 0.05, 0.25), ease: [0.22, 0.61, 0.36, 1] }}
+                    className="h-full"
+                  >
+                    <RoomCard
+                      room={room}
+                      href={`/rooms/${room.id}${stayQuery({ guests, plan, checkIn, checkOut })}`}
+                      showIcons
+                      plan={plan}
+                    />
+                  </motion.div>
+                )
+              })}
               {visible.length === 0 && (
                 <div className="col-span-full rounded-2xl border border-forest/15 bg-white/50 p-10 text-center text-forest/75">
                   <p className="font-medium">No stays match your current filters.</p>

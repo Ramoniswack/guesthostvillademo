@@ -229,21 +229,21 @@ export default function AboutPage() {
       </section>
 
       {/* 2 · Interactive "Inside the Estate" Zone Explorer */}
-      <section className="border-t border-forest/15 bg-white py-16 md:py-24">
+      <section className="bg-forest-dark py-16 text-white md:py-24">
         <div className="wrap">
-          <Reveal className="flex flex-wrap items-end justify-between gap-4">
+          <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <p className="label">{content.zonesEyebrow || 'Inside the estate'}</p>
-              <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-forest sm:text-5xl">
+              <p className="label !text-sun">{content.zonesEyebrow || 'Inside the estate'}</p>
+              <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-white sm:text-5xl">
                 {content.zonesTitle || 'Four spaces, one hillside.'}
               </h2>
             </div>
-            <p className="max-w-sm text-sm leading-relaxed text-forest/70">
+            <p className="max-w-sm text-sm leading-relaxed text-white/70">
               {content.zonesSubtitle || 'Select a wing or gathering area to see its layout, guest fit, and rooms.'}
             </p>
           </Reveal>
 
-          <div role="tablist" aria-label="Estate zones" className="mt-8 flex flex-wrap gap-2.5">
+          <div role="tablist" aria-label="Estate zones" className="mb-6 flex flex-wrap gap-2.5">
             {currentEstateZones.map((zone) => {
               const selected = zone.id === activeZoneId
               return (
@@ -255,8 +255,8 @@ export default function AboutPage() {
                   onClick={() => setActiveZoneId(zone.id)}
                   className={`rounded-full px-4 py-2.5 text-xs font-bold uppercase tracking-[0.1em] transition ${
                     selected
-                      ? 'bg-forest text-white shadow-soft'
-                      : 'border border-forest/20 bg-white text-forest hover:border-forest'
+                      ? 'bg-sun text-forest-dark shadow-soft'
+                      : 'border border-white/20 bg-white/5 text-white/80 hover:border-white/40 hover:text-white'
                   }`}
                 >
                   {zone.tab}
@@ -272,41 +272,41 @@ export default function AboutPage() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -12 }}
               transition={{ duration: 0.28, ease: [0.22, 0.61, 0.36, 1] }}
-              className="mt-6 overflow-hidden rounded-2xl border border-forest/15 bg-white shadow-soft"
+              className="overflow-hidden rounded-2xl border border-white/15 bg-forest shadow-warm"
             >
               <div className="grid lg:grid-cols-[0.95fr_1.05fr]">
-                <div className="relative aspect-[16/11] overflow-hidden bg-forest-dark lg:aspect-auto">
+                <div className="relative aspect-[16/11] overflow-hidden lg:aspect-auto">
                   <img
                     src={activeZone.image}
                     alt={activeZone.alt}
                     className="h-full w-full object-cover"
                   />
-                  <span className="absolute left-4 top-4 rounded-full bg-white px-3.5 py-1 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-forest">
+                  <span className="absolute left-4 top-4 rounded-full bg-sun px-3.5 py-1 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-forest-dark">
                     {activeZone.tag}
                   </span>
                 </div>
 
                 <div className="flex flex-col p-6 sm:p-8 lg:p-10">
-                  <h3 className="font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-forest">
+                  <h3 className="font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-white">
                     {activeZone.title}
                   </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-forest/75 sm:text-base">
+                  <p className="mt-3 text-sm leading-relaxed text-white/75 sm:text-base">
                     {activeZone.description}
                   </p>
 
-                  <dl className="mt-6 divide-y divide-forest/10 border-y border-forest/10">
+                  <dl className="mt-6 divide-y divide-white/10 border-y border-white/10">
                     {activeZone.specs.map((spec) => (
                       <div key={spec.label} className="flex flex-wrap items-baseline justify-between gap-2 py-3 text-sm">
-                        <dt className="text-xs font-bold uppercase tracking-[0.12em] text-forest/55">
+                        <dt className="text-xs font-bold uppercase tracking-[0.12em] text-white/50">
                           {spec.label}
                         </dt>
-                        <dd className="font-semibold text-forest">{spec.value}</dd>
+                        <dd className="font-semibold text-white">{spec.value}</dd>
                       </div>
                     ))}
                   </dl>
 
                   <div className="mt-auto pt-6">
-                    <p className="mb-2.5 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-sun-text">
+                    <p className="mb-2.5 text-[0.68rem] font-bold uppercase tracking-[0.12em] text-sun">
                       Direct links
                     </p>
                     <div className="flex flex-wrap gap-2">
@@ -314,7 +314,7 @@ export default function AboutPage() {
                         <Link
                           key={link.href}
                           href={link.href}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-forest/20 bg-white px-4 py-2 text-xs font-semibold text-forest transition hover:border-forest hover:bg-sun hover:text-forest-dark"
+                          className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs font-semibold text-white transition hover:bg-sun hover:text-forest-dark hover:border-sun"
                         >
                           <span>{link.label}</span>
                           <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
@@ -329,7 +329,7 @@ export default function AboutPage() {
         </div>
       </section>
 
-      {/* 3 · Redesigned "How We Host" — Sticky Split + Numbered Editorial Ledger */}
+      {/* 3 · "How We Host" — Sticky Split + Numbered Editorial Ledger */}
       <section className="border-t border-forest/15 bg-white py-16 md:py-24">
         <div className="wrap grid items-start gap-10 lg:grid-cols-[0.82fr_1.18fr] lg:gap-16">
           <Reveal className="lg:sticky lg:top-28">
@@ -391,7 +391,7 @@ export default function AboutPage() {
           <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="label !text-sun">{content.standardsEyebrow || 'Good to know'}</p>
-              <h2 className="mt-2 font-display text-3xl font-semibold leading-none tracking-[-0.03em] text-white sm:text-4xl">
+              <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-white sm:text-5xl">
                 {content.standardsTitle || 'Property standards & direct desk.'}
               </h2>
             </div>
@@ -402,8 +402,8 @@ export default function AboutPage() {
 
           <div className="grid gap-6 lg:grid-cols-3">
             <Reveal className="flex flex-col rounded-2xl border border-white/15 bg-forest p-7">
-              <div className="flex items-center gap-2.5 text-sun">
-                <Clock className="h-5 w-5" aria-hidden="true" />
+              <div className="flex items-center gap-2.5">
+                <Clock className="h-5 w-5 text-sun" aria-hidden="true" />
                 <h3 className="font-display text-xl font-semibold text-white">Check-in &amp; house rhythm</h3>
               </div>
               <ul className="mt-5 space-y-3 text-sm leading-relaxed text-white/85">
@@ -417,8 +417,8 @@ export default function AboutPage() {
             </Reveal>
 
             <Reveal delay={0.06} className="flex flex-col rounded-2xl border border-white/15 bg-forest p-7">
-              <div className="flex items-center gap-2.5 text-sun">
-                <Wifi className="h-5 w-5" aria-hidden="true" />
+              <div className="flex items-center gap-2.5">
+                <Wifi className="h-5 w-5 text-sun" aria-hidden="true" />
                 <h3 className="font-display text-xl font-semibold text-white">On-site facilities</h3>
               </div>
               <ul className="mt-5 space-y-3 text-sm leading-relaxed text-white/85">
@@ -432,8 +432,8 @@ export default function AboutPage() {
             </Reveal>
 
             <Reveal delay={0.12} className="flex flex-col rounded-2xl border border-white/15 bg-forest p-7">
-              <div className="flex items-center gap-2.5 text-sun">
-                <Compass className="h-5 w-5" aria-hidden="true" />
+              <div className="flex items-center gap-2.5">
+                <Compass className="h-5 w-5 text-sun" aria-hidden="true" />
                 <h3 className="font-display text-xl font-semibold text-white">Direct desk &amp; address</h3>
               </div>
               <div className="mt-5 space-y-3 text-sm text-white/85">

@@ -46,7 +46,7 @@ const COMMON_FEATURES = [
 ]
 
 // PLACEHOLDER PHOTOS: swap each `image` / `gallery` for the real room photo when you have it.
-export const rooms = [
+const RAW_ROOMS = [
   {
     id: 'mountain-view-room',
     name: 'Mountain View Room',
@@ -313,9 +313,34 @@ export const rooms = [
   },
 ]
 
-export const findStay = (id) => rooms.find((room) => room.id === id)
+const DEFAULT_POLICIES = {
+  checkIn: '2:00 PM',
+  checkOut: '10:00 AM',
+  cancellation: 'Free cancellation within 48 hours of booking (at least 24 hours before check-in).',
+}
+
 export const buildingOf = (room) => (room.building === 'both' ? null : buildings.find((item) => item.id === room.building))
-export const buildingLabel = (room) => (room.building === 'both' ? 'Both buildings' : buildingOf(room).name)
+export const buildingLabel = (room) => (room.building === 'both' ? 'Both buildings' : buildingOf(room)?.name || 'G’Host Villa')
+
+export const rooms = RAW_ROOMS.map((room) => ({
+  ...room,
+  slug: room.id,
+  eyebrow: buildingLabel(room).toUpperCase(),
+  intro: room.blurb,
+  guests: room.capacity,
+  bedType: room.bed,
+  images: room.gallery?.length ? room.gallery : [room.image],
+  amenities: [...room.features, 'Free on-site parking'],
+  policies: DEFAULT_POLICIES,
+}))
+
+export const findStay = (id) =>
+  rooms.find(
+    (room) =>
+      room.id === id ||
+      room.slug === id ||
+      (id === 'villa-top' && room.id === 'villa-top-floor'),
+  )
 
 export const formatNpr = (value) => `NPR ${Math.round(value).toLocaleString('en-US')}`
 

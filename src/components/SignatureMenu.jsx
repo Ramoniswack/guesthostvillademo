@@ -1,8 +1,9 @@
 'use client'
 
-import { useMemo, useState } from 'react'
-import { Search, X } from 'lucide-react'
-import { Reveal } from './ui.jsx'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react'
+import { CustomSelect, Reveal } from './ui.jsx'
 import { featuredBlocks as staticFeatured, listBlocks as staticLists, menuTabs as staticTabs } from '../data/signature.js'
 import { site, telLink } from '../data/site.js'
 import { useBackendData } from '../lib/backend.jsx'
@@ -54,64 +55,69 @@ function ItemRow({ item }) {
   )
 }
 
-/** 2-column printed menu block: items on the left + 1 large round plate photo on the right. */
+/** Uniform equal-height menu category card. */
 function FeaturedCategoryTile({ block, index }) {
   return (
     <Reveal
-      delay={Math.min(index * 0.03, 0.18)}
-      className="group flex flex-row items-start justify-between gap-5 max-[420px]:flex-col-reverse"
+      delay={Math.min((index % 2) * 0.05, 0.1)}
+      className="group flex h-full flex-col rounded-2xl border border-forest/15 bg-white p-6 shadow-soft transition-colors duration-300 hover:border-forest/35 sm:p-7"
     >
-      <div className="min-w-0 flex-1">
-        <div className="flex flex-wrap items-baseline justify-between gap-2">
-          <h2 className="font-display text-2xl font-bold tracking-[-0.03em] text-ink sm:text-[1.75rem]">
+      <div className="flex items-center justify-between gap-4 border-b border-ink/10 pb-4">
+        <div className="min-w-0">
+          <h2 className="font-display text-xl font-bold tracking-[-0.03em] text-ink sm:text-2xl">
             {block.title}
           </h2>
+          <div className="mt-2 h-[1.5px] w-10 bg-sun" aria-hidden="true" />
           {block.note && (
-            <span className="text-[0.72rem] font-medium text-ink/50">
+            <p className="mt-1.5 text-[0.72rem] font-medium text-ink/50">
               {block.note}
-            </span>
+            </p>
           )}
         </div>
-        <div className="mt-2 h-[1.5px] w-10 bg-sun" aria-hidden="true" />
 
-        <ul className="mt-3.5 space-y-1.5">
-          {block.items.map((item) => (
-            <ItemRow key={item.name} item={item} />
-          ))}
-        </ul>
+        {block.image && (
+          <div className="h-20 w-20 shrink-0 sm:h-24 sm:w-24">
+            <img
+              src={block.image}
+              alt={`${block.title} plated dish`}
+              width={900}
+              height={900}
+              loading="lazy"
+              className="aspect-square h-full w-full object-contain mix-blend-multiply transition-transform duration-500 ease-out group-hover:rotate-[3deg] group-hover:scale-[1.05] motion-reduce:transition-none motion-reduce:group-hover:transform-none"
+            />
+          </div>
+        )}
       </div>
 
-      {block.image && (
-        <div className="w-[34%] max-w-[190px] shrink-0 max-[420px]:w-36 sm:w-[165px] xl:w-[190px]">
-          <img
-            src={block.image}
-            alt={`${block.title} plated dish`}
-            width={900}
-            height={900}
-            loading="lazy"
-            className="aspect-square w-full object-contain mix-blend-multiply transition-transform duration-500 ease-out group-hover:rotate-[3deg] group-hover:scale-[1.04] motion-reduce:transition-none motion-reduce:group-hover:transform-none"
-          />
-        </div>
-      )}
+      <ul className="mt-4 space-y-1.5">
+        {block.items.map((item) => (
+          <ItemRow key={item.name} item={item} />
+        ))}
+      </ul>
     </Reveal>
   )
 }
 
-/** Bottom 2-column printed list block (Dessert / Beverage / Bar style from the reference poster). */
-function PrintedListTile({ block }) {
+/** Uniform equal-height bottom text list card (Soup/Salad, Hot Drinks, Coolers, Bar). */
+function PrintedListTile({ block, index }) {
   return (
-    <Reveal>
-      <div className="flex flex-wrap items-baseline justify-between gap-2">
-        <h2 className="font-display text-2xl font-bold tracking-[-0.03em] text-ink sm:text-[1.75rem]">
-          {block.title}
-        </h2>
+    <Reveal
+      delay={Math.min((index % 2) * 0.05, 0.1)}
+      className="flex h-full flex-col rounded-2xl border border-forest/15 bg-white p-6 shadow-soft transition-colors duration-300 hover:border-forest/35 sm:p-7"
+    >
+      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-ink/10 pb-4">
+        <div>
+          <h2 className="font-display text-xl font-bold tracking-[-0.03em] text-ink sm:text-2xl">
+            {block.title}
+          </h2>
+          <div className="mt-2 h-[1.5px] w-10 bg-sun" aria-hidden="true" />
+        </div>
         {block.note && (
           <span className="text-[0.72rem] font-medium text-ink/50">
             {block.note}
           </span>
         )}
       </div>
-      <div className="mt-2 h-[1.5px] w-10 bg-sun" aria-hidden="true" />
 
       <ul className="mt-4 space-y-1.5">
         {block.items.map((item) => (
@@ -148,6 +154,18 @@ export default function SignatureMenu() {
   const [activeTab, setActiveTab] = useState('all')
   const [query, setQuery] = useState('')
   const [dietFilter, setDietFilter] = useState('all') // 'all' | 'veg' | 'nonveg'
+  const [isCompact, setIsCompact] = useState(false)
+  const [mobileFilterOpen, setMobileFilterOpen] = useState(false)
+  const miniBarRef = useRef(null)
+
+  useEffect(() => {
+    if (!miniBarRef.current) return undefined
+    const dockY = window.scrollY + miniBarRef.current.getBoundingClientRect().top
+    const onScroll = () => setIsCompact(window.scrollY >= dockY)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
 
   const q = query.trim().toLowerCase()
 
@@ -189,92 +207,224 @@ export default function SignatureMenu() {
   }, [activeTab, q, dietFilter, listBlocks])
 
   const nothingFound = visibleFeatured.length === 0 && visibleLists.length === 0
+  const activeTabLabel = menuTabs.find((t) => t.id === activeTab)?.label || 'All categories'
+  const dietLabel = dietFilter === 'veg' ? 'Vegetarian' : dietFilter === 'nonveg' ? 'Non-veg' : 'All diets'
+  const activeCount = tabCounts[activeTab] || 0
+  const hasActiveFilters = activeTab !== 'all' || Boolean(query.trim()) || dietFilter !== 'all'
+
+  const resetFilters = () => {
+    setActiveTab('all')
+    setQuery('')
+    setDietFilter('all')
+  }
 
   return (
     <section
       aria-labelledby="signature-menu-heading"
-      className="bg-white pb-16 pt-28 font-body text-ink sm:pb-20 sm:pt-32 lg:pb-24 lg:pt-36"
+      className="bg-white pb-16 pt-[4.5rem] font-body text-ink sm:pb-20 lg:pb-24"
     >
-      <div className="mx-auto w-full max-w-[1260px] px-6 sm:px-10">
-        {/* Printed-style Header Row */}
-        <Reveal className="flex flex-col justify-between gap-6 border-b border-sun/70 pb-8 sm:flex-row sm:items-end">
-          <div className="flex items-center gap-3.5">
-            <img
-              src="/images/logo-icon.webp"
-              alt="G'Host Villa logo"
-              width={48}
-              height={48}
-              className="h-10 w-10 shrink-0 object-contain sm:h-12 sm:w-12"
-            />
-            <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-              <h1
-                id="signature-menu-heading"
-                className="font-display text-2xl font-extrabold uppercase tracking-[-0.03em] text-ink sm:text-3xl"
+      <h1 id="signature-menu-heading" className="sr-only">
+        {menuSettings.kitchenTitle || "G'Host Villa Menu"}
+      </h1>
+
+      {/* Sticky Mini-Menu Filter Bar (matches /rooms BookingBar) */}
+      <div
+        ref={miniBarRef}
+        className={`sticky top-0 z-30 border-b border-forest/10 bg-white/95 backdrop-blur-md transition-all duration-300 ${
+          isCompact ? 'shadow-md shadow-forest/5' : ''
+        }`}
+      >
+        {/* Mobile compact mini-menu pill */}
+        <div className="px-5 py-2 sm:px-8 md:hidden">
+          <button
+            type="button"
+            onClick={() => setMobileFilterOpen((o) => !o)}
+            aria-expanded={mobileFilterOpen}
+            className="flex w-full items-center justify-between gap-3 rounded-full border border-forest/15 bg-white px-4 py-2.5 text-left shadow-soft"
+          >
+            <span className="flex min-w-0 items-center gap-3">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-sun text-forest-dark">
+                <Search className="h-4 w-4" aria-hidden="true" />
+              </span>
+              <span className="min-w-0">
+                <span className="block truncate text-xs font-bold text-forest">
+                  {query.trim() ? `“${query.trim()}”` : activeTabLabel}
+                </span>
+                <span className="block truncate text-[0.7rem] text-forest/60">
+                  {dietLabel} · {activeCount} {activeCount === 1 ? 'item' : 'items'}
+                </span>
+              </span>
+            </span>
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-forest/15 px-3 py-1 text-[0.68rem] font-bold uppercase tracking-[0.08em] text-forest">
+              {mobileFilterOpen ? (
+                <>
+                  <X className="h-3 w-3" aria-hidden="true" />
+                  Close
+                </>
+              ) : (
+                <>
+                  <SlidersHorizontal className="h-3 w-3" aria-hidden="true" />
+                  Filter
+                </>
+              )}
+            </span>
+          </button>
+
+          <AnimatePresence initial={false}>
+            {mobileFilterOpen && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.22, ease: [0.22, 0.61, 0.36, 1] }}
               >
-                {menuSettings.kitchenTitle || "G'Host Villa"}
-              </h1>
-              <p className="font-display text-base font-medium italic text-ink/70 sm:text-lg">
-                {menuSettings.kitchenSubtitle || 'Mountain-view kitchen'}
-              </p>
-            </div>
+                <div className="mt-2.5 grid gap-px rounded-2xl border border-forest/15 bg-forest/15 p-px shadow-soft">
+                  <div className="rounded-t-2xl bg-white px-4 py-3">
+                    <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">
+                      Category
+                    </span>
+                    <CustomSelect
+                      ariaLabel="Menu category"
+                      value={activeTab}
+                      onChange={setActiveTab}
+                      options={menuTabs.map((t) => ({
+                        value: t.id,
+                        label: `${t.label} (${tabCounts[t.id] || 0})`,
+                      }))}
+                      triggerClassName="mt-1 text-sm font-semibold text-forest"
+                    />
+                  </div>
+
+                  <div className="bg-white px-4 py-3">
+                    <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">
+                      Dietary preference
+                    </span>
+                    <div className="mt-2 flex flex-wrap gap-1.5">
+                      {[
+                        { id: 'all', label: 'All' },
+                        { id: 'veg', label: 'Vegetarian', dot: 'bg-leaf' },
+                        { id: 'nonveg', label: 'Non-veg', dot: 'bg-sun-text' },
+                      ].map((opt) => {
+                        const on = dietFilter === opt.id
+                        return (
+                          <button
+                            key={opt.id}
+                            type="button"
+                            onClick={() => setDietFilter(opt.id)}
+                            className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition ${
+                              on
+                                ? 'border-forest bg-forest text-white'
+                                : 'border-forest/15 bg-white text-forest/75'
+                            }`}
+                          >
+                            {opt.dot && (
+                              <span
+                                className={`h-2 w-2 rounded-full ${on ? 'bg-white' : opt.dot}`}
+                                aria-hidden="true"
+                              />
+                            )}
+                            {opt.label}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="bg-white px-4 py-3">
+                    <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">
+                      Search dish or drink
+                    </span>
+                    <div className="relative mt-1 flex items-center">
+                      <input
+                        type="search"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+                        placeholder="Momo, thali, pizza, tea..."
+                        aria-label="Search the menu"
+                        className="w-full bg-transparent pr-7 text-sm font-semibold text-forest outline-none placeholder:font-normal placeholder:text-forest/40"
+                      />
+                      {query && (
+                        <button
+                          type="button"
+                          onClick={() => setQuery('')}
+                          aria-label="Clear search"
+                          className="absolute right-0 text-forest/45 hover:text-forest"
+                        >
+                          <X className="h-4 w-4" aria-hidden="true" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 rounded-b-2xl bg-white p-2.5">
+                    {hasActiveFilters && (
+                      <button
+                        type="button"
+                        onClick={resetFilters}
+                        className="min-h-10 rounded-full border border-forest/20 px-4 text-xs font-semibold text-forest"
+                      >
+                        Reset
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => setMobileFilterOpen(false)}
+                      className="min-h-10 flex-1 rounded-full bg-sun px-5 text-xs font-bold uppercase tracking-[0.12em] text-forest-dark transition hover:bg-sun-dark"
+                    >
+                      Show {activeCount} {activeCount === 1 ? 'item' : 'items'}
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Desktop horizontal mini-menu bar */}
+        <div
+          className={`relative mx-auto hidden ${
+            isCompact ? 'max-w-[1140px]' : 'max-w-[1260px]'
+          } px-6 transition-all duration-300 sm:px-10 md:grid md:grid-cols-[1.15fr_1.15fr_1.2fr_auto] md:divide-x md:divide-forest/10`}
+        >
+          {/* Cell 1: Category Dropdown */}
+          <div className={`pr-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-3.5'}`}>
+            <span
+              className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${
+                isCompact ? 'hidden' : ''
+              }`}
+            >
+              Category
+            </span>
+            <CustomSelect
+              ariaLabel="Menu category"
+              value={activeTab}
+              onChange={setActiveTab}
+              options={menuTabs.map((t) => ({
+                value: t.id,
+                label: `${t.label} (${tabCounts[t.id] || 0})`,
+              }))}
+              triggerClassName={`${isCompact ? '' : 'mt-1'} text-sm font-semibold text-forest`}
+            />
           </div>
 
-          <ul className="space-y-1 text-xs font-medium text-ink/75 sm:text-right">
-            <li className="flex items-center gap-2 sm:justify-end">
-              <span className="h-1 w-1 rounded-full bg-sun" aria-hidden="true" />
-              <span>{currentSite.hours}</span>
-            </li>
-            <li className="flex items-center gap-2 sm:justify-end">
-              <span className="h-1 w-1 rounded-full bg-sun" aria-hidden="true" />
-              <a
-                href={currentTel}
-                className="underline-offset-4 transition-colors hover:text-ink hover:underline hover:decoration-sun"
-              >
-                {currentSite.phoneDisplay}
-              </a>
-            </li>
-          </ul>
-        </Reveal>
-
-        {/* Category Tabs & Veg / Non-Veg Filter Bar */}
-        <div className="mt-8 space-y-4 border-b border-ink/10 pb-6">
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-            {/* Search Input */}
-            <label className="relative flex w-full items-center sm:max-w-xs">
-              <Search
-                className="pointer-events-none absolute left-3.5 h-4 w-4 text-ink/45"
-                aria-hidden="true"
-              />
-              <input
-                type="search"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search the menu..."
-                aria-label="Search the menu"
-                className="w-full rounded-full border border-ink/15 bg-white py-2 pl-10 pr-9 text-sm text-ink placeholder:text-ink/45 focus:border-forest focus:outline-none"
-              />
-              {query && (
-                <button
-                  type="button"
-                  onClick={() => setQuery('')}
-                  aria-label="Clear search"
-                  className="absolute right-3 text-ink/45 hover:text-ink"
-                >
-                  <X className="h-4 w-4" aria-hidden="true" />
-                </button>
-              )}
-            </label>
-
-            {/* Veg / Non-Veg Filter Pills */}
-            <div className="flex flex-wrap items-center gap-2">
+          {/* Cell 2: Dietary Filter */}
+          <div className={`px-5 transition-all duration-300 ${isCompact ? 'py-2' : 'py-3.5'}`}>
+            <span
+              className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${
+                isCompact ? 'hidden' : ''
+              }`}
+            >
+              Dietary
+            </span>
+            <div className={`${isCompact ? '' : 'mt-1.5'} flex items-center gap-1.5`}>
               <button
                 type="button"
                 onClick={() => setDietFilter('all')}
                 aria-pressed={dietFilter === 'all'}
-                className={`rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                className={`rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
                   dietFilter === 'all'
                     ? 'border-forest bg-forest text-white'
-                    : 'border-ink/15 bg-white text-ink/75 hover:border-ink/35 hover:text-ink'
+                    : 'border-forest/15 bg-white text-forest/75 hover:border-forest/35 hover:text-forest'
                 }`}
               >
                 All
@@ -283,26 +433,26 @@ export default function SignatureMenu() {
                 type="button"
                 onClick={() => setDietFilter((d) => (d === 'veg' ? 'all' : 'veg'))}
                 aria-pressed={dietFilter === 'veg'}
-                className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
                   dietFilter === 'veg'
                     ? 'border-leaf bg-leaf text-white'
-                    : 'border-ink/15 bg-white text-ink/75 hover:border-leaf/50 hover:text-ink'
+                    : 'border-forest/15 bg-white text-forest/75 hover:border-leaf/50 hover:text-forest'
                 }`}
               >
                 <span
                   className={`h-2 w-2 rounded-full ${dietFilter === 'veg' ? 'bg-white' : 'bg-leaf'}`}
                   aria-hidden="true"
                 />
-                Vegetarian
+                Veg
               </button>
               <button
                 type="button"
                 onClick={() => setDietFilter((d) => (d === 'nonveg' ? 'all' : 'nonveg'))}
                 aria-pressed={dietFilter === 'nonveg'}
-                className={`inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold transition-colors ${
                   dietFilter === 'nonveg'
                     ? 'border-sun-text bg-sun-text text-white'
-                    : 'border-ink/15 bg-white text-ink/75 hover:border-sun-text/50 hover:text-ink'
+                    : 'border-forest/15 bg-white text-forest/75 hover:border-sun-text/50 hover:text-forest'
                 }`}
               >
                 <span
@@ -311,52 +461,75 @@ export default function SignatureMenu() {
                 />
                 Non-veg
               </button>
-
-              {(activeTab !== 'all' || query || dietFilter !== 'all') && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setActiveTab('all')
-                    setQuery('')
-                    setDietFilter('all')
-                  }}
-                  className="ml-1 text-xs font-semibold text-ink/60 underline decoration-sun underline-offset-4 hover:text-ink"
-                >
-                  Reset
-                </button>
-              )}
             </div>
           </div>
 
-          {/* Category Tabs */}
-          <nav
-            aria-label="Menu categories"
-            className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pt-1"
-          >
-            {menuTabs.map((tab) => {
-              const active = activeTab === tab.id
-              return (
+          {/* Cell 3: Search Input */}
+          <label className={`block px-5 transition-all duration-300 ${isCompact ? 'py-2.5' : 'py-3.5'}`}>
+            <span
+              className={`block text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest/55 ${
+                isCompact ? 'hidden' : ''
+              }`}
+            >
+              Search menu
+            </span>
+            <div className={`${isCompact ? '' : 'mt-1'} relative flex items-center`}>
+              <Search className="mr-2 h-4 w-4 shrink-0 text-forest/45" aria-hidden="true" />
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Momo, thali, pizza, coffee..."
+                aria-label="Search the menu"
+                className="w-full bg-transparent pr-6 text-sm font-semibold text-forest outline-none placeholder:font-normal placeholder:text-forest/40"
+              />
+              {query && (
                 <button
-                  key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id)}
-                  aria-pressed={active}
-                  className={`inline-flex shrink-0 items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold transition-colors ${
-                    active
-                      ? 'bg-forest text-white'
-                      : 'border border-ink/15 bg-white text-ink/75 hover:border-forest/40 hover:text-ink'
-                  }`}
+                  onClick={() => setQuery('')}
+                  aria-label="Clear search"
+                  className="absolute right-0 text-forest/45 hover:text-forest"
                 >
-                  <span>{tab.label}</span>
-                  <span
-                    className={`text-[0.68rem] ${active ? 'text-white/75' : 'text-ink/45'}`}
-                  >
-                    {tabCounts[tab.id] || 0}
-                  </span>
+                  <X className="h-4 w-4" aria-hidden="true" />
                 </button>
-              )
-            })}
-          </nav>
+              )}
+            </div>
+          </label>
+
+          {/* Cell 4: Count / Reset */}
+          <div className="flex items-center gap-2.5 py-2 pl-5">
+            <span className="whitespace-nowrap rounded-full bg-sun px-4 py-2 text-xs font-bold uppercase tracking-[0.1em] text-forest-dark">
+              {activeCount} {activeCount === 1 ? 'item' : 'items'}
+            </span>
+            {hasActiveFilters && (
+              <button
+                type="button"
+                onClick={resetFilters}
+                aria-label="Reset menu filters"
+                className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-forest/20 text-forest transition hover:bg-forest hover:text-white"
+              >
+                <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="mx-auto w-full max-w-[1260px] px-6 pt-6 sm:px-10">
+        <div className="flex flex-wrap items-center justify-end gap-x-6 gap-y-1 text-xs font-medium text-ink/70">
+          <span className="inline-flex items-center gap-2">
+            <span className="h-1 w-1 rounded-full bg-sun" aria-hidden="true" />
+            <span>{currentSite.hours}</span>
+          </span>
+          <span className="inline-flex items-center gap-2">
+            <span className="h-1 w-1 rounded-full bg-sun" aria-hidden="true" />
+            <a
+              href={currentTel}
+              className="underline-offset-4 transition-colors hover:text-ink hover:underline hover:decoration-sun"
+            >
+              {currentSite.phoneDisplay}
+            </a>
+          </span>
         </div>
 
         {/* Empty Filter State */}
@@ -382,9 +555,9 @@ export default function SignatureMenu() {
           </div>
         )}
 
-        {/* 2-Column Printed Menu Grid (Items on Left + 1 Plate Photo on Right) */}
+        {/* Uniform Equal-Height 2-Column Menu Grid */}
         {visibleFeatured.length > 0 && (
-          <div className="mt-12 grid grid-cols-1 gap-x-12 gap-y-14 lg:grid-cols-2 xl:gap-x-20">
+          <div className="mt-10 grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2 lg:gap-7">
             {visibleFeatured.map((block, index) => (
               <FeaturedCategoryTile key={block.id} block={block} index={index} />
             ))}
@@ -393,20 +566,20 @@ export default function SignatureMenu() {
 
         {/* Editorial Divider */}
         {visibleFeatured.length > 0 && visibleLists.length > 0 && (
-          <div className="my-14 flex items-center gap-4" aria-hidden="true">
+          <div className="my-12 flex items-center gap-4" aria-hidden="true">
             <div className="h-px flex-1 bg-ink/10" />
             <span className="h-1.5 w-1.5 rotate-45 bg-sun" />
             <div className="h-px flex-1 bg-ink/10" />
           </div>
         )}
 
-        {/* Bottom 2-Column Printed Text Lists (Soup/Salad, Hot Drinks, Coolers, Bar) */}
+        {/* Uniform Equal-Height Bottom 2-Column Lists */}
         {visibleLists.length > 0 && (
           <div
-            className={`${visibleFeatured.length > 0 ? '' : 'mt-12'} grid grid-cols-1 gap-x-12 gap-y-12 lg:grid-cols-2 xl:gap-x-20`}
+            className={`${visibleFeatured.length > 0 ? '' : 'mt-10'} grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2 lg:gap-7`}
           >
-            {visibleLists.map((block) => (
-              <PrintedListTile key={block.id} block={block} />
+            {visibleLists.map((block, index) => (
+              <PrintedListTile key={block.id} block={block} index={index} />
             ))}
           </div>
         )}

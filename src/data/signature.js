@@ -102,29 +102,6 @@ export const featuredBlocks = [
     ],
   },
   {
-    id: 'fish-specials',
-    tab: 'snacks',
-    title: 'Fish & Grill Specials',
-    image: '/images/menu/whole-grilled-fish.jpg',
-    items: [
-      { name: 'Fish & Chips', price: '500', veg: false },
-      { name: 'Whole Grilled Fish', price: '700', veg: false, pick: true, desc: 'House special whole grilled fish with herbs & lemon' },
-      { name: 'House Tile / Sekuwa Chicken', price: '450', veg: false, pick: true, desc: 'Marinated, flame-grilled chicken' },
-      { name: 'Honey Garlic Lemon Chicken', price: '550', veg: false, desc: 'Shredded chicken breast grilled with herbs & sauté vegetables' },
-    ],
-  },
-  {
-    id: 'momo',
-    tab: 'momo',
-    title: 'Handmade Momo',
-    image: '/images/menu/crunchy-momo.jpg',
-    items: [
-      { name: 'Crunchy Momo', price: '380', veg: false, pick: true, desc: 'House special crispy fried momo' },
-      { name: 'Veg Momo', price: '200 – 300', veg: true, desc: 'Steam 200 · Fry 220 · Jhol 250 · Chilly 280 · Sadeko 300' },
-      { name: 'Chicken / Buff Momo', price: '260 – 380', veg: false, desc: 'Steam 260 · Fry 280 · Sadeko 300 · Chilly 350 · Jhol 380' },
-    ],
-  },
-  {
     id: 'noodles-ramen',
     tab: 'momo',
     title: 'Ramen, Chowmein & Thukpa',
@@ -139,6 +116,18 @@ export const featuredBlocks = [
     ],
   },
   {
+    id: 'fish-specials',
+    tab: 'snacks',
+    title: 'Fish & Grill Specials',
+    image: '/images/menu/whole-grilled-fish.jpg',
+    items: [
+      { name: 'Fish & Chips', price: '500', veg: false },
+      { name: 'Whole Grilled Fish', price: '700', veg: false, pick: true, desc: 'House special whole grilled fish with herbs & lemon' },
+      { name: 'House Tile / Sekuwa Chicken', price: '450', veg: false, pick: true, desc: 'Marinated, flame-grilled chicken' },
+      { name: 'Honey Garlic Lemon Chicken', price: '550', veg: false, desc: 'Shredded chicken breast grilled with herbs & sauté vegetables' },
+    ],
+  },
+  {
     id: 'newari',
     tab: 'newari',
     title: 'Newari Delights',
@@ -148,6 +137,29 @@ export const featuredBlocks = [
       { name: 'Gravy Sukuti Chiura', price: '420', veg: false },
       { name: 'Chicken / Buff Chhoila', price: '420', veg: false },
       { name: 'Newari Set (Chicken / Buff)', price: '550', veg: false, pick: true, desc: 'Beaten rice, aloo achar, chhoila, sukuti, bhatmas sadeko, peanuts & egg' },
+    ],
+  },
+  {
+    id: 'momo',
+    tab: 'momo',
+    title: 'Handmade Momo',
+    image: '/images/menu/crunchy-momo.jpg',
+    items: [
+      { name: 'Crunchy Momo', price: '380', veg: false, pick: true, desc: 'House special crispy fried momo' },
+      { name: 'Veg Momo', price: '200 – 300', veg: true, desc: 'Steam 200 · Fry 220 · Jhol 250 · Chilly 280 · Sadeko 300' },
+      { name: 'Chicken / Buff Momo', price: '260 – 380', veg: false, desc: 'Steam 260 · Fry 280 · Sadeko 300 · Chilly 350 · Jhol 380' },
+    ],
+  },
+  {
+    id: 'platters',
+    tab: 'platters',
+    title: 'Villa Special Platters',
+    image: '/images/menu/sekuwa-chicken.jpg',
+    items: [
+      { name: 'Momo Platter', price: '580', veg: false, desc: '4 pcs chilly, 4 pcs sadeko, 4 pcs fried, 4 pcs steam' },
+      { name: 'Veg Platter', price: '1,200', veg: true, desc: 'Piro aloo, mushroom chilly, veg pakauda, french fry' },
+      { name: 'Meat Lovers Platter', price: '1,500', veg: false, pick: true, desc: 'Honey garlic wings, spicy legs, chicken lolly, chicken chhoila' },
+      { name: 'Pork Platter', price: '1,500', veg: false, desc: 'Pork chilly, pork tawa, pork sadeko, spicy pork' },
     ],
   },
   {
@@ -180,18 +192,6 @@ export const featuredBlocks = [
       { name: 'House Style Pasta', price: '280', veg: true },
       { name: 'Meat Sauce Spaghetti / Pasta', price: '480', veg: false },
       { name: 'Creamy Mushroom Chicken Pasta', price: '550', veg: false, desc: 'Garlic, onion, mushroom, cheese, milk & butter' },
-    ],
-  },
-  {
-    id: 'platters',
-    tab: 'platters',
-    title: 'Villa Special Platters',
-    image: '/images/menu/sekuwa-chicken.jpg',
-    items: [
-      { name: 'Momo Platter', price: '580', veg: false, desc: '4 pcs chilly, 4 pcs sadeko, 4 pcs fried, 4 pcs steam' },
-      { name: 'Veg Platter', price: '1,200', veg: true, desc: 'Piro aloo, mushroom chilly, veg pakauda, french fry' },
-      { name: 'Meat Lovers Platter', price: '1,500', veg: false, pick: true, desc: 'Honey garlic wings, spicy legs, chicken lolly, chicken chhoila' },
-      { name: 'Pork Platter', price: '1,500', veg: false, desc: 'Pork chilly, pork tawa, pork sadeko, spicy pork' },
     ],
   },
   {

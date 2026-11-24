@@ -9,6 +9,7 @@ import {
   Users, Utensils, Wallet, Wifi, Bath, Wine, X, ArrowRight,
 } from 'lucide-react'
 import { Stars } from '../components/Icons.jsx'
+import RoomCard from '../components/RoomCard.jsx'
 import { Button, Reveal } from '../components/ui.jsx'
 import CtaBanner from '../components/CtaBanner.jsx'
 import BookingPanel from '../components/BookingPanel.jsx'
@@ -346,22 +347,35 @@ export default function RoomDetailPage({ room: initialRoom }) {
     <div className="bg-white pb-40 md:pb-28 lg:pb-16">
       {/* 1 · Title row */}
       <header className="wrap pt-28 md:pt-32">
-        <nav aria-label="Breadcrumb" className="text-xs text-forest/55">
-          <ol className="flex flex-wrap items-center gap-1.5">
-            <li><Link href="/" className="transition hover:text-forest">Home</Link></li>
-            <li aria-hidden="true">›</li>
-            <li><Link href="/rooms" className="transition hover:text-forest">Rooms</Link></li>
-            <li aria-hidden="true">›</li>
-            <li className="text-forest/80">{getBuildingLabel(room)}</li>
-          </ol>
-        </nav>
-        <div className="mt-3 flex flex-wrap items-end justify-between gap-4">
-          <div className="min-w-0">
-            <h1 className="font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-forest sm:text-4xl">{room.name}</h1>
-            <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-forest/70">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <Link
+            href="/rooms"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-[0.14em] text-forest/65 transition hover:text-forest"
+          >
+            ← All rooms
+          </Link>
+          <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-sun-text">
+            {room.eyebrow || getBuildingLabel(room).toUpperCase()}
+          </span>
+        </div>
+        <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
+          <div className="max-w-2xl">
+            <h1 className="font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-forest sm:text-5xl">{room.name}</h1>
+            <p className="mt-3 text-base leading-relaxed text-forest/75">{room.intro || room.blurb}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-forest/70">
               <span className="inline-flex items-center gap-1.5"><Stars n={5} className="h-4 w-4" /><strong className="font-semibold text-forest">4.5</strong> · <a href="#reviews" className="underline decoration-forest/30 underline-offset-4 hover:decoration-sun">{reviewCount} reviews</a></span>
               <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4 text-sun-text" aria-hidden="true" />{room.locationLabel || cfg.locationLabel || 'Sarangkot, Pokhara'}</span>
             </div>
+          </div>
+          <div className="rounded-2xl border border-forest/15 bg-white px-5 py-3.5 text-left sm:text-right">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-forest/55">
+              {fromPrice.label || 'Rate'}
+            </p>
+            <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-forest">
+              {room.whatsappOnly || fromPrice.main === 'Price on WhatsApp'
+                ? 'Ask for price'
+                : `${fromPrice.main} / night`}
+            </p>
           </div>
         </div>
       </header>
@@ -788,28 +802,21 @@ export default function RoomDetailPage({ room: initialRoom }) {
         </div>
       </section>
 
-      {/* 12 · Related stays */}
-      <section aria-labelledby="similar" className="bg-white py-14">
+      {/* 12 · Other rooms */}
+      <section aria-labelledby="similar" className="border-t border-forest/10 bg-white py-14">
         <div className="wrap">
           <div className="flex items-end justify-between gap-4">
-            <Reveal><h2 id="similar" className="font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">{cfg.relatedTitle || 'Related stays'}</h2></Reveal>
+            <Reveal><h2 id="similar" className="font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">{cfg.relatedTitle || 'Other rooms'}</h2></Reveal>
             <Link href="/rooms" className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">{cfg.relatedAllRoomsLabel || 'All rooms'}<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
           </div>
-          <div className="mt-8 grid gap-6 md:grid-cols-3">
-            {similar.map((item) => {
-              const p = describePrice(item, null, 'BB', mapAdd)
-              return (
-                <Link key={item.id} href={`/rooms/${item.id}`} className="group flex flex-col overflow-hidden rounded-2xl border border-forest/15 bg-white transition hover:-translate-y-1 hover:shadow-warm">
-                  <div className="overflow-hidden"><img src={item.image} alt={item.alt} loading="lazy" className="aspect-[4/3] w-full object-cover transition duration-700 group-hover:scale-105" /></div>
-                  <div className="flex flex-1 flex-col p-5">
-                    <p className="text-[0.65rem] font-bold uppercase tracking-[0.14em] text-sun-text">{getBuildingLabel(item)}</p>
-                    <h3 className="mt-2 font-display text-xl leading-tight text-forest">{item.name}</h3>
-                    <p className="mt-1.5 flex items-center gap-1.5 text-sm text-forest/60"><Users className="h-4 w-4" aria-hidden="true" />{item.capacity}</p>
-                    <p className="mt-auto pt-4 font-display text-lg font-semibold text-forest">{p.label} {p.main}</p>
-                  </div>
-                </Link>
-              )
-            })}
+          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {similar.map((item) => (
+              <RoomCard
+                key={item.id}
+                room={item}
+                buildingName={getBuildingLabel(item).toUpperCase()}
+              />
+            ))}
           </div>
         </div>
       </section>

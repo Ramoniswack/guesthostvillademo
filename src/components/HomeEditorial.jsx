@@ -13,6 +13,7 @@ import { directionsLink, mapEmbed, site, stats, waLink } from '../data/site.js'
 import { gallery } from '../data/gallery.js'
 import CtaBanner from './CtaBanner.jsx'
 import KineticNumber from './KineticNumber.jsx'
+import RoomCard from './RoomCard.jsx'
 import { Button, Reveal, StaggerGrid, StaggerItem } from './ui.jsx'
 import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
@@ -206,87 +207,116 @@ export default function HomeEditorial() {
         </div>
       </section>
 
-      {/* 2 · Editorial Intro: Stay, dine & gather */}
+      {/* 2 · Editorial Intro: Stay, dine & gather (Collage Left, Content Right) */}
       <section className="bg-white py-16 md:py-24">
-        <div className="wrap grid items-center gap-12 lg:grid-cols-[0.95fr_1.05fr] lg:gap-16">
-          <Reveal className="max-w-xl">
-            <p className="label">{editorial?.intro?.eyebrow || 'A hilltop hideaway · Pokhara'}</p>
-            <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.95] tracking-[-0.04em] text-forest sm:text-5xl lg:text-6xl">
+        <div className="wrap grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-20">
+          {/* Left: Asymmetric Curvy Photo Collage + 2 Overlapping Stat Cards */}
+          <Reveal>
+            <div className="grid grid-cols-2 items-start gap-4 sm:gap-6">
+              {/* Left sub-column: Top portrait photo with top-left stat card + Bottom landscape photo */}
+              <div className="space-y-4 sm:space-y-6">
+                <div className="relative pl-3 pt-4 sm:pl-5 sm:pt-5">
+                  <div className="overflow-hidden rounded-[24px] shadow-soft">
+                    <img
+                      src={editorial?.intro?.imageMain || '/images/day-aerial.webp'}
+                      alt={editorial?.intro?.imageMainAlt || 'G’Host Villa buildings on the forested ridge above Pokhara'}
+                      className="h-56 w-full object-cover object-[50%_58%] sm:h-68"
+                    />
+                  </div>
+                  <div className="absolute left-0 top-0 rounded-2xl border border-forest/10 bg-white px-5 py-3.5 text-forest shadow-[0_16px_36px_rgba(20,41,29,0.14)] sm:px-6 sm:py-4">
+                    <p className="font-display text-2xl font-bold leading-none sm:text-3xl">
+                      <KineticNumber
+                        value={Number(editorial?.intro?.badgeNumber) || 20}
+                        suffix={editorial?.intro?.badgeSuffix || 'm'}
+                      />
+                    </p>
+                    <p className="mt-1.5 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/65">
+                      {editorial?.intro?.badgeLabel || 'Above Lakeside'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="ml-3 overflow-hidden rounded-[24px] shadow-soft sm:ml-5">
+                  <img
+                    src={editorial?.intro?.imageGarden || '/images/garden.webp'}
+                    alt={editorial?.intro?.imageGardenAlt || 'Garden lawns and seating at G’Host Villa'}
+                    loading="lazy"
+                    className="h-36 w-full object-cover sm:h-44"
+                  />
+                </div>
+              </div>
+
+              {/* Right sub-column: Tall portrait photo with bottom-center stat card */}
+              <div className="relative mt-8 pb-8 sm:mt-10 sm:pb-9">
+                <div className="overflow-hidden rounded-[24px] shadow-soft">
+                  <img
+                    src={editorial?.intro?.imagePyramid || '/images/pyramid.webp'}
+                    alt={editorial?.intro?.imagePyramidAlt || 'Crystal Pyramid Dome House and restaurant'}
+                    loading="lazy"
+                    className="h-80 w-full object-cover sm:h-[26rem]"
+                  />
+                </div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-2xl border border-forest/10 bg-white px-6 py-3.5 text-center text-forest shadow-[0_16px_36px_rgba(20,41,29,0.14)] sm:px-8 sm:py-4">
+                  <p className="font-display text-2xl font-bold leading-none sm:text-3xl">
+                    <KineticNumber value={24} suffix="+" />
+                  </p>
+                  <p className="mt-1.5 text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/65">
+                    Guest Capacity
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Right: Left-Aligned Editorial Content Matching Reference Image */}
+          <Reveal delay={0.08} className="max-w-lg">
+            <span className="inline-flex items-center rounded-full border border-forest/30 px-4 py-1 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-forest">
+              {editorial?.intro?.eyebrow || 'A hilltop hideaway · Pokhara'}
+            </span>
+            <h2 className="mt-5 font-display text-3xl font-semibold uppercase leading-[1.05] tracking-[-0.03em] text-forest sm:text-4xl lg:text-[2.75rem]">
               {editorial?.intro?.title || 'Stay, dine & gather.'}
             </h2>
-            <p className="mt-5 text-base leading-relaxed text-forest/75 md:text-lg">
+            <p className="mt-4 text-sm leading-relaxed text-forest/75 sm:text-base">
               {editorial?.intro?.paragraph1 || 'G’Host Villa brings crisp mountain air, warm rooms and easy hospitality together along the Sarangkot ridge—just 20 minutes above Lakeside Pokhara.'}
             </p>
-            <p className="mt-3 text-base leading-relaxed text-forest/75">
-              {editorial?.intro?.paragraph2 || 'Check into a quiet room in our Crystal Pyramid Dome House, dine under the pyramid roof, or take over the 7-BHK Main Villa for a private group gathering.'}
-            </p>
 
-            {/* Why book direct pills */}
-            <div className="mt-7 grid gap-2 sm:grid-cols-3">
-              {currentBenefits.map(({ icon: Ico, label }) => (
-                <span
-                  key={label}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-full border border-forest/15 bg-white px-3 py-2 text-[0.72rem] font-semibold text-forest"
-                >
-                  <Ico className="h-3.5 w-3.5 shrink-0 text-leaf" aria-hidden="true" />
-                  <span className="truncate">{label}</span>
-                </span>
-              ))}
-            </div>
-
-            {/* 6-item Amenity Grid */}
-            <ul className="mt-6 grid grid-cols-2 gap-x-4 gap-y-3 border-y border-forest/10 py-5 text-xs font-semibold text-forest sm:grid-cols-3">
-              {currentAmenities.map(({ icon: Ico, label }) => (
-                <li key={label} className="inline-flex items-center gap-2">
-                  <Ico className="h-4 w-4 shrink-0 text-sun-text" aria-hidden="true" />
+            {/* Feature Checklist (from reference image) + Horizontally-Expanding Amenity Icons */}
+            <ul className="mt-6 space-y-2.5 text-sm font-medium text-forest/85">
+              {currentBenefits.map(({ label }) => (
+                <li key={label} className="flex items-center gap-2.5">
+                  <Check className="h-4 w-4 shrink-0 text-forest" strokeWidth={2.4} aria-hidden="true" />
                   <span>{label}</span>
                 </li>
               ))}
             </ul>
 
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Button href={editorial?.intro?.primaryCtaHref || '/rooms'} className="w-full sm:w-auto">{editorial?.intro?.primaryCtaLabel || 'Explore rooms'}</Button>
-              <Button href={editorial?.intro?.secondaryCtaHref || '/about'} variant="outline" arrow={false} className="w-full sm:w-auto">
-                {editorial?.intro?.secondaryCtaLabel || 'Our story'}
-              </Button>
-            </div>
-          </Reveal>
+            <ul
+              aria-label="Villa features"
+              className="mt-6 flex flex-wrap items-center justify-start gap-2"
+            >
+              {currentAmenities.map(({ icon: Ico, label }) => (
+                <li key={label}>
+                  <button
+                    type="button"
+                    aria-label={label}
+                    className="group inline-flex h-10 items-center rounded-full border border-forest/15 bg-white px-3 text-forest shadow-xs transition-all duration-300 hover:border-sun hover:bg-sun hover:px-3.5 hover:text-forest-dark focus-visible:border-sun focus-visible:bg-sun focus-visible:px-3.5 focus-visible:text-forest-dark focus-visible:outline-none"
+                  >
+                    <Ico className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    <span className="max-w-0 overflow-hidden whitespace-nowrap text-xs font-semibold opacity-0 transition-all duration-300 group-hover:ml-2 group-hover:max-w-[11rem] group-hover:opacity-100 group-focus-visible:ml-2 group-focus-visible:max-w-[11rem] group-focus-visible:opacity-100">
+                      {label}
+                    </span>
+                  </button>
+                </li>
+              ))}
+            </ul>
 
-          <Reveal delay={0.1}>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="col-span-2 overflow-hidden rounded-2xl border border-forest/15 shadow-soft">
-                <img
-                  src={editorial?.intro?.imageMain || '/images/day-aerial.webp'}
-                  alt={editorial?.intro?.imageMainAlt || 'G’Host Villa buildings on the forested ridge above Pokhara'}
-                  className="h-60 w-full object-cover object-[50%_58%] sm:h-72"
-                />
-              </div>
-              <div className="overflow-hidden rounded-2xl border border-forest/15 shadow-soft">
-                <img
-                  src={editorial?.intro?.imageGarden || '/images/garden.webp'}
-                  alt={editorial?.intro?.imageGardenAlt || 'Garden lawns and seating at G’Host Villa'}
-                  loading="lazy"
-                  className="h-44 w-full object-cover sm:h-52"
-                />
-              </div>
-              <div className="flex flex-col gap-3">
-                <div className="flex-1 overflow-hidden rounded-2xl border border-forest/15 shadow-soft">
-                  <img
-                    src={editorial?.intro?.imagePyramid || '/images/pyramid.webp'}
-                    alt={editorial?.intro?.imagePyramidAlt || 'Crystal Pyramid Dome House and restaurant'}
-                    loading="lazy"
-                    className="h-28 w-full object-cover sm:h-32"
-                  />
-                </div>
-                <div className="rounded-2xl bg-sun px-4 py-3.5 text-forest-dark shadow-soft">
-                  <p className="font-display text-2xl font-semibold leading-none">
-                    <KineticNumber value={Number(editorial?.intro?.badgeNumber) || 20} suffix={editorial?.intro?.badgeSuffix || ' mins'} />
-                  </p>
-                  <p className="mt-1 text-[0.68rem] font-bold uppercase tracking-[0.12em]">
-                    {editorial?.intro?.badgeLabel || 'above Lakeside Pokhara'}
-                  </p>
-                </div>
-              </div>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Button
+                variant="solid"
+                href={editorial?.intro?.primaryCtaHref || '/rooms'}
+              >
+                {editorial?.intro?.primaryCtaLabel || 'Explore rooms'}
+              </Button>
             </div>
           </Reveal>
         </div>
@@ -304,24 +334,6 @@ export default function HomeEditorial() {
             </Reveal>
 
             <div className="flex flex-wrap items-center gap-2">
-              {currentStayFilters.map((f) => {
-                const active = stayTab === f.id
-                return (
-                  <button
-                    key={f.id}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setStayTab(f.id)}
-                    className={`rounded-full px-4 py-2 text-xs font-bold transition ${
-                      active
-                        ? 'bg-forest text-white shadow-sm'
-                        : 'border border-forest/20 bg-white text-forest hover:border-forest'
-                    }`}
-                  >
-                    {f.label}
-                  </button>
-                )
-              })}
               <Link
                 href={editorial?.stays?.viewAllHref || '/rooms'}
                 className="inline-flex items-center gap-1.5 rounded-full border border-forest/20 bg-white px-4 py-2 text-xs font-bold text-sun-text transition hover:border-forest hover:text-forest"
@@ -332,74 +344,10 @@ export default function HomeEditorial() {
             </div>
           </div>
 
-          <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {visibleStays.slice(0, 3).map((room) => {
-              const price = describePrice(room, null, 'BB')
-              return (
-                <Link
-                  key={room.id}
-                  href={`/rooms/${room.id}`}
-                  className="group flex h-full flex-col overflow-hidden rounded-2xl border border-forest/15 bg-white shadow-soft transition hover:-translate-y-1 hover:border-forest/35 hover:shadow-warm"
-                >
-                  <div className="relative aspect-[16/10] overflow-hidden bg-forest-dark">
-                    <img
-                      src={room.image}
-                      alt={room.alt}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                    />
-                    {room.badge && (
-                      <span className="absolute left-3.5 top-3.5 rounded-full bg-sun px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-forest-dark">
-                        {room.badge}
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex flex-1 flex-col p-6">
-                    <p className="text-[0.68rem] font-bold uppercase tracking-[0.14em] text-sun-text">
-                      {room.building === 'both'
-                        ? 'Both buildings'
-                        : (backend?.stays?.buildings?.find((item) => item.id === room.building)?.name ?? buildingLabel(room))}
-                    </p>
-                    <h3 className="mt-2 font-display text-xl font-semibold leading-snug text-forest sm:text-2xl">
-                      {room.name}
-                    </h3>
-                    <p className="mt-2.5 line-clamp-2 text-sm leading-relaxed text-forest/70">
-                      {room.blurb}
-                    </p>
-                    <div className="mt-4 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs font-medium text-forest/65">
-                      <span className="inline-flex items-center gap-1.5">
-                        <Users className="h-3.5 w-3.5 shrink-0 text-forest/50" aria-hidden="true" />
-                        <span>{room.capacity}</span>
-                      </span>
-                      {room.bed && (
-                        <span className="inline-flex items-center gap-1.5">
-                          <BedDouble className="h-3.5 w-3.5 shrink-0 text-forest/50" aria-hidden="true" />
-                          <span>{room.bed}</span>
-                        </span>
-                      )}
-                    </div>
-                    <div className="mt-auto pt-6">
-                      <div className="flex items-center justify-between gap-3 border-t border-forest/10 pt-4">
-                        <div className="min-w-0">
-                          {price.label && (
-                            <span className="block text-[0.65rem] font-semibold uppercase tracking-[0.1em] text-forest/55">
-                              {price.label}
-                            </span>
-                          )}
-                          <p className="font-display text-lg font-bold leading-snug text-forest">
-                            {price.main}
-                          </p>
-                        </div>
-                        <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-forest/15 bg-white px-3.5 py-2 text-xs font-semibold text-forest transition group-hover:border-sun group-hover:bg-sun group-hover:text-forest-dark">
-                          <span>View &amp; book</span>
-                          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                </Link>
-              )
-            })}
+          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:items-center lg:gap-8">
+            {visibleStays.slice(0, 3).map((room, index) => (
+              <RoomCard key={room.id} room={room} featured={index === 1} />
+            ))}
           </div>
         </div>
       </section>
@@ -419,45 +367,14 @@ export default function HomeEditorial() {
             </p>
           </Reveal>
 
-          <StaggerGrid className="grid gap-6 md:grid-cols-3">
-            {currentPillars.map((item) => (
-              <StaggerItem key={item.tag} className="h-full">
-                <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-forest/15 bg-white shadow-soft transition hover:-translate-y-1 hover:shadow-warm">
-                  <div className="relative aspect-[16/10] overflow-hidden bg-forest-dark">
-                    <img
-                      src={item.image}
-                      alt={item.title}
-                      loading="lazy"
-                      className="h-full w-full object-cover transition duration-700 group-hover:scale-105"
-                    />
-                    <span className="absolute left-4 top-4 rounded-full bg-white px-3.5 py-1 text-xs font-bold uppercase tracking-[0.14em] text-forest">
-                      {item.tag}
-                    </span>
-                  </div>
-                  <div className="flex flex-1 flex-col p-6">
-                    <h3 className="font-display text-2xl font-semibold leading-tight text-forest">
-                      {item.title}
-                    </h3>
-                    <p className="mt-2.5 text-sm leading-relaxed text-forest/75">{item.text}</p>
-                    <ul className="mt-4 space-y-1.5 border-t border-forest/10 pt-4 text-xs font-medium text-forest/80">
-                      {item.bullets.map((b) => (
-                        <li key={b} className="flex items-start gap-2">
-                          <Check className="mt-0.5 h-3.5 w-3.5 shrink-0 text-leaf" aria-hidden="true" />
-                          <span>{b}</span>
-                        </li>
-                      ))}
-                    </ul>
-                    <div className="mt-auto pt-5">
-                      <Link
-                        href={item.href}
-                        className="inline-flex items-center gap-2 rounded-full border border-forest/20 bg-white px-4 py-2 text-xs font-bold uppercase tracking-[0.1em] text-forest transition hover:border-forest hover:bg-forest hover:text-white"
-                      >
-                        <span>{item.link}</span>
-                        <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-                      </Link>
-                    </div>
-                  </div>
-                </article>
+          <StaggerGrid className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:items-center lg:gap-8">
+            {currentPillars.map((item, index) => (
+              <StaggerItem key={item.tag}>
+                <RoomCard
+                  room={{ name: item.title, image: item.image, alt: item.title }}
+                  href={item.href}
+                  featured={index === 1}
+                />
               </StaggerItem>
             ))}
           </StaggerGrid>
@@ -523,8 +440,10 @@ export default function HomeEditorial() {
                   loading="lazy"
                   className="h-full w-full object-cover transition duration-700 group-hover:scale-105 group-hover:opacity-80"
                 />
-                <span className="absolute inset-x-3 bottom-3 translate-y-3 text-xs font-bold uppercase tracking-[0.14em] text-white opacity-0 transition group-hover:translate-y-0 group-hover:opacity-100 sm:inset-x-5 sm:bottom-5">
-                  View moment <span aria-hidden="true">↗</span>
+                <span className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 transition duration-300 group-hover:opacity-100" aria-hidden="true" />
+                <span className="absolute inset-x-3 bottom-3 inline-flex translate-y-2 items-center gap-1.5 text-xs font-bold uppercase tracking-[0.14em] text-white opacity-0 transition duration-300 group-hover:translate-y-0 group-hover:opacity-100 sm:inset-x-5 sm:bottom-5">
+                  <span>View moment</span>
+                  <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-x-1" aria-hidden="true" />
                 </span>
               </motion.button>
             ))}

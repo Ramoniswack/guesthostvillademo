@@ -71,7 +71,7 @@ export default function Navbar() {
   useEffect(() => setOpen(false), [pathname])
 
   useEffect(() => {
-    if (pathname !== '/rooms') {
+    if (pathname !== '/rooms' && pathname !== '/menu') {
       setHideOnRoomsScroll(false)
       return undefined
     }

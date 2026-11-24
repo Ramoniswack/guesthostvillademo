@@ -40,10 +40,8 @@ export function BackendProvider({ children }) {
           throw new Error('Django API returned an invalid bootstrap payload')
         }
         setData(resolveMediaUrls(payload))
-      } catch (error) {
-        if (error.name !== 'AbortError') {
-          console.error('Unable to load Django CMS content; using frontend fallback data.', error)
-        }
+      } catch {
+        // Optional Django CMS backend is offline; use frontend static fallback data silently.
       }
     }
 

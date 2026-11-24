@@ -8,6 +8,8 @@ node_modules
 
 # Next.js
 /.next/
+/.next-build/
+/.next-test/
 /out/
 
 # Production
