@@ -369,7 +369,7 @@ export default function SignatureMenu() {
                     <button
                       type="button"
                       onClick={() => setMobileFilterOpen(false)}
-                      className="min-h-10 flex-1 rounded-full bg-sun px-5 text-xs font-bold uppercase tracking-[0.12em] text-forest-dark transition hover:bg-sun-dark"
+                      className="min-h-10 flex-1 rounded-full bg-sun px-5 text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-sun-dark"
                     >
                       Show {activeCount} {activeCount === 1 ? 'item' : 'items'}
                     </button>
@@ -498,7 +498,7 @@ export default function SignatureMenu() {
 
           {/* Cell 4: Count / Reset */}
           <div className="flex items-center gap-2.5 py-2 pl-5">
-            <span className="whitespace-nowrap rounded-full bg-sun px-4 py-2 text-xs font-bold uppercase tracking-[0.1em] text-forest-dark">
+            <span className="whitespace-nowrap rounded-full bg-sun px-4 py-2 text-xs font-bold uppercase tracking-[0.1em] text-white">
               {activeCount} {activeCount === 1 ? 'item' : 'items'}
             </span>
             {hasActiveFilters && (
@@ -548,7 +548,7 @@ export default function SignatureMenu() {
                 setQuery('')
                 setDietFilter('all')
               }}
-              className="mt-4 rounded-full bg-sun px-5 py-2 text-xs font-bold uppercase tracking-[0.08em] text-forest-dark transition hover:bg-sun-dark"
+              className="mt-4 rounded-full bg-sun px-5 py-2 text-xs font-bold uppercase tracking-[0.08em] text-white transition hover:bg-sun-dark"
             >
               Show full menu
             </button>

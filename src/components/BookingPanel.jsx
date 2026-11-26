@@ -212,7 +212,7 @@ export default function BookingPanel({
             href={currentWhatsApp(stayMessage(room, { guests, plan, checkIn, checkOut }))}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
+            className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full bg-sun px-4 text-sm font-semibold text-white transition hover:bg-sun-dark"
           >
             {ask ? 'Ask on WhatsApp' : 'Request on WhatsApp'}
           </a>
@@ -220,7 +220,7 @@ export default function BookingPanel({
           <button
             type="button"
             onClick={() => setCalendarOpen(true)}
-            className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
+            className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full bg-sun px-4 text-sm font-semibold text-white transition hover:bg-sun-dark"
           >
             Check availability
           </button>

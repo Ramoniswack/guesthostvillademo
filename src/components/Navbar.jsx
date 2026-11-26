@@ -3,8 +3,8 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { User } from 'lucide-react'
 import Icon from './Icons.jsx'
-import { Button } from './ui.jsx'
 import { lockScroll } from '../lib/smoothScroll.js'
 import { directionsLink, navLinks, site, telLink, waLink } from '../data/site.js'
 import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
@@ -56,7 +56,8 @@ function Brand({ light = false, solid = false, siteData = site }) {
 export default function Navbar() {
   const backend = useBackendData()
   const currentSite = backend?.site ?? site
-  const currentNavLinks = backend?.navLinks ?? navLinks
+  const allNavLinks = backend?.navLinks ?? navLinks
+  const currentNavLinks = allNavLinks.filter((link) => link.showInHeader !== false)
   const currentTelLink = currentSite.phoneTel ? `tel:${currentSite.phoneTel}` : telLink
   const currentDirectionsLink = currentSite.directionsLink ?? directionsLink
   const ctaText = currentSite.navbarCtaWhatsappText || "Hello G'Host Villa! I'd like to book a stay."
@@ -65,7 +66,7 @@ export default function Navbar() {
   const [open, setOpen] = useState(false)
   const [hideOnRoomsScroll, setHideOnRoomsScroll] = useState(false)
   const pathname = usePathname()
-  const solid = usePastHero() || ['/rooms', '/about', '/packages', '/menu', '/faq'].some((p) => pathname.startsWith(p))
+  const solid = usePastHero() || ['/rooms', '/about', '/packages', '/menu', '/faq', '/jobs', '/user'].some((p) => pathname.startsWith(p))
   const text = solid ? 'text-forest' : 'text-white'
 
   useEffect(() => setOpen(false), [pathname])
@@ -111,14 +112,13 @@ export default function Navbar() {
             </nav>
 
             <div className="flex items-center gap-2.5">
-              <a
-                href={bookingLink}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={`hidden min-h-10 items-center rounded-full px-6 text-[0.68rem] font-bold uppercase tracking-[0.15em] transition-colors sm:inline-flex ${solid ? 'bg-forest text-cream hover:bg-forest-dark' : 'bg-white text-forest hover:bg-white'}`}
+              <Link
+                href="/user"
+                aria-label="User account"
+                className={`inline-flex items-center justify-center p-1 transition-opacity ${text} ${pathname.startsWith('/user') ? 'opacity-100' : 'opacity-80 hover:opacity-100'}`}
               >
-                {ctaLabel}
-              </a>
+                <User className="h-5 w-5" strokeWidth={2} aria-hidden="true" />
+              </Link>
               <button
                 type="button"
                 onClick={() => setOpen(true)}
@@ -153,7 +153,7 @@ export default function Navbar() {
               </button>
             </div>
             <nav aria-label="Mobile" className="divide-y divide-forest/10 px-5 py-2">
-              {[{ to: '/', label: 'Home' }, ...currentNavLinks].map((link) => (
+              {[{ to: '/', label: 'Home' }, ...currentNavLinks, { to: '/user', label: 'My Account' }].map((link) => (
                 <NavLink
                   key={link.to}
                   to={link.to}
@@ -173,7 +173,7 @@ export default function Navbar() {
                 href={bookingLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex min-h-11 items-center justify-center rounded-full bg-sun px-5 text-xs font-bold uppercase tracking-[0.14em] text-forest-dark transition hover:bg-sun-dark"
+                className="flex min-h-11 items-center justify-center rounded-full bg-sun px-5 text-xs font-bold uppercase tracking-[0.14em] text-white transition hover:bg-sun-dark"
               >
                 {ctaLabel}
               </a>

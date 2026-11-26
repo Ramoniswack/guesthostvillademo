@@ -190,17 +190,21 @@ export default function HomeEditorial() {
           </div>
 
           <div className="mt-6 flex flex-wrap items-center justify-center gap-3 border-t border-forest/10 pt-6">
-            {currentTrustBadges.map((badge) => (
+            {currentTrustBadges.map((badge, idx) => (
               <a
-                key={badge.name}
+                key={badge.name || idx}
                 href={badge.href}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-2 text-xs font-semibold text-forest shadow-sm transition hover:border-forest/40"
               >
-                <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-leaf" aria-hidden="true" />
+                {idx === 0 ? (
+                  <span className="text-sun-text">★</span>
+                ) : (
+                  <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-leaf" aria-hidden="true" />
+                )}
                 <span>{badge.name}</span>
-                <span className="text-forest/55">· {badge.detail}</span>
+                {badge.detail && <span className="text-forest/50">· {badge.detail}</span>}
               </a>
             ))}
           </div>
@@ -208,7 +212,7 @@ export default function HomeEditorial() {
       </section>
 
       {/* 2 · Editorial Intro: Stay, dine & gather (Collage Left, Content Right) */}
-      <section className="bg-white py-16 md:py-24">
+      <section className="bg-white section-y">
         <div className="wrap grid items-center gap-12 lg:grid-cols-[1.08fr_0.92fr] lg:gap-20">
           {/* Left: Asymmetric Curvy Photo Collage + 2 Overlapping Stat Cards */}
           <Reveal>
@@ -273,7 +277,7 @@ export default function HomeEditorial() {
             <span className="inline-flex items-center rounded-full border border-forest/30 px-4 py-1 text-[0.65rem] font-bold uppercase tracking-[0.16em] text-forest">
               {editorial?.intro?.eyebrow || 'A hilltop hideaway · Pokhara'}
             </span>
-            <h2 className="mt-5 font-display text-3xl font-semibold uppercase leading-[1.05] tracking-[-0.03em] text-forest sm:text-4xl lg:text-[2.75rem]">
+            <h2 className="mt-5 font-display font-semibold uppercase text-forest type-section">
               {editorial?.intro?.title || 'Stay, dine & gather.'}
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-forest/75 sm:text-base">
@@ -310,9 +314,10 @@ export default function HomeEditorial() {
               ))}
             </ul>
 
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
               <Button
                 variant="solid"
+                className="w-full sm:w-auto"
                 href={editorial?.intro?.primaryCtaHref || '/rooms'}
               >
                 {editorial?.intro?.primaryCtaLabel || 'Explore rooms'}
@@ -323,17 +328,35 @@ export default function HomeEditorial() {
       </section>
 
       {/* 3 · Interactive Stay Collection with Group Filter Tabs */}
-      <section className="border-t border-forest/10 bg-white py-16 md:py-24">
+      <section className="border-t border-forest/10 bg-white section-y">
         <div className="wrap">
           <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
             <Reveal>
               <p className="label">{editorial?.stays?.eyebrow || 'Stay collection'}</p>
-              <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-forest sm:text-5xl">
+              <h2 className="mt-2 font-display font-semibold text-forest type-section">
                 {editorial?.stays?.title || 'Find a space that fits your plans.'}
               </h2>
             </Reveal>
 
             <div className="flex flex-wrap items-center gap-2">
+              {currentStayFilters.map((filter) => {
+                const active = stayTab === filter.id
+                return (
+                  <button
+                    key={filter.id}
+                    type="button"
+                    aria-pressed={active}
+                    onClick={() => setStayTab(filter.id)}
+                    className={`rounded-full border px-4 py-2 text-xs font-bold transition ${
+                      active
+                        ? 'border-forest bg-forest text-white'
+                        : 'border-forest/20 bg-white text-forest/75 hover:border-forest hover:text-forest'
+                    }`}
+                  >
+                    {filter.label}
+                  </button>
+                )
+              })}
               <Link
                 href={editorial?.stays?.viewAllHref || '/rooms'}
                 className="inline-flex items-center gap-1.5 rounded-full border border-forest/20 bg-white px-4 py-2 text-xs font-bold text-sun-text transition hover:border-forest hover:text-forest"
@@ -344,7 +367,7 @@ export default function HomeEditorial() {
             </div>
           </div>
 
-          <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:items-center lg:gap-8">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 md:mt-12 lg:grid-cols-3 lg:items-center lg:gap-10">
             {visibleStays.slice(0, 3).map((room, index) => (
               <RoomCard key={room.id} room={room} featured={index === 1} />
             ))}
@@ -353,12 +376,12 @@ export default function HomeEditorial() {
       </section>
 
       {/* 4 · Stay, Dine & Gather Pillars + Group Buyout Card */}
-      <section className="border-t border-forest/10 bg-white py-16 md:py-24">
+      <section className="border-t border-forest/10 bg-white section-y">
         <div className="wrap">
-          <Reveal className="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <Reveal className="head-gap flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="label">{editorial?.pillarsSection?.eyebrow || 'The G’Host experience'}</p>
-              <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-forest sm:text-5xl">
+              <h2 className="mt-2 font-display font-semibold text-forest type-section">
                 {editorial?.pillarsSection?.title || 'Three ways to enjoy the hilltop.'}
               </h2>
             </div>
@@ -367,19 +390,41 @@ export default function HomeEditorial() {
             </p>
           </Reveal>
 
-          <StaggerGrid className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 lg:items-center lg:gap-8">
-            {currentPillars.map((item, index) => (
-              <StaggerItem key={item.tag}>
-                <RoomCard
-                  room={{ name: item.title, image: item.image, alt: item.title }}
-                  href={item.href}
-                  featured={index === 1}
-                />
-              </StaggerItem>
+          {/* One tall feature card + two horizontal cards, so it reads differently from the stay collection above */}
+          <div className="grid gap-4 sm:gap-5 lg:grid-cols-[1.1fr_1fr] lg:grid-rows-2 lg:gap-6">
+            {currentPillars.slice(0, 3).map((item, index) => index === 0 ? (
+              <Reveal key={item.tag || item.title} className="h-full lg:row-span-2">
+                <Link href={item.href} className="group relative flex h-full min-h-[20rem] flex-col justify-end overflow-hidden rounded-3xl bg-forest-dark sm:min-h-[24rem] lg:min-h-[30rem]">
+                  <img src={item.image} alt={item.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                  <span className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-forest-dark/30 to-transparent" aria-hidden="true" />
+                  <div className="relative p-6 text-white sm:p-8 lg:p-10">
+                    {item.tag && <span className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] backdrop-blur-sm">{item.tag}</span>}
+                    <h3 className="mt-5 max-w-md font-display text-2xl font-semibold leading-tight sm:text-3xl">{item.title}</h3>
+                    <span className="mt-6 inline-flex min-h-11 items-center gap-2 rounded-full bg-sun px-5 py-2.5 text-sm font-semibold text-white transition group-hover:bg-sun-dark">
+                      {item.link || 'Explore'} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                    </span>
+                  </div>
+                </Link>
+              </Reveal>
+            ) : (
+              <Reveal key={item.tag || item.title} className="h-full">
+                <Link href={item.href} className="group grid h-full overflow-hidden rounded-3xl border border-forest/15 bg-white shadow-soft transition hover:border-forest/40 sm:grid-cols-[0.85fr_1fr]">
+                  <div className="relative aspect-[16/9] overflow-hidden sm:aspect-auto sm:min-h-[11rem]">
+                    <img src={item.image} alt={item.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                  </div>
+                  <div className="flex flex-col justify-center p-5 sm:p-6 lg:p-8">
+                    {item.tag && <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun-text">{item.tag}</p>}
+                    <h3 className="mt-2.5 font-display text-xl font-semibold leading-snug text-forest">{item.title}</h3>
+                    <span className="mt-4 inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">
+                      {item.link || 'Explore'} <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" aria-hidden="true" />
+                    </span>
+                  </div>
+                </Link>
+              </Reveal>
             ))}
-          </StaggerGrid>
+          </div>
 
-          <Reveal className="mt-6 flex flex-col items-start justify-between gap-5 rounded-2xl border border-forest/15 bg-white p-6 shadow-soft sm:flex-row sm:items-center sm:p-7">
+          <Reveal className="mt-5 flex flex-col items-stretch justify-between gap-5 rounded-3xl border border-forest/15 bg-white p-6 shadow-soft sm:flex-row sm:items-center sm:p-8 md:mt-6 lg:p-10">
             <div className="max-w-2xl">
               <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun-text">
                 {editorial?.pillarsSection?.buyoutEyebrow || 'Group bookings · 8–24 guests'}
@@ -393,6 +438,7 @@ export default function HomeEditorial() {
             </div>
             <Button
               variant="outline"
+              className="w-full sm:w-auto"
               href={currentWhatsApp(editorial?.pillarsSection?.buyoutWhatsappText || "Hello G'Host Villa! I would like to enquire about a group booking or whole-villa stay.")}
               arrow={false}
             >
@@ -405,10 +451,10 @@ export default function HomeEditorial() {
       {/* 5 · Inside G'Host Villa — 6-Photo Mosaic & Lightbox */}
       <section className="bg-forest-dark py-16 text-white md:py-24">
         <div className="wrap">
-          <Reveal className="mb-8 flex flex-wrap items-end justify-between gap-4">
+          <Reveal className="head-gap flex flex-wrap items-end justify-between gap-4">
             <div>
               <p className="label !text-sun">{editorial?.gallerySection?.eyebrow || 'Villa gallery'}</p>
-              <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-white sm:text-5xl">
+              <h2 className="mt-2 font-display font-semibold text-white type-section">
                 {editorial?.gallerySection?.title || 'Inside G’Host Villa.'}
               </h2>
             </div>
@@ -491,12 +537,12 @@ export default function HomeEditorial() {
       </AnimatePresence>
 
       {/* 7 · Guest Testimonials & Hilltop Video Showcase */}
-      <section aria-label="Guest testimonials" className="bg-white py-16 md:py-24">
+      <section aria-label="Guest testimonials" className="bg-white section-y">
         <div className="wrap">
           <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:gap-16">
             <Reveal className="flex min-h-[26rem] flex-col">
               <p className="label">{editorial?.testimonialsSection?.eyebrow || 'Testimonials'}</p>
-              <h2 className="mt-2 font-display text-4xl font-semibold leading-[0.96] tracking-[-0.04em] text-forest sm:text-5xl">
+              <h2 className="mt-2 font-display font-semibold text-forest type-section">
                 {editorial?.testimonialsSection?.title || 'What guests say.'}
               </h2>
               <span className="mt-6 block font-display text-6xl leading-none text-sun-text">“</span>
@@ -592,11 +638,11 @@ export default function HomeEditorial() {
       </section>
 
       {/* 8 · Location, Map, Quick FAQ & Closing CTA */}
-      <section className="border-t border-forest/10 bg-white pt-16 md:pt-24">
+      <section className="border-t border-forest/10 bg-white section-pt">
         <div className="wrap grid items-start gap-12 pb-14 lg:grid-cols-2 lg:gap-16">
           <Reveal>
             <p className="label">{editorial?.locationSection?.eyebrow || 'Location & map'}</p>
-            <h2 className="mt-2 font-display text-3xl font-semibold leading-none tracking-[-0.03em] text-forest sm:text-4xl">
+            <h2 className="mt-2 font-display font-semibold text-forest type-section">
               {editorial?.locationSection?.title || 'Easy to reach, above it all.'}
             </h2>
             <p className="mt-3 text-sm leading-relaxed text-forest/75">{currentSite.address}</p>
@@ -645,7 +691,7 @@ export default function HomeEditorial() {
 
           <Reveal delay={0.08}>
             <p className="label">{editorial?.locationSection?.faqEyebrow || 'FAQ'}</p>
-            <h2 className="mt-2 font-display text-3xl font-semibold leading-none tracking-[-0.03em] text-forest sm:text-4xl">
+            <h2 className="mt-2 font-display font-semibold text-forest type-section">
               {editorial?.locationSection?.faqTitle || 'Quick answers.'}
             </h2>
             <div className="mt-5 divide-y divide-forest/15 border-y border-forest/15">

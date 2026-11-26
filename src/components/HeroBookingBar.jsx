@@ -5,9 +5,12 @@ import { useRouter } from 'next/navigation'
 import { CalendarDays, Minus, Plus, Search, Users } from 'lucide-react'
 import { MAX_GUESTS } from '../data/rooms.js'
 import { addDays, fmtDate, stayQuery, todayISO } from '../lib/booking.js'
+import { useBackendData } from '../lib/backend.jsx'
 
 /** Check-in / check-out / guests strip that overlaps the bottom edge of the hero. Sends the choices to the rooms list. */
 export default function HeroBookingBar() {
+  const backend = useBackendData()
+  const maxGuests = backend?.stays?.MAX_GUESTS ?? MAX_GUESTS
   const router = useRouter()
   const [checkIn, setCheckIn] = useState('')
   const [checkOut, setCheckOut] = useState('')
@@ -40,10 +43,10 @@ export default function HeroBookingBar() {
         <div className="min-w-0 flex-1"><span className={label}>Guests</span><span className="mt-1 block text-[0.95rem] font-semibold text-forest" aria-live="polite">{guests} {guests === 1 ? 'guest' : 'guests'}</span></div>
         <div className="flex items-center gap-2">
           <button type="button" aria-label="Remove guest" disabled={guests <= 1} onClick={() => setGuests(guests - 1)} className={step}><Minus className="h-4 w-4" aria-hidden="true" /></button>
-          <button type="button" aria-label="Add guest" disabled={guests >= MAX_GUESTS} onClick={() => setGuests(guests + 1)} className={step}><Plus className="h-4 w-4" aria-hidden="true" /></button>
+          <button type="button" aria-label="Add guest" disabled={guests >= maxGuests} onClick={() => setGuests(guests + 1)} className={step}><Plus className="h-4 w-4" aria-hidden="true" /></button>
         </div>
       </div>
-      <button type="submit" className="inline-flex min-h-[4.5rem] items-center justify-center gap-3 bg-sun px-8 text-base font-semibold text-forest-dark transition hover:bg-sun-dark">
+      <button type="submit" className="inline-flex min-h-[4.5rem] items-center justify-center gap-3 bg-sun px-8 text-base font-semibold text-white transition hover:bg-sun-dark">
         <Search className="h-5 w-5" aria-hidden="true" />Check availability
       </button>
     </form>

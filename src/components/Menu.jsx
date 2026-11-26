@@ -162,13 +162,13 @@ export default function Menu() {
   const groups = searching ? results : tabGroups
 
   return (
-    <section id="menu" className="bg-white pb-20 pt-28 md:pb-28 md:pt-36">
+    <section id="menu" className="bg-white pb-10 pt-24 sm:pt-28 md:pb-14 md:pt-36">
       {/* 1 · Editorial Restro Header & Quick Info */}
       <div className="wrap">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
           <Reveal className="max-w-2xl">
             <p className="label">{menuSettings.eyebrow || `Pyramid Restro & Bottle Bar · ${currentSite.hours}`}</p>
-            <h1 className="mt-2 font-display text-4xl font-semibold leading-[0.94] tracking-[-0.045em] text-forest sm:text-6xl">
+            <h1 className="mt-2 font-display font-semibold text-forest type-page">
               {menuSettings.title || 'Fresh food, mountain air.'}
             </h1>
             <p className="mt-4 text-base leading-relaxed text-forest/75">
@@ -180,15 +180,15 @@ export default function Menu() {
             </p>
           </Reveal>
 
-          <Reveal delay={0.08} className="flex flex-col items-start gap-3 lg:items-end">
-            <div className="flex flex-wrap gap-2.5">
-              <Button href={currentWhatsApp("Hello G'Host Villa! I'd like to reserve a table or order food.")} arrow={false}>
+          <Reveal delay={0.08} className="flex flex-col items-stretch gap-3 sm:items-start lg:items-end">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+              <Button href={currentWhatsApp("Hello G'Host Villa! I'd like to reserve a table or order food.")} arrow={false} className="w-full sm:w-auto">
                 <span className="inline-flex items-center gap-2">
                   <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
                   <span>Reserve a table</span>
                 </span>
               </Button>
-              <Button href={currentSite.menuPdf} variant="outline" arrow={false} download>
+              <Button href={currentSite.menuPdf} variant="outline" arrow={false} download className="w-full sm:w-auto">
                 <span className="inline-flex items-center gap-2">
                   <Download className="h-4 w-4 shrink-0" aria-hidden="true" />
                   <span>{menuSettings.downloadPdfLabel || 'PDF Menu'}</span>
@@ -279,7 +279,7 @@ export default function Menu() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="rounded-2xl border border-forest/15 bg-white p-10 text-center text-forest shadow-soft"
+              className="rounded-2xl border border-forest/15 bg-white p-6 text-center text-forest shadow-soft sm:p-10"
             >
               <p className="font-medium">
                 Nothing found{vegOnly ? ' in the veg menu' : ''}. Try another dish name or ask our kitchen team directly.
@@ -287,7 +287,7 @@ export default function Menu() {
               <button
                 type="button"
                 onClick={() => { setQuery(''); setVegOnly(false) }}
-                className="mt-4 inline-flex items-center rounded-full bg-sun px-5 py-2 text-xs font-semibold text-forest-dark transition hover:bg-sun-dark"
+                className="mt-4 inline-flex items-center rounded-full bg-sun px-5 py-2 text-xs font-semibold text-white transition hover:bg-sun-dark"
               >
                 Reset search
               </button>
@@ -315,21 +315,21 @@ export default function Menu() {
               <Utensils className="h-3.5 w-3.5" aria-hidden="true" />
               Group dining &amp; MAP meal plans
             </p>
-            <h2 className="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] text-white sm:text-3xl">
+            <h2 className="mt-2 font-display font-semibold text-white type-sub">
               Planning a group BBQ, celebration dinner or stay meal plan?
             </h2>
             <p className="mt-2 text-sm text-white/75">
               Pre-order custom platters, birthday cakes or add the MAP meal plan (+NPR 550 per person) directly with our kitchen team.
             </p>
           </div>
-          <div className="flex shrink-0 flex-wrap gap-3">
-            <Button href={waLink("Hello G'Host Villa! I'd like to pre-order group dining or reserve a table.")} arrow={false}>
+          <div className="flex w-full shrink-0 flex-col gap-3 sm:w-auto sm:flex-row">
+            <Button href={currentWhatsApp("Hello G'Host Villa! I'd like to pre-order group dining or reserve a table.")} arrow={false} className="w-full sm:w-auto">
               <span className="inline-flex items-center gap-2">
                 <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span>Order on WhatsApp</span>
               </span>
             </Button>
-            <Button href={currentSite.menuPdf} variant="light" arrow={false} download>
+            <Button href={currentSite.menuPdf} variant="light" arrow={false} download className="w-full sm:w-auto">
               <span className="inline-flex items-center gap-2">
                 <Download className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span>{menuSettings.downloadPdfLabel || 'PDF Menu'}</span>

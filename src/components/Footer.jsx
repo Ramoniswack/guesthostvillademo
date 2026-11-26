@@ -12,7 +12,8 @@ export default function Footer() {
   const backend = useBackendData()
   const currentSite = backend?.site ?? site
   const footer = backend?.footer ?? {}
-  const currentNavLinks = backend?.navLinks ?? navLinks
+  const allNavLinks = backend?.navLinks ?? navLinks
+  const currentNavLinks = allNavLinks.filter((link) => link.showInFooter !== false)
   const currentTelLink = currentSite.phoneTel ? `tel:${currentSite.phoneTel}` : telLink
   const currentAltTelLink = currentSite.altPhoneTel ? `tel:${currentSite.altPhoneTel}` : altTelLink
   const currentDirectionsLink = currentSite.directionsLink ?? directionsLink
@@ -27,29 +28,29 @@ export default function Footer() {
 
   return (
     <footer className="on-dark overflow-hidden bg-[#07120f] text-cream">
-      <section className="relative isolate min-h-[28rem] overflow-hidden border-b border-white/10 sm:min-h-[32rem]">
+      <section className="relative isolate min-h-[28rem] overflow-hidden border-b border-white/10 sm:min-h-[28rem]">
         <img src={footer.heroImage || '/images/night-aerial.webp'} alt={footer.heroImageAlt || "G'Host Villa glowing above Pokhara after dusk"} className="absolute inset-0 -z-20 h-full w-full object-cover object-center" loading="lazy" />
         <div className="absolute inset-0 -z-10 bg-[#07120f]/70" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#07120f]/85 via-[#07120f]/35 to-[#07120f]/70" />
-        <div className="mx-auto flex min-h-[28rem] max-w-[1440px] items-end px-6 py-12 sm:min-h-[32rem] sm:px-10 sm:py-16 lg:px-14">
+        <div className="mx-auto flex min-h-[22rem] max-w-[1440px] items-end px-6 py-12 sm:min-h-[28rem] sm:px-10 sm:py-16 lg:px-14">
           <div className="max-w-2xl">
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sun">{footer.heroEyebrow || 'Sarangkot, Pokhara'}</p>
-            <h2 className="mt-4 font-display text-5xl font-semibold leading-[0.95] tracking-[-0.055em] text-white sm:text-7xl">
+            <h2 className="mt-4 font-display text-4xl font-semibold leading-[1] tracking-[-0.05em] text-white sm:text-6xl lg:text-7xl">
               {footer.heroTitle || 'Your next escape starts up here.'}
             </h2>
             <p className="mt-5 max-w-lg text-lg text-white/80">{footer.heroSubtitle || 'A private villa stay, a table with a view, and a slower pace for a little while.'}</p>
-            <a href={currentWhatsApp("Hello G'Host Villa! I'd like to book a stay.")} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-12 items-center rounded-full bg-sun px-7 text-[0.7rem] font-bold uppercase tracking-[0.15em] text-forest-dark transition-colors hover:bg-sun-dark">
+            <a href={currentWhatsApp("Hello G'Host Villa! I'd like to book a stay.")} target="_blank" rel="noopener noreferrer" className="mt-8 inline-flex min-h-12 items-center rounded-full bg-sun px-7 text-[0.7rem] font-bold uppercase tracking-[0.15em] text-white transition-colors hover:bg-sun-dark">
               {footer.heroCtaLabel || 'Book a stay'}
             </a>
           </div>
         </div>
       </section>
 
-      <section className="mx-auto max-w-[1440px] px-6 py-12 sm:px-10 lg:px-14 lg:py-16">
+      <section className="mx-auto max-w-[1440px] px-5 py-10 sm:px-8 sm:py-12 lg:px-14 lg:py-14">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">{footer.socialEyebrow || 'From the hilltop'}</p>
-            <h2 className="mt-2 font-display text-3xl font-semibold tracking-[-0.04em] text-white sm:text-4xl">{footer.socialTitle || "Follow G'Host Villa"}</h2>
+            <h2 className="mt-2 font-display font-semibold text-white type-sub">{footer.socialTitle || "Follow G'Host Villa"}</h2>
           </div>
           <a href={currentSite.social.instagram} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 text-sm font-semibold text-sun hover:text-white">
             {footer.socialHandle || '@the_g_host_villa_pokhara'} <Icon name="arrow" className="h-4 w-4" />
@@ -58,7 +59,7 @@ export default function Footer() {
       </section>
 
       <section className="border-t border-white/10">
-        <div className="mx-auto grid max-w-[1440px] gap-10 px-6 py-12 sm:px-10 md:grid-cols-[1.3fr_0.7fr_0.9fr] lg:px-14 lg:py-16">
+        <div className="mx-auto grid max-w-[1440px] gap-8 px-5 py-10 sm:px-8 md:grid-cols-[1.3fr_0.7fr_0.9fr] lg:px-14 lg:py-14">
           <div>
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">{footer.exploreEyebrow || 'Come stay awhile'}</p>
             <p className="mt-4 max-w-md font-display text-3xl font-semibold leading-[1.05] tracking-[-0.04em] text-white">{footer.exploreTitle || 'A villa, restro and bar above the city lights.'}</p>
@@ -78,8 +79,8 @@ export default function Footer() {
             <p className="text-[0.68rem] font-bold uppercase tracking-[0.2em] text-sage-light">{footer.contactHeading || 'Get in touch'}</p>
             <ul className="mt-4 space-y-3 text-base text-white/80">
               <li className="flex flex-wrap gap-2.5 pb-1">
-                <a href={currentWhatsApp()} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full bg-sun px-5 text-sm font-bold text-forest-dark transition-colors hover:bg-sun-dark"><MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />WhatsApp</a>
-                <a href={currentTelLink} className="inline-flex min-h-11 items-center gap-2 whitespace-nowrap rounded-full border border-white/40 px-5 text-sm font-bold text-white transition-colors hover:border-sun hover:text-sun"><Phone className="h-4 w-4 shrink-0" aria-hidden="true" />Call now</a>
+                <a href={currentWhatsApp()} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full sm:w-auto bg-sun px-5 text-sm font-bold text-white transition-colors hover:bg-sun-dark"><MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />WhatsApp</a>
+                <a href={currentTelLink} className="inline-flex min-h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full sm:w-auto border border-white/40 px-5 text-sm font-bold text-white transition-colors hover:border-sun hover:text-sun"><Phone className="h-4 w-4 shrink-0" aria-hidden="true" />Call now</a>
               </li>
               <li><a href={currentTelLink} className="transition-colors hover:text-sun">{currentSite.phoneDisplay}</a></li>
               <li><a href={currentAltTelLink} className="transition-colors hover:text-sun">{currentSite.altPhoneDisplay}</a></li>

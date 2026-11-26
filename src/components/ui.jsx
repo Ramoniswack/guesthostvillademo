@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import Icon from './Icons.jsx'
+import { useListWheel } from '../lib/useListWheel.js'
 
 /** Custom dropdown select matching the site's rounded forest/sun/white UI. */
 export function CustomSelect({
@@ -17,7 +18,10 @@ export function CustomSelect({
 }) {
   const [open, setOpen] = useState(false)
   const rootRef = useRef(null)
+  const listRef = useRef(null)
   const selected = options.find((opt) => opt.value === value) || options[0]
+
+  useListWheel(listRef, open)
 
   useEffect(() => {
     if (!open) return undefined
@@ -58,13 +62,15 @@ export function CustomSelect({
       <AnimatePresence>
         {open && (
           <motion.ul
+            ref={listRef}
             role="listbox"
+            data-lenis-prevent
             aria-label={ariaLabel}
             initial={{ opacity: 0, y: 6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 4, scale: 0.98 }}
             transition={{ duration: 0.16, ease: 'easeOut' }}
-            className={`absolute top-full z-50 mt-2 max-h-64 min-w-[13rem] overflow-y-auto rounded-2xl border border-forest/15 bg-white p-1.5 shadow-[0_18px_45px_rgba(31,61,43,0.16)] ${
+            className={`absolute top-full z-50 mt-2 max-h-72 min-w-[13rem] overflow-y-auto overscroll-contain rounded-2xl border border-forest/15 bg-white p-1.5 shadow-[0_18px_45px_rgba(31,61,43,0.16)] ${
               menuAlign === 'right' ? 'right-0' : 'left-0 w-full'
             }`}
           >
@@ -155,7 +161,7 @@ export function ArrowCircle({ className = '' }) {
 
 const variants = {
   // orange with dark-green text (contrast ≈ 6:1)
-  primary: 'bg-sun text-forest-dark hover:bg-sun-dark',
+  primary: 'bg-sun text-white hover:bg-sun-dark',
   outline: 'border-2 border-forest text-forest hover:bg-forest hover:text-cream',
   solid: 'bg-forest text-cream hover:bg-forest-dark',
   light: 'border-2 border-cream/80 text-cream hover:bg-white hover:text-forest',
@@ -186,6 +192,22 @@ export function Button({ variant = 'primary', href, children, arrow = true, icon
     <a href={href} className={cls} {...(external ? { target: '_blank', rel: 'noopener noreferrer' } : {})} {...rest}>
       {inner}
     </a>
+  )
+}
+
+/** Plain page header used by every inner page: eyebrow, title, intro. Children render below it inside the same wrap. */
+export function PageHeader({ eyebrow, title, text, children }) {
+  return (
+    <section className="page-top">
+      <div className="wrap">
+        <Reveal className="max-w-2xl">
+          <p className="label">{eyebrow}</p>
+          <h1 className="mt-2 font-display font-semibold text-forest type-page">{title}</h1>
+          {text && <p className="mt-4 text-base leading-relaxed text-forest/75 md:text-lg">{text}</p>}
+        </Reveal>
+        {children}
+      </div>
+    </section>
   )
 }
 

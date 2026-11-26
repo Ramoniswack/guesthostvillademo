@@ -1,22 +1,20 @@
 'use client'
 
-import { PageHero } from '../components/ui.jsx'
 import Jobs from '../components/Jobs.jsx'
+import { PageHeader } from '../components/ui.jsx'
 import { useBackendData } from '../lib/backend.jsx'
 
 export default function JobsPage() {
   const backend = useBackendData()
   const content = backend?.jobs?.content
   return (
-    <>
-      <PageHero
+    <div className="bg-white text-forest">
+      <PageHeader
         eyebrow={content?.heroEyebrow || 'Careers'}
         title={content?.heroTitle || 'Join the villa team.'}
         text={content?.heroText || 'Help us welcome travellers to Sarangkot.'}
-        image={content?.heroImage || '/images/pyramid.webp'}
-        position={content?.heroPosition || '40% 50%'}
       />
       <Jobs />
-    </>
+    </div>
   )
 }

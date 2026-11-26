@@ -22,6 +22,7 @@ import { gallery as siteGallery } from '../data/gallery.js'
 import { site, waLink } from '../data/site.js'
 import { blockedSetFor, fmtDate, nightsBetween, parseISO, rangeBlocked, stayQuery, stayQuote, todayISO } from '../lib/booking.js'
 import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
+import { fetchWishlistFromBackend, isStayWishlisted, toggleStayWishlist, WISHLIST_EVENT } from '../lib/wishlist.js'
 
 const cellText = (result) => {
   if (result.kind === 'ask') return 'On WhatsApp'
@@ -69,7 +70,7 @@ function Accordion({ items }) {
                 <span
                   className={`grid h-7 w-7 shrink-0 place-items-center rounded-full border transition-transform duration-300 ${
                     isOpen
-                      ? 'rotate-180 border-sun bg-sun text-forest-dark'
+                      ? 'rotate-180 border-sun bg-sun text-white'
                       : 'border-forest/15 bg-white text-forest'
                   }`}
                 >
@@ -122,7 +123,7 @@ function Timeline({ items }) {
 function SectionTitle({ id, children, sub }) {
   return (
     <header>
-      <h2 id={id} className="scroll-mt-28 font-display text-2xl font-semibold leading-tight tracking-[-0.03em] text-forest md:text-[1.75rem]">{children}</h2>
+      <h2 id={id} className="scroll-mt-28 font-display font-semibold text-forest type-sub">{children}</h2>
       {sub && <p className="mt-2 max-w-2xl text-sm leading-relaxed text-forest/60">{sub}</p>}
     </header>
   )
@@ -222,8 +223,20 @@ export default function RoomDetailPage({ room: initialRoom }) {
     if (q.get('plan') === 'MAP') setPlan('MAP')
     const i = q.get('in'), o = q.get('out')
     if (parseISO(i) && parseISO(o) && i >= todayISO() && o > i && !rangeBlocked(blocked, i, o)) setDates(i, o)
-    try { setSaved(localStorage.getItem(`saved:${room.id}`) === '1') } catch { /* storage unavailable */ }
+    setSaved(isStayWishlisted(room.id))
     setReady(true)
+
+    fetchWishlistFromBackend().then((slugs) => {
+      if (Array.isArray(slugs)) setSaved(slugs.includes(room.id))
+    })
+
+    const onWishlistChange = () => setSaved(isStayWishlisted(room.id))
+    window.addEventListener(WISHLIST_EVENT, onWishlistChange)
+    window.addEventListener('storage', onWishlistChange)
+    return () => {
+      window.removeEventListener(WISHLIST_EVENT, onWishlistChange)
+      window.removeEventListener('storage', onWishlistChange)
+    }
   }, [room, blocked])
 
   // Keep the address bar shareable
@@ -242,10 +255,9 @@ export default function RoomDetailPage({ room: initialRoom }) {
     return () => observer.disconnect()
   }, [tab])
 
-  const toggleSaved = () => {
-    const next = !saved
+  const toggleSaved = async () => {
+    const next = await toggleStayWishlist(room.id)
     setSaved(next)
-    try { localStorage.setItem(`saved:${room.id}`, next ? '1' : '0') } catch { /* storage unavailable */ }
   }
   const share = async () => {
     const url = window.location.href
@@ -270,11 +282,17 @@ export default function RoomDetailPage({ room: initialRoom }) {
 
   // 4-slot mosaic: admin-set slots win, otherwise fall back to room photos
   const slots = {
-    left: room.grid?.left ?? { type: 'auto', src: room.video || cfg.defaultGridVideo || '/videos/hero-pool.mp4' },
+    left: room.grid?.left ?? { type: 'video', src: room.video || '/videos/stock-hero.mp4' },
     top: room.grid?.top ?? { type: 'image', src: photos[0] },
     bottom: room.grid?.bottom ?? { type: 'image', src: photos[1] || photos[0] },
     right: room.grid?.right ?? { type: 'auto', src: room.sideVideo || photos[2] || photos[0] },
   }
+
+  // "Show all N photos": always the real count, even if the saved label has a fixed number in it
+  const photosLabelRaw = cfg.showAllPhotosLabel || 'Show all {count} photos'
+  const photosLabel = photosLabelRaw.includes('{count}')
+    ? fill(photosLabelRaw, { count: photos.length })
+    : photosLabelRaw.replace(/\d+/, String(photos.length))
 
   const includes = (room.includes ?? []).map((id) => allRooms.find((item) => item.id === id)).filter(Boolean)
   const table = useMemo(() => rateTable(room, 'BB', mapAdd), [room, mapAdd])
@@ -346,7 +364,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
   return (
     <div className="bg-white pb-40 md:pb-28 lg:pb-16">
       {/* 1 · Title row */}
-      <header className="wrap pt-28 md:pt-32">
+      <header className="wrap pt-24 md:pt-32">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <Link
             href="/rooms"
@@ -358,20 +376,20 @@ export default function RoomDetailPage({ room: initialRoom }) {
             {room.eyebrow || getBuildingLabel(room).toUpperCase()}
           </span>
         </div>
-        <div className="mt-4 flex flex-wrap items-end justify-between gap-6">
+        <div className="mt-4 flex flex-col gap-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-6">
           <div className="max-w-2xl">
-            <h1 className="font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-forest sm:text-5xl">{room.name}</h1>
-            <p className="mt-3 text-base leading-relaxed text-forest/75">{room.intro || room.blurb}</p>
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-forest/70">
+            <h1 className="font-display font-semibold text-forest type-page">{room.name}</h1>
+            <p className="mt-2.5 text-sm leading-relaxed text-forest/75 sm:mt-3 sm:text-base">{room.intro || room.blurb}</p>
+            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-forest/70 sm:text-sm">
               <span className="inline-flex items-center gap-1.5"><Stars n={5} className="h-4 w-4" /><strong className="font-semibold text-forest">4.5</strong> · <a href="#reviews" className="underline decoration-forest/30 underline-offset-4 hover:decoration-sun">{reviewCount} reviews</a></span>
               <span className="inline-flex items-center gap-1.5"><MapPin className="h-4 w-4 text-sun-text" aria-hidden="true" />{room.locationLabel || cfg.locationLabel || 'Sarangkot, Pokhara'}</span>
             </div>
           </div>
-          <div className="rounded-2xl border border-forest/15 bg-white px-5 py-3.5 text-left sm:text-right">
+          <div className="flex items-baseline justify-between gap-3 rounded-2xl border border-forest/15 bg-white px-4 py-3 text-left sm:block sm:px-5 sm:py-3.5 sm:text-right">
             <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-forest/55">
               {fromPrice.label || 'Rate'}
             </p>
-            <p className="mt-1 font-display text-2xl font-semibold tabular-nums text-forest">
+            <p className="font-display text-xl font-semibold tabular-nums text-forest sm:mt-1 sm:text-2xl">
               {room.whatsappOnly || fromPrice.main === 'Price on WhatsApp'
                 ? 'Ask for price'
                 : `${fromPrice.main} / night`}
@@ -381,8 +399,8 @@ export default function RoomDetailPage({ room: initialRoom }) {
       </header>
 
       {/* 2 · Media mosaic: 1 large video on left + 2 stacked images in middle + 1 tall vertical video/image on right */}
-      <section aria-label="Room photos and video" className="wrap mt-5">
-        <div className="relative grid h-[17rem] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-2xl sm:h-[22rem] lg:h-[26rem]">
+      <section aria-label="Room photos and video" className="wrap mt-4 sm:mt-5">
+        <div className="relative grid h-[15rem] grid-cols-4 grid-rows-2 gap-2 overflow-hidden rounded-2xl sm:h-[22rem] lg:h-[26rem]">
           {/* Left: Wide primary video slot (col-span-2 row-span-2) */}
           <button
             type="button"
@@ -444,20 +462,38 @@ export default function RoomDetailPage({ room: initialRoom }) {
           </button>
 
           {room.badge && <span className="pointer-events-none absolute left-3 top-3 rounded-full bg-white px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.14em] text-forest">{room.badge}</span>}
-          <button type="button" onClick={() => setPhoto(0)} className="absolute bottom-3 right-3 inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-2 text-sm font-semibold text-forest shadow-soft transition hover:bg-white">
-            <Images className="h-4 w-4" aria-hidden="true" />{fill(cfg.showAllPhotosLabel || 'Show all {count} photos', { count: photos.length })}
+          <button type="button" onClick={() => setPhoto(0)} className="absolute bottom-3 right-3 inline-flex items-center gap-1.5 rounded-full border border-forest/15 bg-white px-3.5 py-1.5 text-xs font-semibold text-forest shadow-soft transition hover:bg-white sm:gap-2 sm:px-4 sm:py-2 sm:text-sm">
+            <Images className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />{photosLabel}
           </button>
         </div>
-        <div className="mt-3 flex items-center justify-end gap-2 text-sm font-semibold text-forest">
-          <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-1.5 shadow-sm transition hover:border-forest/35"><Share2 className="h-4 w-4" aria-hidden="true" />{copied ? 'Link copied' : 'Share'}</button>
-          <button type="button" onClick={toggleSaved} aria-pressed={saved} className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-4 py-1.5 shadow-sm transition hover:border-forest/35"><Heart className={`h-4 w-4 ${saved ? 'fill-sun text-sun-text' : ''}`} aria-hidden="true" />{saved ? 'Saved' : 'Save'}</button>
+
+        {/* Mobile photo thumbnail strip so mobile users can tap through photos easily */}
+        {photos.length > 1 && (
+          <div className="no-scrollbar mt-2 flex gap-2 overflow-x-auto md:hidden">
+            {photos.map((src, i) => (
+              <button
+                key={src}
+                type="button"
+                onClick={() => setPhoto(i)}
+                aria-label={`Open photo ${i + 1} of ${photos.length}`}
+                className="relative h-14 w-20 shrink-0 overflow-hidden rounded-xl border border-forest/15 bg-forest-dark"
+              >
+                <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+              </button>
+            ))}
+          </div>
+        )}
+
+        <div className="mt-3 flex items-center justify-end gap-2 text-xs font-semibold text-forest sm:text-sm">
+          <button type="button" onClick={share} className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-3.5 py-1.5 shadow-sm transition hover:border-forest/35 sm:px-4"><Share2 className="h-3.5 w-3.5 sm:h-4 sm:w-4" aria-hidden="true" />{copied ? 'Link copied' : 'Share'}</button>
+          <button type="button" onClick={toggleSaved} aria-pressed={saved} className="inline-flex items-center gap-2 rounded-full border border-forest/15 bg-white px-3.5 py-1.5 shadow-sm transition hover:border-forest/35 sm:px-4"><Heart className={`h-3.5 w-3.5 sm:h-4 sm:w-4 ${saved ? 'fill-sun text-sun-text' : ''}`} aria-hidden="true" />{saved ? 'Saved' : 'Save'}</button>
         </div>
       </section>
 
-      <div className="wrap grid grid-cols-[minmax(0,1fr)] gap-10 py-10 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-14">
+      <div className="wrap grid grid-cols-[minmax(0,1fr)] gap-8 py-8 sm:gap-10 sm:py-10 lg:grid-cols-[minmax(0,1fr)_23rem] lg:gap-14">
         {/* Sidebar: first on phones, floating sticky beside the details on desktop */}
         <aside className="no-scrollbar space-y-4 lg:sticky lg:top-24 lg:order-2 lg:max-h-[calc(100vh-7rem)] lg:self-start lg:overflow-y-auto">
-          <div className="rounded-2xl border border-forest/15 bg-white p-5 shadow-[0_18px_45px_rgba(35,70,53,0.08)]">
+          <div className="rounded-2xl border border-forest/15 bg-white p-4 shadow-[0_18px_45px_rgba(35,70,53,0.08)] sm:p-5">
             {tab === 'booking' ? (
               <BookingPanel
                 room={room}
@@ -491,7 +527,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
                   <input value={enquiry.phone} onChange={(e) => setEnquiry({ ...enquiry, phone: e.target.value })} autoComplete="tel" inputMode="tel" className={`${field} rounded-lg normal-case tracking-normal`} placeholder="+977…" /></label>
                 <label className="block text-xs font-bold uppercase tracking-[0.12em] text-forest/55">Message
                   <textarea rows={3} value={enquiry.message} onChange={(e) => setEnquiry({ ...enquiry, message: e.target.value })} className={`${field} rounded-lg normal-case tracking-normal`} placeholder="Dates, group size, questions…" /></label>
-                <button type="submit" className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"><Send className="h-4 w-4" aria-hidden="true" />Send on WhatsApp</button>
+                <button type="submit" className="inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-white transition hover:bg-sun-dark"><Send className="h-4 w-4" aria-hidden="true" />Send on WhatsApp</button>
               </form>
             )}
           </div>
@@ -560,7 +596,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
                         aria-pressed={selected}
                         className={`grid h-6 w-6 shrink-0 place-items-center rounded-full transition ${
                           selected
-                            ? 'bg-sun text-forest-dark'
+                            ? 'bg-sun text-white'
                             : 'border-2 border-forest/25 bg-transparent hover:border-forest/50'
                         }`}
                       >
@@ -651,7 +687,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
                             href={currentWhatsApp(stayMessage(room, { guests, plan: p.id, checkIn, checkOut }))}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
+                            className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-white transition hover:bg-sun-dark"
                           >
                             {room.whatsappOnly ? 'Ask on WhatsApp' : 'Request on WhatsApp'}
                             <ArrowRight className="h-4 w-4" aria-hidden="true" />
@@ -660,7 +696,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
                           <button
                             type="button"
                             onClick={goToBooking}
-                            className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-forest-dark transition hover:bg-sun-dark"
+                            className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-white transition hover:bg-sun-dark"
                           >
                             Pick a date to continue
                           </button>
@@ -706,16 +742,16 @@ export default function RoomDetailPage({ room: initialRoom }) {
               <p className="mt-5 max-w-2xl leading-relaxed text-forest/70">{cfg.ratesAskOnlyText || 'Bigger groups are booked directly. Send us your dates and group size on WhatsApp and the team will confirm the price.'}</p>
             ) : (
               <div className="mt-5 overflow-x-auto rounded-2xl border border-forest/15">
-                <table className="w-full min-w-[30rem] text-left text-sm">
-                  <thead className="bg-white text-xs font-bold uppercase tracking-[0.12em] text-forest/60">
-                    <tr><th className="px-5 py-3.5">Guests</th><th className="px-5 py-3.5">Bed &amp; Breakfast</th><th className="px-5 py-3.5">With meal plan</th></tr>
+                <table className="w-full text-left text-xs sm:text-sm">
+                  <thead className="bg-white text-[0.65rem] font-bold uppercase tracking-[0.12em] text-forest/60 sm:text-xs">
+                    <tr><th className="px-3.5 py-3 sm:px-5 sm:py-3.5">Guests</th><th className="px-3.5 py-3 sm:px-5 sm:py-3.5">Bed &amp; Breakfast</th><th className="px-3.5 py-3 sm:px-5 sm:py-3.5">With meal plan</th></tr>
                   </thead>
                   <tbody>
                     {table.map((row) => (
                       <tr key={row.guests} className={`border-t border-forest/10 ${row.guests === guests ? 'bg-sun/15' : ''}`}>
-                        <td className="px-5 py-3.5 font-semibold text-forest">{row.guests}</td>
-                        <td className="px-5 py-3.5 text-forest/80">{cellText(row.bb)}</td>
-                        <td className="px-5 py-3.5 text-forest/80">{cellText(row.map)}</td>
+                        <td className="px-3.5 py-3 font-semibold text-forest sm:px-5 sm:py-3.5">{row.guests}</td>
+                        <td className="px-3.5 py-3 text-forest/80 sm:px-5 sm:py-3.5">{cellText(row.bb)}</td>
+                        <td className="px-3.5 py-3 text-forest/80 sm:px-5 sm:py-3.5">{cellText(row.map)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -778,8 +814,8 @@ export default function RoomDetailPage({ room: initialRoom }) {
       <section aria-labelledby="reviews" className="border-t border-forest/10">
         <div className="wrap grid gap-10 py-14 lg:grid-cols-[16rem_minmax(0,1fr)] lg:gap-14">
           <div>
-            <h2 id="reviews" className="scroll-mt-28 font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">{cfg.reviewsTitle || 'Guest reviews'}</h2>
-            <p className="mt-5 font-display text-5xl font-semibold leading-none text-forest">{currentSite.reviewRating ?? 4.5}<span className="text-xl text-forest/45">/5</span></p>
+            <h2 id="reviews" className="scroll-mt-28 font-display font-semibold text-forest type-sub">{cfg.reviewsTitle || 'Guest reviews'}</h2>
+            <p className="mt-4 font-display text-4xl font-semibold leading-none text-forest md:text-5xl">{currentSite.reviewRating ?? 4.5}<span className="text-xl text-forest/45">/5</span></p>
             <div className="mt-3"><Stars n={5} className="h-5 w-5" /></div>
             <p className="mt-2 text-sm text-forest/60">Based on {reviewCount} Google reviews</p>
             <a href={currentSite.social.tripadvisor} target="_blank" rel="noopener noreferrer" className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4"><Star className="h-4 w-4" aria-hidden="true" />Write a review</a>
@@ -806,7 +842,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
       <section aria-labelledby="similar" className="border-t border-forest/10 bg-white py-14">
         <div className="wrap">
           <div className="flex items-end justify-between gap-4">
-            <Reveal><h2 id="similar" className="font-display text-2xl font-semibold tracking-[-0.03em] text-forest md:text-[1.75rem]">{cfg.relatedTitle || 'Other rooms'}</h2></Reveal>
+            <Reveal><h2 id="similar" className="font-display font-semibold text-forest type-sub">{cfg.relatedTitle || 'Other rooms'}</h2></Reveal>
             <Link href="/rooms" className="inline-flex items-center gap-1.5 text-sm font-semibold text-forest underline decoration-sun decoration-2 underline-offset-4">{cfg.relatedAllRoomsLabel || 'All rooms'}<ArrowRight className="h-4 w-4" aria-hidden="true" /></Link>
           </div>
           <div className="mt-8 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -826,25 +862,25 @@ export default function RoomDetailPage({ room: initialRoom }) {
       <Lightbox photos={photos} index={photo} setIndex={setPhoto} alt={room.alt} />
 
       {/* Phone booking bar: appears when the full panel has scrolled away */}
-      <div className={`fixed inset-x-0 bottom-[calc(3.75rem+env(safe-area-inset-bottom))] z-40 border-t border-forest/15 bg-white/95 py-3 pl-5 pr-20 shadow-[0_-10px_30px_rgba(35,70,53,0.12)] backdrop-blur transition duration-300 md:bottom-0 md:pr-5 lg:hidden ${panelVisible ? 'pointer-events-none translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`} aria-hidden={panelVisible}>
-        <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
+      <div className={`fixed inset-x-0 bottom-[calc(3.5rem+env(safe-area-inset-bottom))] z-40 border-t border-forest/15 bg-white/95 px-4 py-2.5 shadow-[0_-10px_30px_rgba(35,70,53,0.12)] backdrop-blur transition duration-300 sm:px-5 sm:py-3 md:bottom-0 lg:hidden ${panelVisible ? 'pointer-events-none translate-y-full opacity-0' : 'translate-y-0 opacity-100'}`} aria-hidden={panelVisible}>
+        <div className="mx-auto flex max-w-xl items-center justify-between gap-3 sm:gap-4">
           <div className="min-w-0">
             {quote ? (
               <>
                 <p className="truncate text-xs text-forest/60">{fmtDate(checkIn, { day: 'numeric', month: 'short' })} – {fmtDate(checkOut, { day: 'numeric', month: 'short' })}</p>
-                <p className="truncate font-display text-lg font-semibold leading-tight text-forest">{quote.kind === 'range' ? `NPR ${quote.min.toLocaleString('en-US')}+` : `NPR ${quote.total.toLocaleString('en-US')}`} <span className="font-body text-xs font-normal text-forest/60">· {nights}n</span></p>
+                <p className="truncate font-display text-base font-semibold leading-tight text-forest sm:text-lg">{quote.kind === 'range' ? `NPR ${quote.min.toLocaleString('en-US')}+` : `NPR ${quote.total.toLocaleString('en-US')}`} <span className="font-body text-xs font-normal text-forest/60">· {nights}n</span></p>
               </>
             ) : (
               <>
                 {barPrice.label && <p className="text-xs text-forest/60">{barPrice.label}</p>}
-                <p className="truncate font-display text-lg font-semibold leading-tight text-forest">{barPrice.main}</p>
+                <p className="truncate font-display text-base font-semibold leading-tight text-forest sm:text-lg">{barPrice.main}</p>
               </>
             )}
           </div>
           {barReady ? (
-            <a tabIndex={panelVisible ? -1 : 0} href={currentWhatsApp(stayMessage(room, { guests, plan, checkIn, checkOut }))} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-5 text-sm font-semibold text-forest-dark"><MessageCircle className="h-4 w-4" aria-hidden="true" />{room.whatsappOnly ? 'Ask us' : 'Request stay'}</a>
+            <a tabIndex={panelVisible ? -1 : 0} href={currentWhatsApp(stayMessage(room, { guests, plan, checkIn, checkOut }))} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-4 text-xs font-semibold text-white sm:min-h-[48px] sm:px-5 sm:text-sm"><MessageCircle className="h-4 w-4" aria-hidden="true" />{room.whatsappOnly ? 'Ask us' : 'Request stay'}</a>
           ) : (
-            <button type="button" tabIndex={panelVisible ? -1 : 0} onClick={goToBooking} className="inline-flex min-h-[48px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-5 text-sm font-semibold text-forest-dark"><CalendarDays className="h-4 w-4" aria-hidden="true" />Choose dates</button>
+            <button type="button" tabIndex={panelVisible ? -1 : 0} onClick={goToBooking} className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-4 text-xs font-semibold text-white sm:min-h-[48px] sm:px-5 sm:text-sm"><CalendarDays className="h-4 w-4" aria-hidden="true" />Choose dates</button>
           )}
         </div>
       </div>

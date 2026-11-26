@@ -120,7 +120,7 @@ export default function PackageDetailPage({ pkg: initialPkg }) {
             <div className="flex flex-wrap items-center gap-2">
               <span
                 className={`rounded-full px-3 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.12em] ${
-                  pkg.popular ? 'bg-sun text-forest-dark' : 'bg-forest/10 text-forest'
+                  pkg.popular ? 'bg-sun text-white' : 'bg-forest/10 text-forest'
                 }`}
               >
                 {pkg.badge}
@@ -129,7 +129,7 @@ export default function PackageDetailPage({ pkg: initialPkg }) {
                 {pkg.label}
               </span>
             </div>
-            <h1 className="mt-2 font-display text-3xl font-semibold leading-tight tracking-[-0.03em] text-forest sm:text-5xl">
+            <h1 className="mt-2 font-display font-semibold text-forest type-page">
               {pkg.title}
             </h1>
             <p className="mt-2 flex items-center gap-1.5 text-sm text-forest/70">
@@ -252,7 +252,7 @@ export default function PackageDetailPage({ pkg: initialPkg }) {
 
               <button
                 type="submit"
-                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-sun px-5 text-xs font-bold uppercase tracking-[0.1em] text-forest-dark transition hover:bg-sun-dark"
+                className="inline-flex min-h-[44px] w-full items-center justify-center gap-2 rounded-full bg-sun px-5 text-xs font-bold uppercase tracking-[0.1em] text-white transition hover:bg-sun-dark"
               >
                 <MessageCircle className="h-4 w-4 shrink-0" aria-hidden="true" />
                 <span>Book package on WhatsApp</span>
@@ -291,7 +291,7 @@ export default function PackageDetailPage({ pkg: initialPkg }) {
 
           {/* Overview */}
           <Reveal>
-            <h2 className="font-display text-2xl font-semibold tracking-[-0.025em] text-forest">
+            <h2 className="font-display font-semibold text-forest type-sub">
               {content.detailAboutTitle || 'About this package'}
             </h2>
             <p className="mt-2.5 text-sm leading-relaxed text-forest/75 sm:text-base">
@@ -339,7 +339,7 @@ export default function PackageDetailPage({ pkg: initialPkg }) {
           {/* Sample Stay Flow */}
           {pkg.itinerary?.length > 0 && (
             <Reveal>
-              <h2 className="font-display text-2xl font-semibold tracking-[-0.025em] text-forest">
+              <h2 className="font-display font-semibold text-forest type-sub">
                 {content.detailItineraryTitle || 'How the stay flows'}
               </h2>
               <div className="mt-4 grid gap-3.5 sm:grid-cols-3">
@@ -366,7 +366,7 @@ export default function PackageDetailPage({ pkg: initialPkg }) {
           {/* Included Spaces / Rooms */}
           {matchingRooms.length > 0 && (
             <Reveal>
-              <h2 className="font-display text-2xl font-semibold tracking-[-0.025em] text-forest">
+              <h2 className="font-display font-semibold text-forest type-sub">
                 {content.detailSpacesTitle || 'Spaces in this package'}
               </h2>
               <div className="mt-4 grid gap-4 sm:grid-cols-2">
@@ -399,7 +399,7 @@ export default function PackageDetailPage({ pkg: initialPkg }) {
 
           {/* Package FAQs */}
           <Reveal>
-            <h2 className="font-display text-2xl font-semibold tracking-[-0.025em] text-forest">
+            <h2 className="font-display font-semibold text-forest type-sub">
               {content.detailFaqTitle || 'Common questions'}
             </h2>
             <div className="mt-4 grid gap-3 sm:grid-cols-2">
@@ -422,12 +422,12 @@ export default function PackageDetailPage({ pkg: initialPkg }) {
       </section>
 
       {/* 4 · Compare Other Packages */}
-      <section className="border-t border-forest/10 bg-white py-12 md:py-16">
+      <section className="border-t border-forest/10 bg-white section-y">
         <div className="wrap">
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="label">{content.detailOtherEyebrow || 'Explore more'}</p>
-              <h2 className="mt-1 font-display text-2xl font-semibold tracking-[-0.025em] text-forest sm:text-3xl">
+              <h2 className="mt-1 font-display font-semibold text-forest type-sub">
                 {content.detailOtherTitle || 'Other packages'}
               </h2>
             </div>

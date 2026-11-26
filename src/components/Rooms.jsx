@@ -40,7 +40,7 @@ function StayCard({ room, availableBuildings, mapAdd, guests, plan, checkIn, che
       <div className="relative overflow-hidden bg-forest-dark">
         <img src={room.image} alt={room.alt} loading="lazy" className="aspect-[16/10] w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
         {tag && (
-          <span className="absolute left-3.5 top-3.5 rounded-full bg-sun px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-forest-dark">
+          <span className="absolute left-3.5 top-3.5 rounded-full bg-sun px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-white">
             {tag}
           </span>
         )}
@@ -138,14 +138,14 @@ function BookingBar({ availableBuildings, maxGuests, building, setBuilding, chec
   return (
     <div ref={bookingBarRef} className={`sticky top-0 z-30 border-b border-forest/10 bg-white/95 backdrop-blur-md transition-all duration-300 ${isCompact ? 'shadow-md shadow-forest/5' : ''}`}>
       {/* Mobile compact search pill */}
-      <div className="px-5 py-2 sm:px-8 md:hidden">
+      <div className="px-4 py-2 sm:px-8 md:hidden">
         <button
           type="button"
           onClick={() => setMobileOpen((o) => !o)}
           aria-expanded={mobileOpen}
-          className="flex w-full items-center justify-between gap-3 rounded-full border border-forest/15 bg-white px-4 py-2.5 text-left shadow-soft"
+          className="flex w-full items-center justify-between gap-2.5 rounded-full border border-forest/15 bg-white px-3.5 py-2.5 text-left shadow-soft"
         >
-          <span className="flex min-w-0 items-center gap-3">
+          <span className="flex min-w-0 items-center gap-2.5">
             <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-sun text-forest-dark">
               <Search className="h-4 w-4" aria-hidden="true" />
             </span>
@@ -166,7 +166,7 @@ function BookingBar({ availableBuildings, maxGuests, building, setBuilding, chec
               animate={{ height: 'auto', opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.22, ease: [0.22, 0.61, 0.36, 1] }}
-              className="overflow-hidden"
+              className="overflow-visible"
             >
               <form onSubmit={submit} className="mt-2.5 grid gap-px rounded-2xl border border-forest/15 bg-forest/15 p-px shadow-soft" aria-label="Search G’Host stays mobile">
                 <div className="rounded-t-2xl bg-white px-4 py-3">
@@ -182,26 +182,26 @@ function BookingBar({ availableBuildings, maxGuests, building, setBuilding, chec
                     triggerClassName="mt-1 text-sm font-semibold text-forest"
                   />
                 </div>
-                <div className="grid grid-cols-2 gap-px bg-forest/15">
-                  <label className="bg-white px-4 py-3">
+                <div className="grid grid-cols-1 gap-px bg-forest/15 min-[380px]:grid-cols-2">
+                  <label className="min-w-0 bg-white px-4 py-3">
                     <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">Check in</span>
-                    <input aria-label="Check in" type="date" min={todayISO()} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="mt-1 w-full bg-transparent text-xs font-semibold text-forest outline-none" />
+                    <input aria-label="Check in" type="date" min={todayISO()} value={checkIn} onChange={(e) => setCheckIn(e.target.value)} className="mt-1 w-full min-w-0 bg-transparent text-xs font-semibold text-forest outline-none" />
                   </label>
-                  <label className="bg-white px-4 py-3">
+                  <label className="min-w-0 bg-white px-4 py-3">
                     <span className="block text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">Check out</span>
-                    <input aria-label="Check out" type="date" min={checkIn || todayISO()} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="mt-1 w-full bg-transparent text-xs font-semibold text-forest outline-none" />
+                    <input aria-label="Check out" type="date" min={checkIn || todayISO()} value={checkOut} onChange={(e) => setCheckOut(e.target.value)} className="mt-1 w-full min-w-0 bg-transparent text-xs font-semibold text-forest outline-none" />
                   </label>
                 </div>
                 <div className="flex items-center justify-between bg-white px-4 py-3">
                   <span className="text-[0.62rem] font-bold uppercase tracking-[0.14em] text-forest/55">Guests</span>
                   <div className="flex items-center gap-3 font-semibold text-forest">
-                    <button type="button" aria-label="Remove guest" onClick={() => setGuests((c) => (c == null || c <= 1 ? null : c - 1))} className="grid h-7 w-7 place-items-center rounded-full border border-forest/20">−</button>
+                    <button type="button" aria-label="Remove guest" onClick={() => setGuests((c) => (c == null || c <= 1 ? null : c - 1))} className="grid h-8 w-8 place-items-center rounded-full border border-forest/20">−</button>
                     <span className="min-w-8 text-center text-sm">{guests ?? 'Any'}</span>
-                    <button type="button" aria-label="Add guest" onClick={() => setGuests((c) => Math.min(maxGuests, (c ?? 0) + 1))} className="grid h-7 w-7 place-items-center rounded-full border border-forest/20">+</button>
+                    <button type="button" aria-label="Add guest" onClick={() => setGuests((c) => Math.min(maxGuests, (c ?? 0) + 1))} className="grid h-8 w-8 place-items-center rounded-full border border-forest/20">+</button>
                   </div>
                 </div>
-                <div className="bg-white p-2.5">
-                  <button type="submit" className="min-h-11 w-full rounded-full bg-sun px-6 text-xs font-bold uppercase tracking-[0.12em] text-forest-dark transition hover:bg-sun-dark">Find a stay</button>
+                <div className="rounded-b-2xl bg-white p-2.5">
+                  <button type="submit" className="min-h-11 w-full rounded-full bg-sun px-6 text-xs font-bold uppercase tracking-[0.12em] text-white transition hover:bg-sun-dark">Find a stay</button>
                 </div>
               </form>
             </motion.div>
@@ -241,7 +241,7 @@ function BookingBar({ availableBuildings, maxGuests, building, setBuilding, chec
           </div>
         </div>
         <div className="flex items-center py-2 pl-5">
-          <button type="submit" className={`w-full rounded-full bg-sun px-7 text-sm font-bold uppercase tracking-[0.12em] text-forest transition hover:bg-sun-dark ${isCompact ? 'min-h-10' : 'min-h-12'}`}>Find a stay</button>
+          <button type="submit" className={`w-full rounded-full bg-sun px-7 text-sm font-bold uppercase tracking-[0.12em] text-white transition hover:bg-sun-dark ${isCompact ? 'min-h-10' : 'min-h-12'}`}>Find a stay</button>
         </div>
       </form>
     </div>
@@ -312,7 +312,7 @@ export default function Rooms() {
   const dateInput = 'mt-1.5 w-full border border-forest/20 bg-white px-3 py-2 text-sm font-semibold normal-case tracking-normal text-forest outline-none focus:border-forest'
 
   return (
-    <section id="rooms" className="bg-white pb-16 pt-[4.5rem] md:pb-20">
+    <section id="rooms" className="bg-white pb-12 pt-[4.5rem] md:pb-16">
       <BookingBar
         availableBuildings={currentBuildings}
         maxGuests={maxGuests}
@@ -325,14 +325,14 @@ export default function Rooms() {
         guests={guests}
         setGuests={setGuests}
       />
-      <div className="mx-auto w-full max-w-[1440px] px-5 pt-4 sm:px-8 lg:px-12">
-        <Reveal className="flex flex-wrap items-end justify-between gap-4 border-b border-forest/10 pb-4">
+      <div className="mx-auto w-full max-w-[1440px] px-4 pt-4 sm:px-8 lg:px-12">
+        <Reveal className="flex flex-col gap-3 border-b border-forest/10 pb-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between sm:gap-4">
           <div>
             <p className="label !mb-0.5">{staysData?.roomDetailSettings?.catalogEyebrow || 'Sarangkot, Pokhara'}</p>
-            <h1 className="font-display text-3xl font-semibold leading-none tracking-[-0.04em] text-forest sm:text-4xl">{staysData?.roomDetailSettings?.catalogTitle || 'Rooms & Stays'}</h1>
+            <h1 className="font-display font-semibold text-forest type-page">{staysData?.roomDetailSettings?.catalogTitle || 'Rooms & Stays'}</h1>
           </div>
-          <div className="flex items-center gap-3">
-            <p className="text-sm font-semibold text-forest/65">{visible.length} {visible.length === 1 ? 'stay' : 'stays'}{guests != null ? ` for ${guests} ${guests === 1 ? 'guest' : 'guests'}` : ''}{hiddenAsk ? ' · includes WhatsApp rates' : ''}</p>
+          <div className="flex w-full items-center justify-between gap-3 sm:w-auto sm:justify-end">
+            <p className="text-xs font-semibold text-forest/65 sm:text-sm">{visible.length} {visible.length === 1 ? 'stay' : 'stays'}{guests != null ? ` for ${guests} ${guests === 1 ? 'guest' : 'guests'}` : ''}{hiddenAsk ? ' · includes WhatsApp rates' : ''}</p>
             <CustomSelect
               ariaLabel="Sort stays"
               value={sort}
@@ -345,14 +345,34 @@ export default function Rooms() {
           </div>
         </Reveal>
 
-        <div className="mt-5 grid gap-6 lg:grid-cols-[290px_minmax(0,1fr)] lg:items-start xl:grid-cols-[310px_minmax(0,1fr)] xl:gap-8">
+        <div className="mt-4 grid gap-5 sm:mt-5 sm:gap-6 lg:grid-cols-[290px_minmax(0,1fr)] lg:items-start xl:grid-cols-[310px_minmax(0,1fr)] xl:gap-8">
           {/* Filters live on the left in the same boxed style as the mini menu */}
           <div className="lg:sticky lg:top-24">
-            <button type="button" onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}
-              className="flex w-full items-center justify-between rounded-2xl border border-forest/20 bg-white px-5 py-3.5 text-sm font-bold text-forest shadow-soft lg:hidden">
-              <span className="inline-flex items-center gap-2"><SlidersHorizontal className="h-4 w-4" aria-hidden="true" />Filters{activeCount > 0 ? ` · ${activeCount}` : ''}</span>
-              {filtersOpen ? <Minus className="h-4 w-4" aria-hidden="true" /> : <Plus className="h-4 w-4" aria-hidden="true" />}
-            </button>
+            <div className="flex items-center gap-2 lg:hidden">
+              <button type="button" onClick={() => setFiltersOpen((open) => !open)} aria-expanded={filtersOpen}
+                className="flex flex-1 items-center justify-between rounded-2xl border border-forest/20 bg-white px-4 py-3 text-sm font-bold text-forest shadow-soft">
+                <span className="inline-flex items-center gap-2">
+                  <SlidersHorizontal className="h-4 w-4" aria-hidden="true" />
+                  <span>Filters</span>
+                  {activeCount > 0 && (
+                    <span className="rounded-full bg-sun px-2 py-0.5 text-[0.68rem] font-bold text-forest-dark">
+                      {activeCount}
+                    </span>
+                  )}
+                </span>
+                {filtersOpen ? <Minus className="h-4 w-4" aria-hidden="true" /> : <Plus className="h-4 w-4" aria-hidden="true" />}
+              </button>
+              {activeCount > 0 && (
+                <button
+                  type="button"
+                  onClick={clearFilters}
+                  className="inline-flex min-h-[46px] shrink-0 items-center gap-1.5 rounded-2xl border border-forest/15 bg-white px-3.5 text-xs font-semibold text-forest shadow-soft transition hover:bg-sun"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>Reset</span>
+                </button>
+              )}
+            </div>
             <aside aria-label="Filter stays" className={`${filtersOpen ? 'block' : 'hidden'} no-scrollbar mt-3 overflow-hidden rounded-2xl border border-forest/15 bg-forest/10 p-px shadow-soft lg:mt-0 lg:block lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto`}>
               <div className="space-y-px">
                 <div className="flex items-center justify-between bg-white px-5 py-3.5">
@@ -432,12 +452,22 @@ export default function Rooms() {
                     </motion.div>
                   )}
                 </AnimatePresence>
+
+                <div className="bg-white p-3 lg:hidden">
+                  <button
+                    type="button"
+                    onClick={() => setFiltersOpen(false)}
+                    className="min-h-10 w-full rounded-full bg-forest px-5 text-xs font-bold uppercase tracking-[0.12em] text-cream transition hover:bg-forest-dark"
+                  >
+                    Show {visible.length} {visible.length === 1 ? 'stay' : 'stays'}
+                  </button>
+                </div>
               </div>
             </aside>
           </div>
 
           <div id="stay-results">
-            <div className="grid gap-6 md:grid-cols-2">
+            <div className="grid gap-4 sm:gap-6 md:grid-cols-2">
               {visible.map((room, index) => {
                 const eyebrow = (
                   room.building === 'both'
@@ -463,21 +493,21 @@ export default function Rooms() {
                 )
               })}
               {visible.length === 0 && (
-                <div className="col-span-full rounded-2xl border border-forest/15 bg-white/50 p-10 text-center text-forest/75">
+                <div className="col-span-full rounded-2xl border border-forest/15 bg-white/50 p-8 text-center text-forest/75 sm:p-10">
                   <p className="font-medium">No stays match your current filters.</p>
-                  <button type="button" onClick={clearFilters} className="mt-4 inline-flex items-center gap-2 rounded-full bg-sun px-5 py-2.5 text-xs font-semibold text-forest-dark transition hover:bg-sun-dark">Reset filters</button>
+                  <button type="button" onClick={clearFilters} className="mt-4 inline-flex items-center gap-2 rounded-full bg-sun px-5 py-2.5 text-xs font-semibold text-white transition hover:bg-sun-dark">Reset filters</button>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        <Reveal className="mt-10 grid gap-6 rounded-2xl bg-forest p-7 text-cream md:grid-cols-[1fr_auto] md:items-center md:p-8">
+        <Reveal className="mt-8 grid gap-5 rounded-2xl bg-forest p-5 text-cream sm:mt-10 sm:gap-6 sm:p-7 md:grid-cols-[1fr_auto] md:items-center md:p-8">
           <div>
             <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun">{groupBanner.eyebrow || 'Group or custom stay?'}</p>
-            <h2 className="mt-2 font-display text-2xl font-semibold tracking-[-0.03em] md:text-3xl">{groupBanner.title || 'Tell us your group size and we’ll suggest the best fit.'}</h2>
+            <h2 className="mt-1.5 font-display font-semibold sm:mt-2 type-sub">{groupBanner.title || 'Tell us your group size and we’ll suggest the best fit.'}</h2>
           </div>
-          <Button href={currentWhatsApp(groupBanner.whatsappText || "Hello G'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.")} variant="light">{groupBanner.ctaLabel || 'Ask on WhatsApp'}</Button>
+          <Button href={currentWhatsApp(groupBanner.whatsappText || "Hello G'Host Villa! I would like help planning a custom stay, group booking or full villa buyout.")} variant="light" className="w-full sm:w-auto">{groupBanner.ctaLabel || 'Ask on WhatsApp'}</Button>
         </Reveal>
       </div>
     </section>

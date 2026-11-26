@@ -12,11 +12,18 @@
 }
 
 @layer components {
-  .wrap { @apply mx-auto w-full max-w-[1240px] px-6 sm:px-10; }
+  .wrap { @apply mx-auto w-full max-w-[1240px] px-5 sm:px-8 lg:px-10; }
   /* Apple-style generous vertical rhythm */
-  .section { @apply py-24 md:py-40; }
+  .section { padding-block: clamp(3rem, 2rem + 4.5vw, 6rem); }
+  /* Fluid vertical rhythm: scales smoothly from phone to desktop */
+  .section-y { padding-block: clamp(2.75rem, 1.9rem + 4vw, 5.5rem); }
+  .section-y-sm { padding-block: clamp(2rem, 1.5rem + 2.5vw, 3.75rem); }
+  .section-pt { padding-top: clamp(2.75rem, 1.9rem + 4vw, 5.5rem); }
+  .section-pb { padding-bottom: clamp(2.75rem, 1.9rem + 4vw, 5.5rem); }
+  .page-top { padding-top: clamp(6rem, 4.75rem + 4.5vw, 8.5rem); padding-bottom: clamp(1.5rem, 1rem + 2vw, 3rem); }
+  .head-gap { margin-bottom: clamp(1.5rem, 1rem + 2.2vw, 3rem); }
   .label { @apply mb-3 text-[1.0625rem] font-semibold text-sun-text; letter-spacing: -0.01em; }
-  .h2 { @apply font-display text-[2.5rem] font-semibold leading-[1.06] text-forest md:text-[3.5rem]; letter-spacing: -0.03em; }
+  .h2 { @apply font-display font-semibold text-forest; font-size: clamp(1.5rem, 1.15rem + 1.7vw, 2.5rem); line-height: 1.06; letter-spacing: -0.035em; }
   .lead { @apply text-xl leading-[1.4] text-muted md:text-[1.4rem]; letter-spacing: -0.014em; }
   .contour { background-image: url('/images/contour.svg'); background-size: 860px; }
   .no-scrollbar { scrollbar-width: none; }
@@ -30,6 +37,34 @@
   }
 }
 
+@layer components {
+  /* Site-wide heading hierarchy: page title > section title > sub-section > item title.
+     Fluid, so a 320px phone and a desktop both get a clear step between levels. */
+  .type-page { font-size: clamp(1.875rem, 1.35rem + 2.6vw, 3.25rem); line-height: 1.06; letter-spacing: -0.04em; }
+  .type-section { font-size: clamp(1.5rem, 1.15rem + 1.7vw, 2.5rem); line-height: 1.1; letter-spacing: -0.035em; }
+  .type-sub { font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.625rem); line-height: 1.15; letter-spacing: -0.03em; }
+  .type-item { font-size: clamp(1.0625rem, 1rem + 0.3vw, 1.1875rem); line-height: 1.25; letter-spacing: -0.02em; }
+  /* Minimal pages (About, FAQ): one simple system sans, regular weights, no tracking tricks.
+     Body copy stays at 1rem (17px) or larger. */
+  .minimal { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Inter, 'Helvetica Neue', Arial, sans-serif; letter-spacing: 0; }
+  .minimal h1, .minimal h2, .minimal h3 { font-family: inherit; font-weight: 500; letter-spacing: -0.01em; }
+  .t-display { font-size: clamp(1.875rem, 1.35rem + 2.6vw, 3.25rem); line-height: 1.03; text-wrap: balance; }
+  .t-h2 { font-size: clamp(1.5rem, 1.15rem + 1.7vw, 2.5rem); line-height: 1.06; text-wrap: balance; }
+  .t-h3 { font-size: 1.25rem; line-height: 1.25; }
+  .t-lead { font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.1875rem); line-height: 1.6; }
+  .t-body { font-size: 1rem; line-height: 1.65; max-width: 65ch; }
+  .t-small { font-size: 0.9375rem; line-height: 1.5; }
+}
+
 @keyframes slowzoom { from { transform: scale(1); } to { transform: scale(1.09); } }
 .animate-slowzoom { animation: slowzoom 26s ease-out forwards; transform-origin: 55% 62%; }
 @media (prefers-reduced-motion: reduce) { .animate-slowzoom { animation: none; } }
+
+/* Dropdown lists: keep wheel/touch scrolling inside the list instead of the page */
+[role="listbox"],
+[data-scroll-list] {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+}
