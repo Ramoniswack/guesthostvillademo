@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import Icon from './Icons.jsx'
 import { Button } from './ui.jsx'
-import { useBackendData } from '../lib/backend.jsx'
+import { backendMediaUrl, useBackendData } from '../lib/backend.jsx'
 
 const heroMedia = [
   { type: 'video', src: '/videos/stock-hero.mp4', poster: '/images/hero.webp', position: '50% 54%' },
@@ -81,9 +81,9 @@ export default function Hero() {
       className="relative isolate flex min-h-[calc(100svh-3.5rem)] cursor-grab items-end overflow-hidden bg-forest-dark active:cursor-grabbing md:min-h-[100svh]">
       <AnimatePresence initial={false}>
         {currentMedia.type === 'video' ? (
-          <motion.video ref={videoRef} key={currentMedia.src} src={currentMedia.src} poster={currentMedia.poster} autoPlay={!shouldReduceMotion} muted playsInline preload="auto" onEnded={nextSlide} initial={{ opacity: 0, scale: 1.03 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeInOut' }} className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: currentMedia.position }} />
+          <motion.video ref={videoRef} key={currentMedia.src} src={backendMediaUrl(currentMedia.src)} poster={backendMediaUrl(currentMedia.poster)} autoPlay={!shouldReduceMotion} muted playsInline preload="auto" onEnded={nextSlide} initial={{ opacity: 0, scale: 1.03 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeInOut' }} className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: currentMedia.position }} />
         ) : (
-          <motion.img key={currentMedia.src} src={currentMedia.src} alt="" aria-hidden="true" fetchPriority="high" initial={{ opacity: 0, scale: 1.03 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeInOut' }} className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: currentMedia.position }} />
+          <motion.img key={currentMedia.src} src={backendMediaUrl(currentMedia.src)} alt="" aria-hidden="true" fetchPriority="high" initial={{ opacity: 0, scale: 1.03 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0 }} transition={{ duration: shouldReduceMotion ? 0 : 0.8, ease: 'easeInOut' }} className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: currentMedia.position }} />
         )}
       </AnimatePresence>
       {/* soft green gradient + a whisper of warm tint */}
@@ -123,8 +123,8 @@ export default function Hero() {
         className="pointer-events-none absolute inset-x-0 -bottom-px z-10 h-24 w-full sm:h-28 md:h-auto md:aspect-[1024/217] md:translate-y-12 lg:translate-y-16"
         style={{
           backgroundColor: '#FFFFFF',
-          WebkitMaskImage: `url(${heroContent?.mountainMaskImage || '/images/mountain-edge.svg'})`,
-          maskImage: `url(${heroContent?.mountainMaskImage || '/images/mountain-edge.svg'})`,
+          WebkitMaskImage: `url(${backendMediaUrl(heroContent?.mountainMaskImage || '/images/mountain-edge.svg')})`,
+          maskImage: `url(${backendMediaUrl(heroContent?.mountainMaskImage || '/images/mountain-edge.svg')})`,
           WebkitMaskRepeat: 'no-repeat',
           maskRepeat: 'no-repeat',
           WebkitMaskSize: '100% 100%',

@@ -13,7 +13,7 @@ import {
 } from '../data/rooms.js'
 import { waLink } from '../data/site.js'
 import { nightsBetween, stayQuery, stayQuote, todayISO } from '../lib/booking.js'
-import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
+import { backendMediaUrl, backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 function cardTag(room) {
   if (room.catalogBadge) return room.catalogBadge
@@ -38,7 +38,7 @@ function StayCard({ room, availableBuildings, mapAdd, guests, plan, checkIn, che
   return (
     <Link href={href} className="group flex h-full flex-col overflow-hidden rounded-2xl border border-forest/12 bg-white shadow-soft transition duration-300 hover:-translate-y-1 hover:border-forest/25 hover:shadow-warm">
       <div className="relative overflow-hidden bg-forest-dark">
-        <img src={room.image} alt={room.alt} loading="lazy" className="aspect-[16/10] w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
+        <img src={backendMediaUrl(room.image)} alt={room.alt} loading="lazy" className="aspect-[16/10] w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
         {tag && (
           <span className="absolute left-3.5 top-3.5 rounded-full bg-sun px-3 py-1 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-white">
             {tag}

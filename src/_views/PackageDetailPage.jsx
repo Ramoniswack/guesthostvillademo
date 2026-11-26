@@ -19,16 +19,16 @@ import { Divider, Reveal } from '../components/ui.jsx'
 import { packages, packageFaqs } from '../data/packages.js'
 import { rooms } from '../data/rooms.js'
 import { site, telLink, waLink } from '../data/site.js'
-import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
+import { backendMediaUrl, backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const isVideoSlot = (slot) =>
   !!slot?.src && (slot.type === 'video' || (slot.type !== 'image' && /\.(mp4|webm|mov)(\?|$)/i.test(slot.src)))
 
 function SlotMedia({ slot, poster, alt = '', className }) {
   if (isVideoSlot(slot)) {
-    return <video src={slot.src} poster={slot.poster || poster} autoPlay loop muted playsInline className={className} />
+    return <video src={backendMediaUrl(slot.src)} poster={backendMediaUrl(slot.poster || poster)} autoPlay loop muted playsInline className={className} />
   }
-  return <img src={slot.src} alt={slot.alt || alt} loading="lazy" className={className} />
+  return <img src={backendMediaUrl(slot.src)} alt={slot.alt || alt} loading="lazy" className={className} />
 }
 
 const SLUG_ALIASES = {
@@ -377,7 +377,7 @@ export default function PackageDetailPage({ pkg: initialPkg }) {
                     className="group flex items-center gap-3.5 rounded-2xl border border-forest/15 bg-white p-3 shadow-soft transition hover:border-forest/35"
                   >
                     <img
-                      src={room.image}
+                      src={backendMediaUrl(room.image)}
                       alt={room.name}
                       loading="lazy"
                       className="h-16 w-20 shrink-0 rounded-xl object-cover"
@@ -448,7 +448,7 @@ export default function PackageDetailPage({ pkg: initialPkg }) {
               >
                 <div className="h-36 w-full shrink-0 overflow-hidden bg-forest-dark sm:h-auto sm:w-44">
                   <img
-                    src={other.image}
+                    src={backendMediaUrl(other.image)}
                     alt={other.title}
                     loading="lazy"
                     className="h-full w-full object-cover transition duration-500 group-hover:scale-105"

@@ -25,7 +25,7 @@ import {
   X,
 } from 'lucide-react'
 import { rooms } from '../data/rooms.js'
-import { API_BASE_URL, useBackendData } from '../lib/backend.jsx'
+import { API_BASE_URL, backendMediaUrl, useBackendData } from '../lib/backend.jsx'
 import {
   fetchWishlistFromBackend,
   getWishlistSlugs,
@@ -1142,7 +1142,7 @@ export default function UserPage() {
                               className="flex items-center gap-4 rounded-2xl border border-neutral-200/75 bg-white p-3 transition hover:border-neutral-300"
                             >
                               <img
-                                src={item.image}
+                                src={backendMediaUrl(item.image)}
                                 alt={item.title}
                                 loading="lazy"
                                 className="h-20 w-20 shrink-0 rounded-xl bg-neutral-100 object-cover sm:h-22 sm:w-22"
@@ -1350,7 +1350,7 @@ export default function UserPage() {
                       >
                         <div className="relative aspect-[16/10] bg-neutral-100">
                           <img
-                            src={room.image}
+                            src={backendMediaUrl(room.image)}
                             alt={room.name}
                             loading="lazy"
                             className="h-full w-full object-cover"
@@ -1712,7 +1712,7 @@ export default function UserPage() {
                 {selectedOrder.items.map((it) => (
                   <div key={it.id} className="flex items-center gap-3">
                     <img
-                      src={it.image}
+                      src={backendMediaUrl(it.image)}
                       alt={it.title}
                       className="h-12 w-12 rounded-xl object-cover"
                     />

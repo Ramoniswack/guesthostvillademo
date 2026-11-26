@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import Icon from './Icons.jsx'
 import { lockScroll } from '../lib/smoothScroll.js'
 import { gallery } from '../data/gallery.js'
+import { backendMediaUrl } from '../lib/backend.jsx'
 
 /** Click-to-enlarge viewer with keyboard support (Esc, ← →). */
 function Lightbox({ index, onClose, onMove }) {
@@ -35,7 +36,7 @@ function Lightbox({ index, onClose, onMove }) {
       onClick={onClose}
     >
       <img
-        src={item.src}
+        src={backendMediaUrl(item.src)}
         alt={item.alt}
         className="max-h-[82vh] max-w-full rounded-2xl object-contain"
         onClick={(e) => e.stopPropagation()}
@@ -127,7 +128,7 @@ export default function PhotoStrip() {
               className="group relative h-64 w-80 shrink-0 overflow-hidden rounded-3xl shadow-soft sm:h-72 sm:w-[22rem] md:h-80 md:w-[26rem]"
             >
               <img
-                src={g.src}
+                src={backendMediaUrl(g.src)}
                 alt={dup ? '' : g.alt}
                 loading="lazy"
                 draggable="false"

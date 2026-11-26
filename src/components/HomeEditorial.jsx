@@ -15,7 +15,7 @@ import CtaBanner from './CtaBanner.jsx'
 import KineticNumber from './KineticNumber.jsx'
 import RoomCard from './RoomCard.jsx'
 import { Button, Reveal, StaggerGrid, StaggerItem } from './ui.jsx'
-import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
+import { backendMediaUrl, backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const trustBadges = [
   { name: 'Google', detail: '4.5★ · 379+ reviews', href: site.social.tripadvisor },
@@ -222,7 +222,7 @@ export default function HomeEditorial() {
                 <div className="relative pl-3 pt-4 sm:pl-5 sm:pt-5">
                   <div className="overflow-hidden rounded-[24px] shadow-soft">
                     <img
-                      src={editorial?.intro?.imageMain || '/images/day-aerial.webp'}
+                      src={backendMediaUrl(editorial?.intro?.imageMain || '/images/day-aerial.webp')}
                       alt={editorial?.intro?.imageMainAlt || 'G’Host Villa buildings on the forested ridge above Pokhara'}
                       className="h-56 w-full object-cover object-[50%_58%] sm:h-68"
                     />
@@ -242,7 +242,7 @@ export default function HomeEditorial() {
 
                 <div className="ml-3 overflow-hidden rounded-[24px] shadow-soft sm:ml-5">
                   <img
-                    src={editorial?.intro?.imageGarden || '/images/garden.webp'}
+                    src={backendMediaUrl(editorial?.intro?.imageGarden || '/images/garden.webp')}
                     alt={editorial?.intro?.imageGardenAlt || 'Garden lawns and seating at G’Host Villa'}
                     loading="lazy"
                     className="h-36 w-full object-cover sm:h-44"
@@ -254,7 +254,7 @@ export default function HomeEditorial() {
               <div className="relative mt-8 pb-8 sm:mt-10 sm:pb-9">
                 <div className="overflow-hidden rounded-[24px] shadow-soft">
                   <img
-                    src={editorial?.intro?.imagePyramid || '/images/pyramid.webp'}
+                    src={backendMediaUrl(editorial?.intro?.imagePyramid || '/images/pyramid.webp')}
                     alt={editorial?.intro?.imagePyramidAlt || 'Crystal Pyramid Dome House and restaurant'}
                     loading="lazy"
                     className="h-80 w-full object-cover sm:h-[26rem]"
@@ -395,7 +395,7 @@ export default function HomeEditorial() {
             {currentPillars.slice(0, 3).map((item, index) => index === 0 ? (
               <Reveal key={item.tag || item.title} className="h-full lg:row-span-2">
                 <Link href={item.href} className="group relative flex h-full min-h-[20rem] flex-col justify-end overflow-hidden rounded-3xl bg-forest-dark sm:min-h-[24rem] lg:min-h-[30rem]">
-                  <img src={item.image} alt={item.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                  <img src={backendMediaUrl(item.image)} alt={item.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                   <span className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-forest-dark/30 to-transparent" aria-hidden="true" />
                   <div className="relative p-6 text-white sm:p-8 lg:p-10">
                     {item.tag && <span className="inline-block rounded-full bg-white/15 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] backdrop-blur-sm">{item.tag}</span>}
@@ -410,7 +410,7 @@ export default function HomeEditorial() {
               <Reveal key={item.tag || item.title} className="h-full">
                 <Link href={item.href} className="group grid h-full overflow-hidden rounded-3xl border border-forest/15 bg-white shadow-soft transition hover:border-forest/40 sm:grid-cols-[0.85fr_1fr]">
                   <div className="relative aspect-[16/9] overflow-hidden sm:aspect-auto sm:min-h-[11rem]">
-                    <img src={item.image} alt={item.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
+                    <img src={backendMediaUrl(item.image)} alt={item.title} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
                   </div>
                   <div className="flex flex-col justify-center p-5 sm:p-6 lg:p-8">
                     {item.tag && <p className="text-xs font-bold uppercase tracking-[0.14em] text-sun-text">{item.tag}</p>}
@@ -481,7 +481,7 @@ export default function HomeEditorial() {
                 }`}
               >
                 <img
-                  src={photo.src}
+                  src={backendMediaUrl(photo.src)}
                   alt={photo.alt}
                   loading="lazy"
                   className="h-full w-full object-cover transition duration-700 group-hover:scale-105 group-hover:opacity-80"
@@ -517,7 +517,7 @@ export default function HomeEditorial() {
               onClick={(event) => event.stopPropagation()}
             >
               <img
-                src={activeGallery.src}
+                src={backendMediaUrl(activeGallery.src)}
                 alt={activeGallery.alt}
                 className="max-h-[82svh] w-auto max-w-full rounded-2xl object-contain"
               />
@@ -602,10 +602,10 @@ export default function HomeEditorial() {
                 playsInline
                 loop
                 preload="metadata"
-                poster={editorial?.testimonialsSection?.videoPoster || '/images/day-aerial.webp'}
+                poster={backendMediaUrl(editorial?.testimonialsSection?.videoPoster || '/images/day-aerial.webp')}
                 className="absolute inset-0 h-full w-full object-cover"
               >
-                <source src={editorial?.testimonialsSection?.videoSrc || '/videos/stock-hero.mp4'} type="video/mp4" />
+                <source src={backendMediaUrl(editorial?.testimonialsSection?.videoSrc || '/videos/stock-hero.mp4')} type="video/mp4" />
               </video>
               <div className="absolute inset-0 bg-forest-dark/20" />
               <div className="absolute inset-x-5 bottom-5 flex items-center justify-between gap-4 text-white sm:inset-x-7 sm:bottom-7">

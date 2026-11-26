@@ -7,6 +7,7 @@ import {
   ArrowRight, Bath, BedDouble, Check, CheckCheck, Coffee, ListChecks, MapPin, MessageCircle, Minus, Phone, Plus, ShieldCheck, Utensils, Wifi,
 } from 'lucide-react'
 import { useKitchenStatus } from '../lib/kitchen.js'
+import { backendMediaUrl } from '../lib/backend.jsx'
 
 const ease = [0.22, 1, 0.36, 1]
 
@@ -116,7 +117,7 @@ export function IncludesExplorer() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5 lg:grid-cols-4">
           {/* Feature tile: private space */}
           <motion.div {...fade()} className="group relative min-h-[18rem] overflow-hidden rounded-3xl bg-forest-dark sm:min-h-[22rem] md:col-span-2 lg:row-span-2 lg:min-h-[26rem]">
-            <img src={hero.image} alt="" aria-hidden="true" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-[1200ms] group-hover:scale-105" />
+            <img src={backendMediaUrl(hero.image)} alt="" aria-hidden="true" loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-[1200ms] group-hover:scale-105" />
             <div className="absolute inset-0 bg-gradient-to-t from-forest-dark/90 via-forest-dark/35 to-transparent" aria-hidden="true" />
             <div className="absolute inset-x-0 bottom-0 p-6 text-white md:p-8">
               <HeroIcon className="h-8 w-8" strokeWidth={1.5} aria-hidden="true" />
@@ -236,7 +237,7 @@ export function BookingFlow({ whatsapp, tel }) {
             <div className="mx-auto w-full max-w-sm">
               <div className="overflow-hidden rounded-[2rem] bg-[#ECE5DD] text-forest shadow-2xl ring-1 ring-forest/10">
                 <div className="flex items-center gap-3 bg-leaf px-4 py-2.5 text-white sm:py-3">
-                  <img src="/images/logo-icon.webp" alt="" className="h-9 w-9 rounded-full bg-white object-contain p-1" />
+                  <img src={backendMediaUrl('/images/logo-icon.webp')} alt="" className="h-9 w-9 rounded-full bg-white object-contain p-1" />
                   <div className="leading-tight">
                     <p className="text-base font-semibold">G’Host Villa</p>
                     <p className="t-small text-white/80">Sarangkot team</p>
@@ -413,7 +414,7 @@ export function PackagePicker({ packages, whatsapp, terms = [] }) {
               <AnimatePresence initial={false}>
                 <motion.img
                   key={gallery[shot]}
-                  src={gallery[shot]}
+                  src={backendMediaUrl(gallery[shot])}
                   alt={`${pkg.title}, photo ${shot + 1}`}
                   initial={{ opacity: 0, scale: 1.1 }}
                   animate={{ opacity: 1, scale: 1 }}
@@ -434,7 +435,7 @@ export function PackagePicker({ packages, whatsapp, terms = [] }) {
                       aria-pressed={i === shot}
                       className={`block aspect-[4/3] w-full overflow-hidden rounded-xl transition ${i === shot ? 'ring-2 ring-forest ring-offset-2' : 'opacity-60 hover:opacity-100'}`}
                     >
-                      <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                      <img src={backendMediaUrl(src)} alt="" loading="lazy" className="h-full w-full object-cover" />
                     </button>
                   </li>
                 ))}

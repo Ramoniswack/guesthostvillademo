@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { Phone, MessageCircle } from 'lucide-react'
 import Icon from './Icons.jsx'
 import { altTelLink, directionsLink, navLinks, site, telLink, waLink } from '../data/site.js'
-import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
+import { backendMediaUrl, backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const wordmarkLetters = [..."G'HOST VILLA"]
 
@@ -29,7 +29,7 @@ export default function Footer() {
   return (
     <footer className="on-dark overflow-hidden bg-[#07120f] text-cream">
       <section className="relative isolate min-h-[28rem] overflow-hidden border-b border-white/10 sm:min-h-[28rem]">
-        <img src={footer.heroImage || '/images/night-aerial.webp'} alt={footer.heroImageAlt || "G'Host Villa glowing above Pokhara after dusk"} className="absolute inset-0 -z-20 h-full w-full object-cover object-center" loading="lazy" />
+        <img src={backendMediaUrl(footer.heroImage || '/images/night-aerial.webp')} alt={footer.heroImageAlt || "G'Host Villa glowing above Pokhara after dusk"} className="absolute inset-0 -z-20 h-full w-full object-cover object-center" loading="lazy" />
         <div className="absolute inset-0 -z-10 bg-[#07120f]/70" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-[#07120f]/85 via-[#07120f]/35 to-[#07120f]/70" />
         <div className="mx-auto flex min-h-[22rem] max-w-[1440px] items-end px-6 py-12 sm:min-h-[28rem] sm:px-10 sm:py-16 lg:px-14">

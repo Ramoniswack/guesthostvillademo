@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { ArrowRight, Bath, BedDouble, Coffee, Mountain, Users, Wifi } from 'lucide-react'
+import { backendMediaUrl } from '../lib/backend.jsx'
 
 /**
  * Full-bleed rounded portrait photo card with a soft bottom gradient,
@@ -44,7 +45,7 @@ export default function RoomCard({
       className={`group/card relative block w-full overflow-hidden rounded-[24px] bg-forest-dark shadow-soft transition-transform duration-300 hover:-translate-y-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sun focus-visible:ring-offset-2 sm:rounded-[28px] ${sizeClass} ${className}`}
     >
       <img
-        src={room.image}
+        src={backendMediaUrl(room.image)}
         alt={room.alt || room.name}
         loading="lazy"
         className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover/card:scale-105"

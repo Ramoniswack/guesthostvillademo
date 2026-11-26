@@ -20,8 +20,8 @@ import { reviews } from '../data/reviews.js'
 import { faqs } from '../data/faq.js'
 import { gallery as siteGallery } from '../data/gallery.js'
 import { site, waLink } from '../data/site.js'
-import { blockedSetFor, fmtDate, nightsBetween, parseISO, rangeBlocked, stayQuery, stayQuote, todayISO } from '../lib/booking.js'
-import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
+import { blockedSetFor, fmtDate, nightsBetween, parseISO, rangeBlocked, recordBookingInBackend, stayQuery, stayQuote, todayISO } from '../lib/booking.js'
+import { backendMediaUrl, backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 import { fetchWishlistFromBackend, isStayWishlisted, toggleStayWishlist, WISHLIST_EVENT } from '../lib/wishlist.js'
 
 const cellText = (result) => {
@@ -155,14 +155,14 @@ function Lightbox({ photos, index, setIndex, alt }) {
         <button ref={closeRef} type="button" aria-label="Close photos" onClick={() => setIndex(null)} className={btn}><X className="h-5 w-5" /></button>
       </div>
       <div className="relative flex min-h-0 flex-1 items-center justify-center py-4" onClick={(e) => e.stopPropagation()}>
-        <img src={photos[index]} alt={`${alt} (photo ${index + 1})`} className="max-h-full max-w-full object-contain" />
+        <img src={backendMediaUrl(photos[index])} alt={`${alt} (photo ${index + 1})`} className="max-h-full max-w-full object-contain" />
         <button type="button" aria-label="Previous photo" onClick={() => setIndex((index - 1 + photos.length) % photos.length)} className={`${btn} absolute left-0 top-1/2 -translate-y-1/2`}><ChevronLeft className="h-5 w-5" /></button>
         <button type="button" aria-label="Next photo" onClick={() => setIndex((index + 1) % photos.length)} className={`${btn} absolute right-0 top-1/2 -translate-y-1/2`}><ChevronRight className="h-5 w-5" /></button>
       </div>
       <div className="no-scrollbar flex justify-center gap-2 overflow-x-auto" onClick={(e) => e.stopPropagation()}>
         {photos.map((src, i) => (
           <button key={src} type="button" aria-label={`Show photo ${i + 1}`} onClick={() => setIndex(i)} className={`h-14 w-20 shrink-0 overflow-hidden border-2 transition ${i === index ? 'border-sun' : 'border-transparent opacity-60 hover:opacity-100'}`}>
-            <img src={src} alt="" className="h-full w-full object-cover" />
+            <img src={backendMediaUrl(src)} alt="" className="h-full w-full object-cover" />
           </button>
         ))}
       </div>
@@ -174,9 +174,9 @@ function Lightbox({ photos, index, setIndex, alt }) {
 const isVideoSlot = (slot) => !!slot?.src && (slot.type === 'video' || (slot.type !== 'image' && /\.(mp4|webm|mov)(\?|$)/i.test(slot.src)))
 function SlotMedia({ slot, poster, alt = '', className }) {
   if (isVideoSlot(slot)) {
-    return <video src={slot.src} poster={slot.poster || poster} autoPlay loop muted playsInline className={className} />
+    return <video src={backendMediaUrl(slot.src)} poster={backendMediaUrl(slot.poster || poster)} autoPlay loop muted playsInline className={className} />
   }
-  return <img src={slot.src} alt={slot.alt || alt} loading="lazy" className={className} />
+  return <img src={backendMediaUrl(slot.src)} alt={slot.alt || alt} loading="lazy" className={className} />
 }
 
 export default function RoomDetailPage({ room: initialRoom }) {
@@ -353,6 +353,16 @@ export default function RoomDetailPage({ room: initialRoom }) {
 
   const sendEnquiry = (event) => {
     event.preventDefault()
+    recordBookingInBackend({
+      room,
+      guests,
+      plan,
+      checkIn,
+      checkOut,
+      guestName: enquiry.name.trim(),
+      guestPhone: enquiry.phone.trim(),
+      notes: enquiry.message.trim(),
+    })
     const lines = [`Hello G'Host Villa! I have a question about ${room.name}.`]
     if (enquiry.message.trim()) lines.push(enquiry.message.trim())
     if (enquiry.name.trim()) lines.push(`Name: ${enquiry.name.trim()}`)
@@ -478,7 +488,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
                 aria-label={`Open photo ${i + 1} of ${photos.length}`}
                 className="relative h-14 w-20 shrink-0 overflow-hidden rounded-xl border border-forest/15 bg-forest-dark"
               >
-                <img src={src} alt="" loading="lazy" className="h-full w-full object-cover" />
+                <img src={backendMediaUrl(src)} alt="" loading="lazy" className="h-full w-full object-cover" />
               </button>
             ))}
           </div>
@@ -685,6 +695,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
                         room.whatsappOnly || nights > 0 ? (
                           <a
                             href={currentWhatsApp(stayMessage(room, { guests, plan: p.id, checkIn, checkOut }))}
+                            onClick={() => recordBookingInBackend({ room, guests, plan: p.id, checkIn, checkOut })}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="mt-4 inline-flex min-h-[46px] w-full items-center justify-center gap-2 rounded-full bg-sun px-4 text-sm font-semibold text-white transition hover:bg-sun-dark"
@@ -783,7 +794,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
                 <div className="mt-4 grid gap-4 sm:grid-cols-2">
                   {includes.map((item) => (
                     <Link key={item.id} href={`/rooms/${item.id}`} className="group flex gap-4 rounded-2xl border border-forest/15 bg-white p-3 transition hover:border-forest/40">
-                      <img src={item.image} alt={item.alt} loading="lazy" className="h-20 w-24 shrink-0 rounded-xl object-cover" />
+                      <img src={backendMediaUrl(item.image)} alt={item.alt} loading="lazy" className="h-20 w-24 shrink-0 rounded-xl object-cover" />
                       <span className="min-w-0 self-center"><span className="block font-display text-lg leading-tight text-forest">{item.name}</span><span className="mt-1 block text-xs text-forest/60">{getBuildingLabel(item)}</span></span>
                     </Link>
                   ))}
@@ -878,7 +889,7 @@ export default function RoomDetailPage({ room: initialRoom }) {
             )}
           </div>
           {barReady ? (
-            <a tabIndex={panelVisible ? -1 : 0} href={currentWhatsApp(stayMessage(room, { guests, plan, checkIn, checkOut }))} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-4 text-xs font-semibold text-white sm:min-h-[48px] sm:px-5 sm:text-sm"><MessageCircle className="h-4 w-4" aria-hidden="true" />{room.whatsappOnly ? 'Ask us' : 'Request stay'}</a>
+            <a tabIndex={panelVisible ? -1 : 0} href={currentWhatsApp(stayMessage(room, { guests, plan, checkIn, checkOut }))} onClick={() => recordBookingInBackend({ room, guests, plan, checkIn, checkOut })} target="_blank" rel="noopener noreferrer" className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-4 text-xs font-semibold text-white sm:min-h-[48px] sm:px-5 sm:text-sm"><MessageCircle className="h-4 w-4" aria-hidden="true" />{room.whatsappOnly ? 'Ask us' : 'Request stay'}</a>
           ) : (
             <button type="button" tabIndex={panelVisible ? -1 : 0} onClick={goToBooking} className="inline-flex min-h-[44px] shrink-0 items-center justify-center gap-2 rounded-full bg-sun px-4 text-xs font-semibold text-white sm:min-h-[48px] sm:px-5 sm:text-sm"><CalendarDays className="h-4 w-4" aria-hidden="true" />Choose dates</button>
           )}

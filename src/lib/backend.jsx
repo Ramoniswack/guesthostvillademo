@@ -8,6 +8,18 @@ export const API_BASE_URL = (
   process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000'
 ).replace(/\/+$/, '')
 
+const BACKEND_MEDIA_PREFIXES = ['/media/', '/images/', '/videos/']
+
+export function backendMediaUrl(value) {
+  if (
+    typeof value !== 'string' ||
+    !BACKEND_MEDIA_PREFIXES.some((prefix) => value.startsWith(prefix))
+  ) {
+    return value
+  }
+  return `${API_BASE_URL}${value}`
+}
+
 function resolveMediaUrls(value) {
   if (Array.isArray(value)) return value.map(resolveMediaUrls)
   if (value && typeof value === 'object') {
@@ -15,10 +27,7 @@ function resolveMediaUrls(value) {
       Object.entries(value).map(([key, item]) => [key, resolveMediaUrls(item)]),
     )
   }
-  if (typeof value === 'string' && value.startsWith('/media/')) {
-    return `${API_BASE_URL}${value}`
-  }
-  return value
+  return backendMediaUrl(value)
 }
 
 export function BackendProvider({ children }) {
@@ -40,8 +49,10 @@ export function BackendProvider({ children }) {
           throw new Error('Django API returned an invalid bootstrap payload')
         }
         setData(resolveMediaUrls(payload))
-      } catch {
-        // Optional Django CMS backend is offline; use frontend static fallback data silently.
+      } catch (error) {
+        if (error?.name !== 'AbortError') {
+          console.error('Unable to load site content from the Django backend.', error)
+        }
       }
     }
 

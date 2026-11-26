@@ -10,9 +10,11 @@ npm run build     # production build → out/
 
 ## Django CMS connection
 
-The site loads content from the Django backend at `/api/v1/bootstrap/` when it starts. For local development, start the backend on port `8000` and run the frontend with `npm run dev`; the frontend defaults to `http://127.0.0.1:8000`. If the API is unavailable, the existing `src/data/` content remains as a fallback.
+The site loads content from the Django backend at `/api/v1/bootstrap/` when it starts. For local development, start the backend on port `8000` and run the frontend with `npm run dev`; the frontend defaults to `http://127.0.0.1:8000`. If the API is unavailable, the existing `src/data/` content remains as a content fallback; images and videos still require the backend.
 
 For a deployed static build, set `NEXT_PUBLIC_API_BASE_URL` to the public Django backend URL **before** building because Next.js embeds this value into the exported files. The Django server must allow cross-origin requests from the frontend domain.
+
+All image and video URLs are served by Django from its media store. Keep those files in the backend `media/` directory and run `python manage.py import_media` after adding or replacing assets so they are available through `/images/`, `/videos/`, and `/media/`. The same `NEXT_PUBLIC_API_BASE_URL` setting controls both API and media requests.
 
 ```powershell
 $env:NEXT_PUBLIC_API_BASE_URL = 'https://your-backend.example.com'
@@ -25,7 +27,7 @@ The navbar links are set in `src/data/site.js` (`navLinks`).
 
 ## Existing frontend fallback data
 
-When the backend API is reachable, Django CMS is the content source. The existing frontend data files are preserved as offline fallbacks.
+When the backend API is reachable, Django CMS is the content source. The existing frontend data files are preserved as content fallbacks; media assets are served by Django.
 
 | Fallback content | File |
 |------------------------------------|----------------------------------------|

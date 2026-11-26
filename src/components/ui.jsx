@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { AnimatePresence, motion } from 'framer-motion'
 import Icon from './Icons.jsx'
 import { useListWheel } from '../lib/useListWheel.js'
+import { backendMediaUrl } from '../lib/backend.jsx'
 
 /** Custom dropdown select matching the site's rounded forest/sun/white UI. */
 export function CustomSelect({
@@ -215,7 +216,7 @@ export function PageHeader({ eyebrow, title, text, children }) {
 export function PageHero({ eyebrow, title, text, image, position = '50% 50%', center = false, compact = false }) {
   return (
     <section data-hero className={`relative isolate flex overflow-hidden bg-forest-dark ${compact ? 'min-h-[42svh] items-center' : 'min-h-[58svh] items-end'}`}>
-      <img src={image} alt="" fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: position }} />
+      <img src={backendMediaUrl(image)} alt="" fetchPriority="high" className="absolute inset-0 -z-20 h-full w-full object-cover" style={{ objectPosition: position }} />
       <div className="absolute inset-0 -z-10 bg-gradient-to-t from-forest-dark/95 via-forest-dark/55 to-forest-dark/30" />
       <div className={`wrap ${compact ? 'py-28 md:py-32' : 'pb-20 pt-44 md:pb-28'}`}>
         <motion.div

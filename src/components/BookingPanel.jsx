@@ -6,7 +6,7 @@ import { CalendarDays, ChevronDown, Heart, Minus, Plus, Star } from 'lucide-reac
 import DateRangePicker from './DateRangePicker.jsx'
 import { plans, describePrice, formatNpr, stayMessage, MAP_ADD, rooms } from '../data/rooms.js'
 import { waLink } from '../data/site.js'
-import { blockedSetFor, fmtDate, nightsBetween, stayQuote } from '../lib/booking.js'
+import { blockedSetFor, fmtDate, nightsBetween, recordBookingInBackend, stayQuote } from '../lib/booking.js'
 import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 const nightsText = (n) => `${n} ${n === 1 ? 'night' : 'nights'}`
@@ -210,6 +210,7 @@ export default function BookingPanel({
         {ask || hasDates ? (
           <a
             href={currentWhatsApp(stayMessage(room, { guests, plan, checkIn, checkOut }))}
+            onClick={() => recordBookingInBackend({ room, guests, plan, checkIn, checkOut })}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex min-h-[46px] w-full items-center justify-center rounded-full bg-sun px-4 text-sm font-semibold text-white transition hover:bg-sun-dark"

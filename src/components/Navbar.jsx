@@ -7,7 +7,7 @@ import { User } from 'lucide-react'
 import Icon from './Icons.jsx'
 import { lockScroll } from '../lib/smoothScroll.js'
 import { directionsLink, navLinks, site, telLink, waLink } from '../data/site.js'
-import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
+import { backendMediaUrl, backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 function usePastHero() {
   const [past, setPast] = useState(false)
@@ -44,7 +44,7 @@ function Brand({ light = false, solid = false, siteData = site }) {
   return (
     <Link href="/" className="group flex items-center gap-2.5" aria-label={`${siteData.name}, home`}>
       <span className="grid h-8 w-8 place-items-center">
-        <img src={siteData.logoImage || '/images/logo-icon.webp'} alt="" width="36" height="26" className="h-5 w-auto" />
+        <img src={backendMediaUrl(siteData.logoImage || '/images/logo-icon.webp')} alt="" width="36" height="26" className="h-5 w-auto" />
       </span>
       <span className={`font-display text-[1.25rem] font-semibold tracking-[-0.04em] ${light ? 'text-white' : solid ? 'text-forest' : 'text-white'}`}>
         {siteData.name || "G'Host Villa"}

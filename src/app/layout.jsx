@@ -3,6 +3,10 @@ import './globals.css'
 import Providers from '../components/Providers.jsx'
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/$/, '')
+const BACKEND_URL = (
+  process.env.NEXT_PUBLIC_API_BASE_URL || 'http://127.0.0.1:8000'
+).replace(/\/+$/, '')
+const BACKEND_OG_IMAGE = `${BACKEND_URL}/images/og.jpg`
 
 export const metadata = {
   ...(SITE_URL ? { metadataBase: new URL(SITE_URL) } : {}),
@@ -12,13 +16,13 @@ export const metadata = {
   },
   description:
     'Hilltop villa stay, restaurant and bar in Sarangkot, Pokhara, Nepal. Rooms with breakfast, fresh food, and valley and Himalayan views. Call or WhatsApp to book.',
-  icons: { icon: '/images/logo-icon.png' },
+  icons: { icon: `${BACKEND_URL}/images/logo-icon.png` },
   openGraph: {
     type: 'website',
     siteName: "G'Host Villa Hotel & Restaurant",
     title: "G'Host Villa: Stay, Dine & Breathe Above Pokhara",
     description: 'A hilltop villa, restaurant and bar in Sarangkot with valley and Himalayan views.',
-    ...(SITE_URL ? { images: [`${SITE_URL}/images/og.jpg`] } : {}),
+    images: [BACKEND_OG_IMAGE],
   },
   twitter: { card: 'summary_large_image' },
 }
@@ -33,7 +37,8 @@ const jsonLd = {
   telephone: '+9779840023756',
   email: 'theghostvilla@gmail.com',
   servesCuisine: ['Nepali', 'Newari', 'Momo', 'Pizza & Pasta', 'Barbecue', 'Bar & Cocktails'],
-  ...(SITE_URL ? { image: `${SITE_URL}/images/og.jpg`, url: `${SITE_URL}/`, hasMenu: `${SITE_URL}/menu` } : {}),
+  image: BACKEND_OG_IMAGE,
+  ...(SITE_URL ? { url: `${SITE_URL}/`, hasMenu: `${SITE_URL}/menu` } : {}),
   address: {
     '@type': 'PostalAddress',
     streetAddress: 'Sarangkot Road, Ranipauwa (Fulbari)',
@@ -48,7 +53,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <link rel="preload" as="image" href="/images/hero.webp" fetchPriority="high" />
+        <link rel="preload" as="image" href={`${BACKEND_URL}/images/hero.webp`} fetchPriority="high" />
+        <link rel="preconnect" href={BACKEND_URL} />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         {/* Apple system fonts on Apple devices; Inter is the matching fallback elsewhere */}
@@ -58,7 +64,7 @@ export default function RootLayout({ children }) {
         />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
-      <body>
+      <body style={{ '--contour-image': `url("${BACKEND_URL}/images/contour.svg")` }}>
         <Providers>{children}</Providers>
       </body>
     </html>

@@ -6,7 +6,7 @@ import { RotateCcw, Search, SlidersHorizontal, X } from 'lucide-react'
 import { CustomSelect, Reveal } from './ui.jsx'
 import { featuredBlocks as staticFeatured, listBlocks as staticLists, menuTabs as staticTabs } from '../data/signature.js'
 import { site, telLink } from '../data/site.js'
-import { useBackendData } from '../lib/backend.jsx'
+import { backendMediaUrl, useBackendData } from '../lib/backend.jsx'
 
 /** Veg / non-veg indicator dot matching Menu.jsx. */
 function Mark({ veg }) {
@@ -78,7 +78,7 @@ function FeaturedCategoryTile({ block, index }) {
         {block.image && (
           <div className="h-20 w-20 shrink-0 sm:h-24 sm:w-24">
             <img
-              src={block.image}
+              src={backendMediaUrl(block.image)}
               alt={`${block.title} plated dish`}
               width={900}
               height={900}

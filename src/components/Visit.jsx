@@ -2,7 +2,7 @@
 
 import { Button, Reveal } from './ui.jsx'
 import { directionsLink } from '../data/site.js'
-import { useBackendData } from '../lib/backend.jsx'
+import { backendMediaUrl, useBackendData } from '../lib/backend.jsx'
 
 const steps = [
   {
@@ -31,7 +31,7 @@ export default function Visit() {
         <Reveal>
           <div className="relative overflow-hidden rounded-[28px] shadow-warm">
             <img
-              src="/images/night-aerial.webp"
+              src={backendMediaUrl('/images/night-aerial.webp')}
               alt="Night aerial photo showing the winding road up to G'Host Villa through the forest above Pokhara"
               width="1200"
               height="1496"

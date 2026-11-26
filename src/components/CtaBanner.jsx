@@ -2,7 +2,7 @@
 
 import { Button, Reveal } from './ui.jsx'
 import { site, telLink, waLink } from '../data/site.js'
-import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
+import { backendMediaUrl, backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 
 export default function CtaBanner() {
   const backend = useBackendData()
@@ -15,7 +15,7 @@ export default function CtaBanner() {
       <Reveal className="mx-auto max-w-7xl">
         <div className="relative overflow-hidden rounded-2xl bg-forest-dark">
           <img
-            src={cta?.image || '/images/night-aerial.webp'}
+            src={backendMediaUrl(cta?.image || '/images/night-aerial.webp')}
             alt={cta?.imageAlt || "G'Host Villa lit up at night among the dark forested hills"}
             width="1200"
             height="1496"

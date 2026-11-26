@@ -6,7 +6,7 @@ import { AnimatePresence, motion, useScroll, useTransform } from 'framer-motion'
 import { PageHeader } from '../components/ui.jsx'
 import KineticNumber from '../components/KineticNumber.jsx'
 import { altTelLink, directionsLink, site, telLink, waLink } from '../data/site.js'
-import { backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
+import { backendMediaUrl, backendWhatsAppLink, useBackendData } from '../lib/backend.jsx'
 import { useKitchenStatus } from '../lib/kitchen.js'
 
 const ease = [0.22, 1, 0.36, 1]
@@ -245,7 +245,7 @@ const card = 'rounded-2xl border border-forest/15 bg-white shadow-soft'
               className="overflow-hidden rounded-3xl bg-forest-dark"
             >
               <motion.img
-                src={content.profileImage || '/images/day-aerial.webp'}
+                src={backendMediaUrl(content.profileImage || '/images/day-aerial.webp')}
                 alt={content.profileImageAlt || 'Aerial view of G’Host Villa buildings along the Sarangkot ridge'}
                 decoding="async"
                 style={{ y: photoY, scale: 1.15 }}
@@ -358,7 +358,7 @@ const card = 'rounded-2xl border border-forest/15 bg-white shadow-soft'
             >
               <div className="overflow-hidden rounded-3xl bg-forest-dark">
                 <motion.img
-                  src={activeZone.image}
+                  src={backendMediaUrl(activeZone.image)}
                   alt={activeZone.alt}
                   loading="lazy"
                   decoding="async"

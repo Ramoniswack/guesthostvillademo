@@ -2,6 +2,7 @@
 
 import Icon from './Icons.jsx'
 import { Button, Reveal } from './ui.jsx'
+import { backendMediaUrl } from '../lib/backend.jsx'
 
 const highlights = [
   '1 BHK, 4 BHK & 7 BHK layouts (up to 24 guests)',
@@ -21,7 +22,7 @@ export default function Story() {
         <Reveal>
           <div className="relative">
             <img
-              src="/images/about-aerial.jpg"
+              src={backendMediaUrl('/images/about-aerial.jpg')}
               alt="Aerial view of The G'Host Villa and pyramid restaurant overlooking the valley from Sarangkot"
               width="1024"
               height="1024"

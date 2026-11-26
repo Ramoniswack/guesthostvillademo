@@ -2,6 +2,7 @@
 
 import { Button, Reveal } from './ui.jsx'
 import { menuItemCount } from '../data/menu.js'
+import { backendMediaUrl } from '../lib/backend.jsx'
 
 /** Home-page teaser for the full Menu page. */
 export default function MenuTeaser() {
@@ -21,7 +22,7 @@ export default function MenuTeaser() {
         </Reveal>
         <Reveal className="order-1 lg:order-2">
           <img
-            src="/images/garden.webp"
+            src={backendMediaUrl('/images/garden.webp')}
             alt="Garden with a white elephant statue, ferns and a lawn beside the villa"
             loading="lazy"
             className="aspect-[4/3] w-full rounded-[32px] object-cover"

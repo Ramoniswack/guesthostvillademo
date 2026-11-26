@@ -90,3 +90,61 @@ export function stayQuery({ guests, plan, checkIn, checkOut } = {}) {
   const s = q.toString()
   return s ? `?${s}` : ''
 }
+
+/**
+ * Submit a booking inquiry to the Django backend (`/api/v1/booking/`) so it
+ * appears immediately in the Django Admin panel (Reservations & Guest Orders)
+ * and in the user's `/user` My Order list.
+ */
+export async function recordBookingInBackend({
+  room,
+  guests = 2,
+  plan = 'BB',
+  checkIn = '',
+  checkOut = '',
+  guestName = '',
+  guestPhone = '',
+  guestEmail = '',
+  notes = '',
+} = {}) {
+  if (typeof window === 'undefined' || !room) return null
+  try {
+    const { API_BASE_URL } = await import('./backend.jsx')
+    const { STORAGE_KEY } = await import('./wishlist.js')
+    const raw = localStorage.getItem(STORAGE_KEY)
+    const parsed = raw ? JSON.parse(raw) : null
+    const profile = parsed?.profile || {}
+
+    const ci = checkIn || todayISO()
+    const co = checkOut && checkOut > ci ? checkOut : addDays(ci, 1)
+    const totalGuests = Math.max(2, Number(guests) || room.defaultGuests || 2)
+
+    const headers = { 'Content-Type': 'application/json' }
+    if (parsed?.token && parsed.token !== 'demo-token' && parsed.token !== 'local-demo-token' && !parsed?.loggedOut) {
+      headers.Authorization = `Token ${parsed.token}`
+    }
+
+    const res = await fetch(`${API_BASE_URL}/api/v1/booking/`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        check_in: ci,
+        check_out: co,
+        adults: totalGuests,
+        children: 0,
+        units: [room.id || room.slug],
+        meal_plan: plan || 'BB',
+        guest_name: guestName || profile.fullName || 'George Gika',
+        guest_phone: guestPhone || profile.phone || '+977 984-0023756',
+        guest_email: guestEmail || profile.email || 'demo@ghostvilla.com',
+        notes,
+      }),
+    })
+    if (res.ok) {
+      return await res.json()
+    }
+  } catch {
+    // Offline fallback: WhatsApp redirect still proceeds normally
+  }
+  return null
+}
